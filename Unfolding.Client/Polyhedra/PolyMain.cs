@@ -5,12 +5,12 @@ namespace Unfolding.Client.Polyhedra
 {
     public class PolyMain
     {
-        public static int[] GetFaces()
+        public static Polyhedron GetPolyhedron()
         {
-            var vertices = Point3D.GenerateRandPoints(10, 2);
-            var convexHull = MIConvexHull.ConvexHull.Create<Point3D, Face>(vertices);
-            var polyhedra = new Polyhedron(convexHull);
-            return new int[] { 2, 3, 4 };
+            var vertices = Point3D.GenerateRandPoints(100, 0.5);
+            var convexHull = MIConvexHull.ConvexHull.Create<Point3D, ConvexHullFace>(vertices);
+            var polyhedron = new Polyhedron(convexHull);
+            return polyhedron;
         }
     }
 }

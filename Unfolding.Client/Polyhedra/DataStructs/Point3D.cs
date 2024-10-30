@@ -33,7 +33,7 @@ namespace Unfolding.Client.Polyhedra.DataStructs
 
         public double[] Position => _position;
 
-        public static Point3D[] GenerateRandPoints(int amount, int extent)
+        public static Point3D[] GenerateRandPoints(int amount, double extent)
         {
             var points = new Point3D[amount];
             var rand = new Random(5);

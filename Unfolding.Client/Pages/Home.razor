@@ -16,9 +16,8 @@ Welcome to your new app.
     {
         if (begunRender)
         {
-            var myArray = PolyMain.GetFaces();
-            string jsonArray = System.Text.Json.JsonSerializer.Serialize(myArray);
-            await JSRuntime.InvokeVoidAsync("handleRenderingInit", jsonArray);
+            var polyhedronJSON = PolyMain.GetPolyhedron().GetPolyhedraJSON();
+            await JSRuntime.InvokeVoidAsync("handleRenderingInit", polyhedronJSON);
             StateHasChanged();
         }
     }

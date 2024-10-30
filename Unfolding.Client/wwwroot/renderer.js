@@ -1,16 +1,13 @@
 ﻿import * as THREE from "../node_modules/three/build/three.module.js"
 
 window.handleRenderingInit = function (jsonArray) {
-	const arr = JSON.parse(jsonArray);
-	console.log("rendering being handled")
-	console.log("original json array");
-	console.log(jsonArray);
+	const polyhedron = JSON.parse(jsonArray);
 	console.log("parsed array")
-	console.log(arr);
-	renderingInit()
+	console.log(polyhedron);
+	renderingInit(polyhedron)
 }
 
-function renderingInit() {
+function renderingInit(polyhedron) {
 	const width = window.innerWidth, height = window.innerHeight;
 
 	// init
@@ -19,11 +16,13 @@ function renderingInit() {
 
 	const scene = new THREE.Scene();
 
-	const geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
-	const material = new THREE.MeshNormalMaterial();
-
-	const mesh = new THREE.Mesh(geometry, material);
-	scene.add(mesh);
+	polyhedron.Faces.forEach(face => {
+		const vertices = face.Vertices.map(v => new THREE.Vector3(v.X, v.Y, v.Z));
+		const geometry = new THREE.BufferGeometry().setFromPoints(vertices);
+		const material = new THREE.MeshBasicMaterial({ color: 0xff0000, side: THREE.DoubleSide });
+		const mesh = new THREE.Mesh(geometry, material);
+		scene.add(mesh);
+	});
 
 	const renderer = new THREE.WebGLRenderer({ antialias: true });
 	renderer.setSize(width, height);
@@ -31,9 +30,10 @@ function renderingInit() {
 	document.body.appendChild(renderer.domElement);
 
 	function animate(time) {
-
-		mesh.rotation.x = time / 2000;
-		mesh.rotation.y = time / 1000;
+		scene.children.forEach(mesh => {
+			mesh.rotation.x = time / 2000;
+			mesh.rotation.y = time / 1000;
+		});
 
 		renderer.render(scene, camera);
 
