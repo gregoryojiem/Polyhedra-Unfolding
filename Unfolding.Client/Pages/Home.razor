@@ -1,0 +1,25 @@
+﻿@page "/"
+
+<PageTitle>Main</PageTitle>
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+<script type="module" src="renderer.js"></script>
+
+@inject IJSRuntime JSRuntime
+@using Unfolding.Client.Polyhedra
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool begunRender)
+    {
+        if (begunRender)
+        {
+            var myArray = PolyMain.GetFaces();
+            string jsonArray = System.Text.Json.JsonSerializer.Serialize(myArray);
+            await JSRuntime.InvokeVoidAsync("handleRenderingInit", jsonArray);
+            StateHasChanged();
+        }
+    }
+}
