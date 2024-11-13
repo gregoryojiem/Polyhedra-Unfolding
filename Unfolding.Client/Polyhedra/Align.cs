@@ -1,0 +1,41 @@
+﻿using Unfolding.Client.Polyhedra.DataStructs;
+namespace Unfolding.Client.Polyhedra
+{
+    public class Align
+    {
+        public static PolyhedraFace Rotate3DToAlign(PolyhedraFace face)
+        {
+            Vec3D centroid = getCentroid(face);
+            face.TranslateToOrigin();
+
+            Vec3D planeNormalVec = new Vec3D(face.Normal[0], face.Normal[1], face.Normal[2]);
+            Vec3D targetVector = new(0, 1, 0); // TODO check if this is the right vec
+
+            double angle = Math.Acos(planeNormalVec.Dot(targetVector));
+            double crossProd = planeNormalVec.Cross(targetVector).Y;
+            
+            if (crossProd > 0)
+            {
+                angle = -angle;
+            }
+
+            // TODO rotation matrix
+            //double sinAngle = Math.Sin(angle);
+            //double cosAngle = Math.Cos(angle);
+
+            Point3D[] newPoints = [];
+            //foreach (Point3D p in face.Vertices)
+            //{
+            //    Point3D transformedP = new Point3D(p);
+            //    transformedP.transform(rMatrix);
+            //    newPoints.Append(transformedP);
+            //}
+            return new PolyhedraFace(newPoints);
+        }
+
+        private static Vec3D getCentroid(PolyhedraFace face)
+        {
+            return null;
+        }
+    }
+}

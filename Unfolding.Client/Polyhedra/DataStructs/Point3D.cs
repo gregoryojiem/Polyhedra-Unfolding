@@ -10,7 +10,7 @@ namespace Unfolding.Client.Polyhedra.DataStructs
 
         public Point3D(double x, double y, double z)
         {
-            _position = new double[] { x, y, z };
+            _position = [x, y, z];
         }
 
         public double X
