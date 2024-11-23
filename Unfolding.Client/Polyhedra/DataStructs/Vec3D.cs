@@ -1,6 +1,6 @@
 ﻿namespace Unfolding.Client.Polyhedra.DataStructs
 {
-    public class Vec3D
+    public class Vec3D 
     {
         private double[] _position;
         public Vec3D(double x, double y, double z)
@@ -28,6 +28,19 @@
 
         public double[] Position => _position;
 
+        public double GetMagnitude()
+        {
+            return Math.Sqrt(_position[0] * _position[0] + _position[1] * _position[1] + _position[2] * _position[2]);
+        }
+
+        public void Normalize()
+        {
+            var magnitude = GetMagnitude();
+            _position[0] /= magnitude;
+            _position[1] /= magnitude;
+            _position[2] /= magnitude;
+        }
+
         public double Dot(Vec3D vec)
         {
             return (X * vec.X) + (Y * vec.Y) + (Z * vec.Z);
@@ -36,24 +49,6 @@
         public Vec3D Cross(Vec3D vec)
         {
             return new Vec3D(Y * vec.Z - Z * vec.Y, -(X * vec.Z - Z * vec.X), X * vec.Y - Y * vec.X);
-        }
-
-        public void Rotate(double theta, String dimension)
-        {
-            Vec3D[] rotMatrix;
-            if (dimension == "x")
-            {
-                rotMatrix = [new Vec3D(1, 0, 0), new Vec3D(0, Math.Cos(theta), -Math.Sin(theta)), new Vec3D(0, Math.Sin(theta), Math.Cos(theta))];
-            }
-            else if (dimension == "y")
-            {
-                rotMatrix = [new Vec3D(Math.Cos(theta), 0, Math.Sin(theta)), new Vec3D(0, 1, 0), new Vec3D(-Math.Sin(theta), 0, Math.Cos(theta))];
-            }
-            else
-            {
-                rotMatrix = [new Vec3D(Math.Cos(theta), -Math.Sin(theta), 0), new Vec3D(Math.Sin(theta), Math.Cos(theta), 0), new Vec3D(0, 0, 1)];
-            }
-
         }
     }
 }

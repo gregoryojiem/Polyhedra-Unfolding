@@ -1,4 +1,6 @@
-﻿namespace Unfolding.Client.Polyhedra.DataStructs
+﻿using System.Text;
+
+namespace Unfolding.Client.Polyhedra.DataStructs
 {
     public class PolyhedraFace
     {
@@ -17,9 +19,100 @@
             Normal = [1, 1, 1]; //TODO calculate normal
         }
 
+        public PolyhedraFace(PolyhedraFace other)
+        {
+            Vertices = new Point3D[other.Vertices.Length];
+            for (int i = 0; i < other.Vertices.Length; i++)
+            {
+                Vertices[i] = new Point3D(other.Vertices[i].X, other.Vertices[i].Y, other.Vertices[i].Z);
+            }
+
+            Normal = new double[other.Normal.Length];
+            Array.Copy(other.Normal, Normal, other.Normal.Length);
+        }
+
+        private Point3D GetCentroid()
+        {
+            int numVertices = Vertices.Length;
+            double sumX = 0, sumY = 0, sumZ = 0;
+            for (int i = 0; i < numVertices; i++)
+            {
+                Point3D currVertex = Vertices[i];
+                sumX += currVertex.X; sumY += currVertex.Y; sumZ += currVertex.Z;
+            }
+            return new Point3D(sumX / numVertices, sumY / numVertices, sumZ / numVertices);
+        }
+
         public void TranslateToOrigin()
         {
-            // TODO update vertices and the normal vector to origin
+            var centroid = GetCentroid();
+            foreach (Point3D point in Vertices)
+            {
+                point.Subtract(centroid);
+            }
+        }
+
+        public void TranslateToPoint(Point3D pointToTranslateTo)
+        {
+            foreach (Point3D point in Vertices)
+            {
+                point.Add(pointToTranslateTo);
+            }
+        }
+
+        public PolyhedraFace Rotate3DToAlign()
+        {
+            var alignedFace = new PolyhedraFace(this);
+
+            alignedFace.TranslateToOrigin();
+
+            Vec3D planeNormalVec = new(alignedFace.Normal[0], alignedFace.Normal[1], alignedFace.Normal[2]);
+            Vec3D targetVector = new(0, 1, 0);
+
+            double angle = Math.Acos(planeNormalVec.Dot(targetVector));
+            var rotationAxis = planeNormalVec.Cross(targetVector);
+            rotationAxis.Normalize();
+            var rotationMatrix = Matrix3D.GetRodriguezRotation(rotationAxis, angle);
+
+            foreach (Point3D point in alignedFace.Vertices)
+            {
+                point.Rotate(rotationMatrix);
+            }
+
+            alignedFace.Normal[0] = 0;
+            alignedFace.Normal[1] = 1;
+            alignedFace.Normal[2] = 0;
+            return alignedFace;
+        }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            sb.Append("Vertices: {"); 
+
+            for (int i = 0; i < Vertices.Length; i++)
+            {
+                sb.Append($"({Vertices[i].X}, {Vertices[i].Y}, {Vertices[i].Z})");
+                if (i < Vertices.Length - 1)
+                {
+                    sb.Append(", ");
+                }
+            }
+            sb.Append("}\n");
+
+
+            sb.Append("Normal: (");
+            for (int i = 0; i < Normal.Length; i++)
+            {
+                sb.Append(Normal[i]);
+                if (i < Normal.Length - 1)
+                {
+                    sb.Append(", ");
+                }
+            }
+            sb.Append(")"); 
+
+            return sb.ToString();
         }
     }
 }

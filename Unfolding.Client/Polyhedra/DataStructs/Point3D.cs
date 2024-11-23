@@ -48,5 +48,30 @@ namespace Unfolding.Client.Polyhedra.DataStructs
 
             return points;
         }
+
+        public void Add(Point3D point)
+        {
+            X = X + point.X;
+            Y = Y + point.Y;
+            Z = Z + point.Z;
+        }
+
+        public void Subtract(Point3D point)
+        {
+            X = X - point.X;
+            Y = Y - point.Y;
+            Z = Z - point.Z;
+        }
+
+        public void Rotate(Matrix3D matrix)
+        {
+            double newX = matrix[0, 0] * X + matrix[0, 1] * Y + matrix[0, 2] * Z;
+            double newY = matrix[1, 0] * X + matrix[1, 1] * Y + matrix[1, 2] * Z;
+            double newZ = matrix[2, 0] * X + matrix[2, 1] * Y + matrix[2, 2] * Z;
+
+            X = newX;
+            Y = newY;
+            Z = newZ;
+        }
     }
 }
