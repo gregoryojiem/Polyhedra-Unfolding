@@ -22,18 +22,9 @@ function renderingInit(polyhedron) {
 	directionalLight.position.set(1, 1, 1);
 	scene.add(directionalLight);
 
-	polyhedron.Faces.forEach(face => {
-		const vertices = face.Vertices.map(v => new THREE.Vector3(v.X, v.Y, v.Z));
-		const geometry = new THREE.BufferGeometry().setFromPoints(vertices);
-		const material = new THREE.MeshPhongMaterial({ color: 0xff0000, side: THREE.DoubleSide });
-		const mesh = new THREE.Mesh(geometry, material);
-
-		if (face.Normal) {
-			mesh.geometry.computeVertexNormals();
-		}
-
-		scene.add(mesh);
-	});
+	drawPolyhedron(polyhedron, scene)
+	const edges = getUniqueEdges(polyhedron)
+	drawEdges(edges, scene)
 
 	const renderer = new THREE.WebGLRenderer({ antialias: true });
 	renderer.setSize(width, height);
@@ -49,4 +40,57 @@ function renderingInit(polyhedron) {
 		renderer.render(scene, camera);
 
 	}
+}
+
+function drawPolyhedron(polyhedron, scene) {
+	polyhedron.Faces.forEach(face => {
+		const vertices = face.Vertices.map(v => new THREE.Vector3(v.X, v.Y, v.Z));
+		const geometry = new THREE.BufferGeometry().setFromPoints(vertices);
+		const material = new THREE.MeshPhongMaterial({ color: 0xff0000, side: THREE.DoubleSide });
+		const mesh = new THREE.Mesh(geometry, material);
+
+		if (face.Normal) {
+			mesh.geometry.computeVertexNormals();
+		}
+
+		scene.add(mesh);
+	});
+}
+
+function getUniqueEdges(polyhedron) {
+	const edges = [];
+
+	polyhedron.Faces.forEach(face => {
+		const vertices = face.Vertices.map(v => new THREE.Vector3(v.X, v.Y, v.Z));
+
+		for (let i = 0; i < vertices.length; i++) {
+			const v1 = vertices[i];
+			const v2 = vertices[(i + 1) % vertices.length];
+			edges.push({ v1, v2 });
+		}
+	});
+
+	const uniqueEdges = [];
+	const edgeMap = new Map();
+
+	edges.forEach(edge => {
+		const key1 = `${edge.v1.x},${edge.v1.y},${edge.v1.z}-${edge.v2.x},${edge.v2.y},${edge.v2.z}`;
+		const key2 = `${edge.v2.x},${edge.v2.y},${edge.v2.z}-${edge.v1.x},${edge.v1.y},${edge.v1.z}`;
+		if (!edgeMap.has(key1) && !edgeMap.has(key2)) {
+			uniqueEdges.push(edge);
+			edgeMap.set(key1, true);
+		}
+	});
+
+	return uniqueEdges;
+}
+
+function drawEdges(edges, scene) {
+	edges.forEach(edge => {
+		const path = new THREE.LineCurve3(edge.v1, edge.v2);
+		const edgeGeometry = new THREE.TubeGeometry(path, 128, 0.002, 8, false);
+		const edgeMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+		const edgeMesh = new THREE.Mesh(edgeGeometry, edgeMaterial);
+		scene.add(edgeMesh);
+	});
 }
