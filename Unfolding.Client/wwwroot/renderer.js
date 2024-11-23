@@ -13,14 +13,25 @@ function renderingInit(polyhedron) {
 	// init
 	const camera = new THREE.PerspectiveCamera(70, width / height, 0.01, 10);
 	camera.position.z = 1;
-
+	
 	const scene = new THREE.Scene();
+
+	const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+	scene.add(ambientLight);
+	const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+	directionalLight.position.set(1, 1, 1);
+	scene.add(directionalLight);
 
 	polyhedron.Faces.forEach(face => {
 		const vertices = face.Vertices.map(v => new THREE.Vector3(v.X, v.Y, v.Z));
 		const geometry = new THREE.BufferGeometry().setFromPoints(vertices);
-		const material = new THREE.MeshBasicMaterial({ color: 0xff0000, side: THREE.DoubleSide });
+		const material = new THREE.MeshPhongMaterial({ color: 0xff0000, side: THREE.DoubleSide });
 		const mesh = new THREE.Mesh(geometry, material);
+
+		if (face.Normal) {
+			mesh.geometry.computeVertexNormals();
+		}
+
 		scene.add(mesh);
 	});
 
