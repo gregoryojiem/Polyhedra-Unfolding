@@ -5,7 +5,7 @@ namespace Unfolding.Client.Polyhedra
     {
         public static PolyhedraFace Rotate3DToAlign(PolyhedraFace face)
         {
-            Vec3D centroid = getCentroid(face);
+            Point3D centroid = getCentroid(face);
             face.TranslateToOrigin();
 
             Vec3D planeNormalVec = new Vec3D(face.Normal[0], face.Normal[1], face.Normal[2]);
@@ -33,9 +33,17 @@ namespace Unfolding.Client.Polyhedra
             return new PolyhedraFace(newPoints);
         }
 
-        private static Vec3D getCentroid(PolyhedraFace face)
+        private static Point3D getCentroid(PolyhedraFace face)
         {
-            return null;
+            Point3D[] vertices = face.Vertices;
+            int numVertices = vertices.Length;
+            double sumX = 0, sumY = 0, sumZ = 0;
+            for (int i = 0; i < numVertices; i++)
+            {
+                Point3D currVertex = vertices[i];
+                sumX += currVertex.X; sumY += currVertex.Y; sumZ += currVertex.Z;
+            }
+            return new Point3D(sumX / numVertices, sumY / numVertices, sumZ / numVertices);
         }
     }
 }
