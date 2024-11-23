@@ -8,8 +8,8 @@ namespace Unfolding.Client.Polyhedra
             Point3D centroid = getCentroid(face);
             face.TranslateToOrigin();
 
-            Vec3D planeNormalVec = new Vec3D(face.Normal[0], face.Normal[1], face.Normal[2]);
-            Vec3D targetVector = new(0, 1, 0); // TODO check if this is the right vec
+            Vec3D planeNormalVec = new(face.Normal[0], face.Normal[1], face.Normal[2]);
+            Vec3D targetVector = new(0, 1, 0);
 
             double angle = Math.Acos(planeNormalVec.Dot(targetVector));
             double crossProd = planeNormalVec.Cross(targetVector).Y;
@@ -19,17 +19,13 @@ namespace Unfolding.Client.Polyhedra
                 angle = -angle;
             }
 
-            // TODO rotation matrix
-            //double sinAngle = Math.Sin(angle);
-            //double cosAngle = Math.Cos(angle);
-
             Point3D[] newPoints = [];
-            //foreach (Point3D p in face.Vertices)
-            //{
-            //    Point3D transformedP = new Point3D(p);
-            //    transformedP.transform(rMatrix);
-            //    newPoints.Append(transformedP);
-            //}
+            foreach (Point3D p in face.Vertices)
+            {
+                //todo call matrix rotation
+                Point3D rotP = p.Rotate(angle, "y");
+                newPoints.Append(rotP);
+            }
             return new PolyhedraFace(newPoints);
         }
 
