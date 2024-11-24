@@ -20,5 +20,12 @@
             Start = start;
             End = end;
         }
+
+        public double FindAngleBetween(Edge otherEdge)
+        {
+            Vec2D vec = new(End.X - Start.X, End.Y - Start.Y);
+            Vec2D otherVec = new(otherEdge.End.X - otherEdge.Start.X, otherEdge.End.Y - otherEdge.Start.Y);
+            return Math.Acos(vec.Dot(otherVec) / (vec.Magnitude * otherVec.Magnitude));
+        }
     }
 }

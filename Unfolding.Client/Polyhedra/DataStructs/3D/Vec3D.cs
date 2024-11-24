@@ -3,10 +3,6 @@
     public class Vec3D 
     {
         private double[] _position;
-        public Vec3D(double x, double y, double z)
-        {
-            _position = [x, y, z];
-        }
 
         public double X
         {
@@ -28,17 +24,21 @@
 
         public double[] Position => _position;
 
-        public double GetMagnitude()
+        public double Magnitude
         {
-            return Math.Sqrt(_position[0] * _position[0] + _position[1] * _position[1] + _position[2] * _position[2]);
+            get { return Math.Sqrt(X * X + Y * Y + Z * Z); }
+        }
+
+        public Vec3D(double x, double y, double z)
+        {
+            _position = [x, y, z];
         }
 
         public void Normalize()
         {
-            var magnitude = GetMagnitude();
-            _position[0] /= magnitude;
-            _position[1] /= magnitude;
-            _position[2] /= magnitude;
+            X /= Magnitude;
+            Y /= Magnitude;
+            Z /= Magnitude;
         }
 
         public double Dot(Vec3D vec)
