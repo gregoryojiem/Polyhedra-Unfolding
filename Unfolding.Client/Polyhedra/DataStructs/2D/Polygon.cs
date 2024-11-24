@@ -1,4 +1,7 @@
-﻿namespace Unfolding.Client.Polyhedra.DataStructs
+﻿using MIConvexHull;
+using System.Runtime.CompilerServices;
+
+namespace Unfolding.Client.Polyhedra.DataStructs
 {
     public class Polygon
     {
@@ -19,12 +22,6 @@
             {
                 Vertices[i].Rotate(theta);
             }
-        }
-
-        public double FindConnectionAngle(Polygon poly)
-        {
-
-            return null;//Math.Acos(a.Dot(b) / );
         }
     }
 }
