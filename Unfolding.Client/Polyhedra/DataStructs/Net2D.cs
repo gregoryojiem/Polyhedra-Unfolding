@@ -2,10 +2,31 @@
 {
     public class Net2D
     {
-        public Net2D()
+        PolyhedraFace[] faces;
+        public Net2D(PolyhedraFace[] faces)
         {
-
+            this.faces = faces;
         }
+
+        private static Net2D GenerateNet(PolyhedraFace[] faces)
+        {
+            PolyhedraFace largestPoly = faces[0];
+            for (int i = 1; i < faces.Length; i++)
+            {
+                if (faces[i].Vertices.Length > largestPoly.Vertices.Length)
+                {
+                    largestPoly = faces[i];
+                }
+            }
+            Net2D net = new(faces);
+            return GenerateNetBacktrack(net);
+        }
+
+        private static Net2D GenerateNetBacktrack(Net2D net)
+        {
+            return null;
+        }
+
 
         //private static bool LineIntersection(Edge l1, Edge l2)
         //{
