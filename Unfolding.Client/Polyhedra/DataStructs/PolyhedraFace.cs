@@ -31,6 +31,24 @@ namespace Unfolding.Client.Polyhedra.DataStructs
             Array.Copy(other.Normal, Normal, other.Normal.Length);
         }
 
+        public bool Mergeable(PolyhedraFace otherFace)
+        {
+            var sharedVertices = this.Vertices.Intersect(otherFace.Vertices).ToArray();
+            if (sharedVertices.Length != 2)
+            {
+                return false;
+            }
+
+            return this.Normal.SequenceEqual(otherFace.Normal);
+        }
+
+        public PolyhedraFace Merge(PolyhedraFace otherFace)
+        {
+            var mergedVertices = new HashSet<Point3D>(this.Vertices);
+            mergedVertices.UnionWith(otherFace.Vertices);
+            return new PolyhedraFace(mergedVertices.ToArray());
+        }
+
         private Point3D GetCentroid()
         {
             int numVertices = Vertices.Length;

@@ -12,7 +12,7 @@ function renderingInit(polyhedron) {
 
 	// init
 	const camera = new THREE.PerspectiveCamera(70, width / height, 0.01, 10);
-	camera.position.z = 1;
+	camera.position.z = 2;
 	
 	const scene = new THREE.Scene();
 
@@ -48,6 +48,12 @@ function drawPolyhedron(polyhedron, scene) {
 		const geometry = new THREE.BufferGeometry().setFromPoints(vertices);
 		const material = new THREE.MeshPhongMaterial({ color: 0xff0000, side: THREE.DoubleSide });
 		const mesh = new THREE.Mesh(geometry, material);
+
+		const indices = [];
+		for (let i = 1; i < vertices.length - 1; i++) {
+			indices.push(0, i, i + 1);
+		}
+		geometry.setIndex(indices);
 
 		if (face.Normal) {
 			mesh.geometry.computeVertexNormals();
