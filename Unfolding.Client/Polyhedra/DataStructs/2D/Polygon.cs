@@ -3,6 +3,8 @@
     public class Polygon
     {
         public Point2D[] Vertices { get; set; }
+        public Edge[] Edges { get; set; }
+
         public Point2D Centroid { get
             {
                 double X = Vertices.Sum(p => p.X) / Vertices.Length;
