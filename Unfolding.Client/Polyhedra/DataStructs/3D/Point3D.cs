@@ -49,16 +49,16 @@ namespace Unfolding.Client.Polyhedra.DataStructs
 
         public void Add(Point3D point)
         {
-            X = X + point.X;
-            Y = Y + point.Y;
-            Z = Z + point.Z;
+            X += point.X;
+            Y += point.Y;
+            Z += point.Z;
         }
 
         public void Subtract(Point3D point)
         {
-            X = X - point.X;
-            Y = Y - point.Y;
-            Z = Z - point.Z;
+            X -= point.X;
+            Y -= point.Y;
+            Z -= point.Z;
         }
 
         public void Rotate(Matrix3D matrix)

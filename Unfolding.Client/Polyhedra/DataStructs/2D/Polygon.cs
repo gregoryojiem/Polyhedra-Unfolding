@@ -62,5 +62,13 @@ namespace Unfolding.Client.Polyhedra.DataStructs
                 Vertices[i].Rotate(theta);
             }
         }
+
+        public void TranslateToPoint(Point2D pointToTranslateTo)
+        {
+            foreach (Point2D point in Vertices)
+            {
+                point.Add(pointToTranslateTo);
+            }
+        }
     }
 }

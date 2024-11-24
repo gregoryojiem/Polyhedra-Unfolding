@@ -15,6 +15,12 @@ namespace Unfolding.Client.Polyhedra.DataStructs
             Y = X * Math.Sin(theta) + Y * Math.Cos(theta);
         }
 
+        public void Add(Point2D point)
+        {
+            X += point.X;
+            Y += point.Y;
+        }
+
         public static Point2D[] SortPoints(Point2D[] points)
         {
             double avgX = points.Average(p => p.X);

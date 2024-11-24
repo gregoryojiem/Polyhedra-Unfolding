@@ -70,14 +70,6 @@ namespace Unfolding.Client.Polyhedra.DataStructs
             }
         }
 
-        public void TranslateToPoint(Point3D pointToTranslateTo)
-        {
-            foreach (Point3D point in Vertices)
-            {
-                point.Add(pointToTranslateTo);
-            }
-        }
-
         public PolyhedraFace Rotate3DToAlign()
         {
             var alignedFace = new PolyhedraFace(this);
