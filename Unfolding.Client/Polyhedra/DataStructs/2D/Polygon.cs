@@ -10,8 +10,8 @@ namespace Unfolding.Client.Polyhedra.DataStructs
 
         public Point2D Centroid { get
             {
-                double X = Vertices.Sum(p => p.X) / Vertices.Length;
-                double Y = Vertices.Sum(p => p.Y) / Vertices.Length;
+                double X = Vertices.Average(p => p.X);
+                double Y = Vertices.Average(p => p.Y);
                 return new(X, Y);
             }
         }

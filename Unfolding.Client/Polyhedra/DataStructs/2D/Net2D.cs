@@ -4,24 +4,34 @@
     {
         Polygon[] polygons;
         bool[] setPolygons;
-        public Net2D(Polygon[] polys)
+        public Net2D(Polygon[] polys, int index)
         {
             polygons = polys;
             setPolygons = new bool[polygons.Length];
+            setPolygons[index] = true;
         }
 
         private static Net2D GenerateNet(Polygon[] polys)
         {
-            Polygon largestPoly = polys[0];
-            for (int i = 1; i < polys.Length; i++)
+            int largestIndex = 0;
+            Polygon largestPoly = polys[largestIndex];
+            for (int i = 1;  i < polys.Length; i++)
             {
                 if (polys[i].Vertices.Length > largestPoly.Vertices.Length)
                 {
                     largestPoly = polys[i];
+                    largestIndex = i;
                 }
             }
-            Net2D net = new(polys);
+            Net2D net = new(polys, largestIndex);
+            net.Test();
             return GenerateNetBacktrack(net);
+        }
+
+        private void Test()
+        {
+            //polygons.
+            
         }
 
         private static Net2D GenerateNetBacktrack(Net2D net)
