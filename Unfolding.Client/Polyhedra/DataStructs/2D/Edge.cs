@@ -15,10 +15,13 @@
             }
         }
 
+        public bool Connector { get; set; }
+
         public Edge(Point2D start, Point2D end)
         {
             Start = start;
             End = end;
+            Connector = false;
         }
 
         public double FindAngleBetween(Edge otherEdge)
