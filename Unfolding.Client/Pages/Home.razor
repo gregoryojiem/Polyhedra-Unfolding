@@ -6,6 +6,9 @@
 
 Welcome to your new app.
 
+<button @onclick="OnSwapViewClick">Swap 2D/3D view</button>
+<button @onclick="OnStepButtonClick">Step through algorithm</button>
+
 <script type="module" src="renderer.js"></script>
 
 @inject IJSRuntime JSRuntime
@@ -16,9 +19,35 @@ Welcome to your new app.
     {
         if (begunRender)
         {
-            var polyhedronJSON = PolyMain.GetPolyhedron().GetPolyhedraJSON();
-            await JSRuntime.InvokeVoidAsync("handleRenderingInit", polyhedronJSON);
+            var currentView = PolyMain.currentView;
+
+            if (currentView == "2D")
+            {
+                var data2D = PolyMain.GetPolygonsJSON();
+                await JSRuntime.InvokeVoidAsync("handleRendering2D", data2D);
+            }
+            else if (currentView == "3D")
+            {
+                var polyhedronJSON = PolyMain.GetPolyhedron().GetPolyhedraJSON();
+                await JSRuntime.InvokeVoidAsync("handleRendering3D", polyhedronJSON);
+            }
+
             StateHasChanged();
         }
     }
+
+    private async Task OnSwapViewClick()
+    {
+        PolyMain.SwapView();
+        await OnAfterRenderAsync(true);
+        StateHasChanged();
+    }
+
+    private async Task OnStepButtonClick()
+    {
+        PolyMain.PerformStep();
+        await OnAfterRenderAsync(true);
+        StateHasChanged();
+    }
+
 }
