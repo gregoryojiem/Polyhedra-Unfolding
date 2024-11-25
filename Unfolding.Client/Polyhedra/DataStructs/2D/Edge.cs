@@ -15,6 +15,22 @@
             }
         }
 
+        public double? Slope
+        {
+            get
+            {
+                try
+                {
+                    return (End.Y - Start.Y) / (End.X - Start.X);
+                }
+                catch (DivideByZeroException)
+                {
+                    // Vertical line
+                    return null;
+                }
+            }
+        }
+
         public bool Connector { get; set; }
 
         public Edge(Point2D start, Point2D end)
@@ -31,23 +47,39 @@
             return Math.Acos(vec.Dot(otherVec) / (vec.Magnitude * otherVec.Magnitude));
         }
 
-        public bool Intersection(Edge l)
+        public bool Intersection(Edge otherEdge)
         {
-            //    try
-            //    {
-            //        //l2.slope = (ps[1].y - ps[0].y) / (ps[1].x - ps[0].x)
-            //        XIntersection = (l2.Z - l2.slope * l2.X - l1.Z + l1.slope * l1.X) / (l1.slope - l2.slope);
-            //    }
-            //    catch (DivideByZeroException e)
-            //    {
+            bool verticalCase = false;
+            try
+            {
+                if (Slope == null || otherEdge.Slope == null)
+                {
+                    verticalCase = true;
+                }
+                else
+                {
+                    double xIntersection = (double)((otherEdge.Start.Y - otherEdge.Slope * otherEdge.Start.X - Start.Y + Slope * Start.X) / (Slope - otherEdge.Slope));
+                }
+            }
+            catch (DivideByZeroException)
+            {
+                // Parallel lines
+                return false;
+            }
 
-            //    }
-
-            //    if (x <= intersect <= Math.Min(l1.points[1].x, l2.points[1].x))
-            //    {
-            //        return true;
-            //    }
-            //    return false;
+            if (verticalCase)
+            {
+                // TODO handle vertical line case, very common case with example polyhedra
+            }
+            else
+            {
+                // TODO implement regular case
+                //    if (x <= intersect <= Math.Min(l1.points[1].x, l2.points[1].x))
+                //    {
+                //        return true;
+                //    }
+                //    return false;
+            }
             return false;
         }
     }

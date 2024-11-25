@@ -3,12 +3,12 @@
     public class Net2D
     {
         Polygon[] Polygons;
-        bool[] SetPolygons;
+        bool[] IsPolySet;
         public Net2D(Polygon[] polys, int index)
         {
             Polygons = polys;
-            SetPolygons = new bool[Polygons.Length];
-            SetPolygons[index] = true;
+            IsPolySet = new bool[Polygons.Length];
+            IsPolySet[index] = true;
         }
 
         private static Net2D GenerateNet(Polygon[] polys)
@@ -31,11 +31,11 @@
         private void Test(int currPolyIndex)
         {
             Polygon currPoly = Polygons[currPolyIndex];
-            SetPolygons[currPolyIndex] = true;
+            IsPolySet[currPolyIndex] = true;
 
             for (int i = 0; i < Polygons.Length; i++)
             {
-                if (!SetPolygons[i])
+                if (!IsPolySet[i])
                 {
                     Polygon nextPoly = Polygons[i];
                     bool adjacent = true; //todo figure out if the two polygons are adjacent
@@ -57,7 +57,7 @@
                         {
                             // The polygon fits in this location
                             currPoly = nextPoly;
-                            SetPolygons[i] = true;
+                            IsPolySet[i] = true;
                         }
                     }
                 }
@@ -69,7 +69,7 @@
             // TODO optimize by checking bounding boxes
             for (int j = 0; j < Polygons.Length; j++)
             {
-                if (SetPolygons[j])
+                if (IsPolySet[j])
                 {
                     foreach (Edge setEdge in Polygons[j].Edges)
                     {
