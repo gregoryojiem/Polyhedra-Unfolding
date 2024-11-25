@@ -31,7 +31,7 @@
             return Math.Acos(vec.Dot(otherVec) / (vec.Magnitude * otherVec.Magnitude));
         }
 
-        private static bool Intersection(Edge l)
+        public bool Intersection(Edge l)
         {
             //    try
             //    {

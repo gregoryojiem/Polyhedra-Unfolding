@@ -7,18 +7,19 @@ namespace Unfolding.Client.Polyhedra.DataStructs
         public double X { get; set; }
         public double Y { get; set; }
 
-        public Point2D(double X, double Y) { this.X = X; this.Y = Y; }
+        public Point2D(double x, double y) { X = x; Y = y; }
+
+        public Point2D(Vec2D vec) { X = vec.X; Y = vec.Y; }
+
+        public static Point2D operator +(Point2D point1, Point2D point2)
+        {
+            return new(point1.X + point2.X, point1.Y + point2.Y);
+        }
 
         public void Rotate(double theta)
         {
             X = X * Math.Cos(theta) - Y * Math.Sin(theta);
             Y = X * Math.Sin(theta) + Y * Math.Cos(theta);
-        }
-
-        public void Add(Point2D point)
-        {
-            X += point.X;
-            Y += point.Y;
         }
 
         public static Point2D[] SortPoints(Point2D[] points)
@@ -39,8 +40,6 @@ namespace Unfolding.Client.Polyhedra.DataStructs
             anglesAndIndices.Sort((a, b) => a.angle.CompareTo(b.angle));
 
             return anglesAndIndices.Select(item => item.point).ToArray();
-
-
         }
 
         public override string ToString()

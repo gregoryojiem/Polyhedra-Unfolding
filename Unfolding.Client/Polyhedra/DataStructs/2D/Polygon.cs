@@ -65,9 +65,9 @@ namespace Unfolding.Client.Polyhedra.DataStructs
 
         public void TranslateToPoint(Point2D pointToTranslateTo)
         {
-            foreach (Point2D point in Vertices)
+            for (int i = 0; i < Vertices.Length; i++)
             {
-                point.Add(pointToTranslateTo);
+                Vertices[i] += pointToTranslateTo;
             }
         }
     }
