@@ -4,32 +4,16 @@ namespace Unfolding.Client.Polyhedra.DataStructs
 {
     public class Point3D : IVertex
     {
-        private double[] _position;
+        public double X { get; set; }
+        public double Y { get; set; }
+        public double Z { get; set; }
 
-        public Point3D(double x, double y, double z)
+        public double[] Position
         {
-            _position = [x, y, z];
+            get { return [X, Y, Z]; }
         }
 
-        public double X
-        {
-            get { return _position[0]; }
-            set { _position[0] = value; }
-        }
-
-        public double Y
-        {
-            get { return _position[1]; }
-            set { _position[1] = value; }
-        }
-
-        public double Z
-        {
-            get { return _position[2]; }
-            set { _position[2] = value; }
-        }
-
-        public double[] Position => _position;
+        public Point3D(double x, double y, double z) { X = x; Y = y; Z = z; }
 
         public static Point3D[] GenerateRandPoints(int amount, double extent)
         {
@@ -47,18 +31,14 @@ namespace Unfolding.Client.Polyhedra.DataStructs
             return points;
         }
 
-        public void Add(Point3D point)
+        public static Point3D operator +(Point3D point1, Point3D point2)
         {
-            X += point.X;
-            Y += point.Y;
-            Z += point.Z;
+            return new(point1.X + point2.X, point1.Y + point2.Y, point1.Z + point2.Z);
         }
 
-        public void Subtract(Point3D point)
+        public static Point3D operator -(Point3D point1, Point3D point2)
         {
-            X -= point.X;
-            Y -= point.Y;
-            Z -= point.Z;
+            return new(point1.X - point2.X, point1.Y - point2.Y, point1.Z - point2.Z);
         }
 
         public void Rotate(Matrix3D matrix)

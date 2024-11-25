@@ -64,9 +64,9 @@ namespace Unfolding.Client.Polyhedra.DataStructs
         public void TranslateToOrigin()
         {
             var centroid = GetCentroid();
-            foreach (Point3D point in Vertices)
+            for (int i = 0; i < Vertices.Length; i++)
             {
-                point.Subtract(centroid);
+                Vertices[i] -= centroid;
             }
         }
 
