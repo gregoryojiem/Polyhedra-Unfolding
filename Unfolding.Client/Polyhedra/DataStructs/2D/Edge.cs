@@ -49,36 +49,93 @@
 
         public bool Intersection(Edge otherEdge)
         {
-            bool verticalCase = false;
-            try
+            double xIntersection = 0;
+
+            Point2D start = Start;
+            Point2D end = End;
+            double slope;
+            bool swap = false;
+            Point2D otherStart = otherEdge.Start;
+            Point2D otherEnd = otherEdge.End;
+            double otherSlope;
+            bool otherSwap = false;
+            if (start.X > end.X) { (end, start) = (start, end); swap = true; }
+            if (otherStart.X > otherEnd.X) { (otherEnd, otherStart) = (otherStart, otherEnd); swap = false; }
+
+            if (Slope == null && otherEdge.Slope == null)
             {
-                if (Slope == null || otherEdge.Slope == null)
-                {
-                    verticalCase = true;
-                }
-                else
-                {
-                    double xIntersection = (double)((otherEdge.Start.Y - otherEdge.Slope * otherEdge.Start.X - Start.Y + Slope * Start.X) / (Slope - otherEdge.Slope));
-                }
-            }
-            catch (DivideByZeroException)
-            {
-                // Parallel lines
+                // Both lines are vertical
                 return false;
             }
-
-            if (verticalCase)
+            else if (Slope == null)
             {
-                // TODO handle vertical line case, very common case with example polyhedra
+                // This line is vertical
+                if (Start.Y > End.Y)
+                {
+                    (end, start) = (start, end);
+                }
+                otherSlope = (double)otherEdge.Slope;
+                if (otherSwap)
+                {
+                    otherSlope = otherSlope * -1;
+                }
+
+                double x = Start.X;
+                double y = otherSlope * (x - otherStart.X) + otherStart.Y;
+
+                if ((Start.Y < y && y < End.Y) && (otherStart.X < x && x < otherEnd.X) )
+                {
+                    return true;
+                }
+            }
+            else if (otherEdge.Slope == null)
+            {
+                // Other line is vertical
+                if (otherEdge.Start.Y > otherEdge.End.Y)
+                {
+                    (otherEnd, otherStart) = (otherStart, otherEnd);
+                }
+                slope = (double)Slope;
+                if (swap)
+                {
+                    slope = slope * -1;
+                }
+
+                double x = otherStart.X;
+                double y = slope * (x - start.X) + start.Y;
+
+                if ((otherStart.Y < y && y < otherEnd.Y) && (start.X < x && x < end.X))
+                {
+                    return true;
+                }
             }
             else
             {
-                // TODO implement regular case
-                //    if (x <= intersect <= Math.Min(l1.points[1].x, l2.points[1].x))
-                //    {
-                //        return true;
-                //    }
-                //    return false;
+                slope = (double)Slope;
+                otherSlope = (double)otherEdge.Slope;
+                if (swap)
+                {
+                    slope = slope * -1;
+                }
+                if (otherSwap)
+                {
+                    otherSlope = otherSlope * -1;
+                }
+
+                try
+                {
+                    xIntersection = (double)((otherStart.Y - otherSlope * otherStart.X - start.Y + slope * start.X) / (slope - otherSlope));
+                }
+                catch (DivideByZeroException)
+                {
+                    // Parallel lines
+                    return false;
+                }
+
+                if (Math.Max(start.X, otherStart.X) < xIntersection && xIntersection < Math.Min(end.X, otherEnd.X))
+                {
+                    return true;
+                }
             }
             return false;
         }
