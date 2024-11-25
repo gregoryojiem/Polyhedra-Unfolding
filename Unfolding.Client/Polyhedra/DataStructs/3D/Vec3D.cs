@@ -2,37 +2,16 @@
 {
     public class Vec3D 
     {
-        private double[] _position;
-
-        public double X
-        {
-            get { return _position[0]; }
-            set { _position[0] = value; }
-        }
-
-        public double Y
-        {
-            get { return _position[1]; }
-            set { _position[1] = value; }
-        }
-
-        public double Z
-        {
-            get { return _position[2]; }
-            set { _position[2] = value; }
-        }
-
-        public double[] Position => _position;
+        public double X { get; set; }
+        public double Y { get; set; }
+        public double Z { get; set; }
 
         public double Magnitude
         {
             get { return Math.Sqrt(X * X + Y * Y + Z * Z); }
         }
 
-        public Vec3D(double x, double y, double z)
-        {
-            _position = [x, y, z];
-        }
+        public Vec3D(double x, double y, double z) { X = x; Y = y; Z = z; }
 
         public void Normalize()
         {
