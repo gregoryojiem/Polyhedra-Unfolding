@@ -51,5 +51,28 @@ namespace Unfolding.Client.Polyhedra.DataStructs
             Y = newY;
             Z = newZ;
         }
+
+        public override string ToString()
+        {
+            return "(" + X + ", " + Y + ", " + Z + ")";
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null || GetType() != obj.GetType())
+                return false;
+
+            Point3D other = (Point3D)obj;
+            return X == other.X && Y == other.Y && Z == other.Z;
+        }
+
+        public override int GetHashCode()
+        {
+            int hashX = X.GetHashCode();
+            int hashY = Y.GetHashCode();
+            int hashZ = Z.GetHashCode();
+
+            return hashX ^ hashY ^ hashZ;
+        }
     }
 }
