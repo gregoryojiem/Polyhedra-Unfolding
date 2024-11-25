@@ -11,7 +11,7 @@
             IsPolySet[index] = true;
         }
 
-        private static Net2D GenerateNet(Polygon[] polys)
+        public static Net2D GenerateNet(Polygon[] polys)
         {
             int largestIndex = 0;
             Polygon largestPoly = polys[largestIndex];
@@ -33,7 +33,7 @@
             Polygon currPoly = Polygons[currPolyIndex];
             IsPolySet[currPolyIndex] = true;
 
-            for (int i = 0; i < Polygons.Length; i++)
+            for (int i = 0; i < 0; i++)
             {
                 if (!IsPolySet[i])
                 {

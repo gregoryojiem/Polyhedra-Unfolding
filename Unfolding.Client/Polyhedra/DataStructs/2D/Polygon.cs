@@ -6,6 +6,7 @@ namespace Unfolding.Client.Polyhedra.DataStructs
     {
         public Point2D[] Vertices { get; set; }
 
+        [JsonIgnore]
         public Edge[] Edges { get; set; }
 
         [JsonIgnore]

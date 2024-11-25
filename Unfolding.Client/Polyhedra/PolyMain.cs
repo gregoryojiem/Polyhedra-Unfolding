@@ -9,7 +9,7 @@ namespace Unfolding.Client.Polyhedra
     {
         public static string currentView = "3D";
 
-        private static Point3D[] randomVertices = Point3D.GenerateRandPoints(20, 0.5);
+        private static Point3D[] randomVertices = Point3D.GenerateRandPoints(1000, 0.5);
 
         private static Point3D[] pyramidVertices = new Point3D[] { new Point3D(-0.5, -0.5, -0.5), new Point3D(0.5, -0.5, -0.5), new Point3D(0.5, -0.5, 0.5), new Point3D(-0.5, -0.5, 0.5), new Point3D(0, 0.5, 0) };
 
@@ -31,6 +31,7 @@ namespace Unfolding.Client.Polyhedra
             var convexHull = ConvexHull.Create<Point3D, ConvexHullFace>(pyramidVertices);
             var polyhedron = new Polyhedron(convexHull);
             var polygons = Polygon.PolyhedraToPolygons(polyhedron);
+            var net = Net2D.GenerateNet(polygons);
             return JsonSerializer.Serialize(polygons, new JsonSerializerOptions { WriteIndented = true });
         }
 
