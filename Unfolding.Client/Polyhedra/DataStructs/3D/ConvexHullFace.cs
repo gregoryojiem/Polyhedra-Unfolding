@@ -1,5 +1,4 @@
 ﻿using MIConvexHull;
-using System.Diagnostics;
 
 namespace Unfolding.Client.Polyhedra.DataStructs
 {

@@ -1,6 +1,4 @@
-﻿using System.Security.Cryptography.X509Certificates;
-
-namespace Unfolding.Client.Polyhedra.DataStructs
+﻿namespace Unfolding.Client.Polyhedra.DataStructs
 {
     public class Point2D
     {

@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-
-namespace Unfolding.Client.Polyhedra.DataStructs
+﻿namespace Unfolding.Client.Polyhedra.DataStructs
 {
     public class Net2D
     {

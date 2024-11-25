@@ -1,7 +1,4 @@
-﻿using MIConvexHull;
-using System.Runtime.CompilerServices;
-
-namespace Unfolding.Client.Polyhedra.DataStructs
+﻿namespace Unfolding.Client.Polyhedra.DataStructs
 {
     public class Polygon
     {
