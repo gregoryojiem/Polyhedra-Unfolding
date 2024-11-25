@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Text.Json.Serialization;
 
 namespace Unfolding.Client.Polyhedra.DataStructs
 {
@@ -7,28 +8,21 @@ namespace Unfolding.Client.Polyhedra.DataStructs
         public Point3D[] Vertices { get; set; }
         public double[] Normal { get; set; }
 
+        [JsonIgnore]
+        public List<PolyhedraFace> Adjacency { get; set; }
+
         public PolyhedraFace(ConvexHullFace convexHullFace)
         {
             Vertices = convexHullFace.Vertices;
             Normal = convexHullFace.Normal;
+            Adjacency = new List<PolyhedraFace>();
         }
 
-        public PolyhedraFace(Point3D[] points)
+        public PolyhedraFace(Point3D[] points, double[] normal)
         {
             Vertices = points;
-            Normal = [1, 1, 1]; //TODO calculate normal
-        }
-
-        public PolyhedraFace(PolyhedraFace other)
-        {
-            Vertices = new Point3D[other.Vertices.Length];
-            for (int i = 0; i < other.Vertices.Length; i++)
-            {
-                Vertices[i] = new Point3D(other.Vertices[i].X, other.Vertices[i].Y, other.Vertices[i].Z);
-            }
-
-            Normal = new double[other.Normal.Length];
-            Array.Copy(other.Normal, Normal, other.Normal.Length);
+            Normal = normal;
+            Adjacency = new List<PolyhedraFace>();
         }
 
         public bool Mergeable(PolyhedraFace otherFace)
@@ -39,14 +33,14 @@ namespace Unfolding.Client.Polyhedra.DataStructs
                 return false;
             }
 
-            return this.Normal.SequenceEqual(otherFace.Normal);
+            return Normal.SequenceEqual(otherFace.Normal);
         }
 
         public PolyhedraFace Merge(PolyhedraFace otherFace)
         {
-            var mergedVertices = new HashSet<Point3D>(this.Vertices);
+            var mergedVertices = new HashSet<Point3D>(Vertices);
             mergedVertices.UnionWith(otherFace.Vertices);
-            return new PolyhedraFace(mergedVertices.ToArray());
+            return new PolyhedraFace(mergedVertices.ToArray(), Normal);
         }
 
         private Point3D GetCentroid()
@@ -70,29 +64,39 @@ namespace Unfolding.Client.Polyhedra.DataStructs
             }
         }
 
-        public PolyhedraFace Rotate3DToAlign()
+        public void Rotate3DToAlign()
         {
-            var alignedFace = new PolyhedraFace(this);
+            // TODO this should be done elsewhere
+            var newVertices = new Point3D[Vertices.Length];
+            for (int i = 0; i < Vertices.Length; i++)
+            {
+                newVertices[i] = new Point3D(Vertices[i].X, Vertices[i].Y, Vertices[i].Z);
+            }
+            Vertices = newVertices;
 
-            alignedFace.TranslateToOrigin();
+            TranslateToOrigin();
 
-            Vec3D planeNormalVec = new(alignedFace.Normal[0], alignedFace.Normal[1], alignedFace.Normal[2]);
-            Vec3D targetVector = new(0, 1, 0);
+            if (Normal.SequenceEqual([0, -1, 0]))
+            {
+                return;
+            }
+
+            Vec3D planeNormalVec = new(Normal[0], Normal[1], Normal[2]);
+            Vec3D targetVector = new(0, -1, 0);
 
             double angle = Math.Acos(planeNormalVec.Dot(targetVector));
             var rotationAxis = planeNormalVec.Cross(targetVector);
             rotationAxis.Normalize();
             var rotationMatrix = Matrix3D.GetRodriguezRotation(rotationAxis, angle);
 
-            foreach (Point3D point in alignedFace.Vertices)
+            foreach (Point3D point in Vertices)
             {
                 point.Rotate(rotationMatrix);
             }
 
-            alignedFace.Normal[0] = 0;
-            alignedFace.Normal[1] = 1;
-            alignedFace.Normal[2] = 0;
-            return alignedFace;
+            Normal[0] = 0;
+            Normal[1] = -1;
+            Normal[2] = 0;
         }
 
         public override string ToString()
@@ -123,6 +127,45 @@ namespace Unfolding.Client.Polyhedra.DataStructs
             sb.Append(")"); 
 
             return sb.ToString();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null || GetType() != obj.GetType())
+            {
+                return false;
+            }
+
+            PolyhedraFace other = (PolyhedraFace)obj;
+
+            if (Vertices.Length != other.Vertices.Length || Normal.Length != other.Normal.Length)
+            {
+                return false;
+            }
+
+            if (!Vertices.SequenceEqual(other.Vertices))
+            {
+                return false;
+            }
+
+            if (!Normal.SequenceEqual(other.Normal))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public override int GetHashCode()
+        {
+            int hash = 17;
+
+            foreach (var vertex in Vertices)
+            {
+                hash = hash * 31 + vertex.GetHashCode();
+            }
+
+            return hash;
         }
     }
 }

@@ -1,9 +1,15 @@
-﻿namespace Unfolding.Client.Polyhedra.DataStructs
+﻿using System.Text.Json.Serialization;
+
+namespace Unfolding.Client.Polyhedra.DataStructs
 {
     public class Polygon
     {
         public Point2D[] Vertices { get; set; }
+
         public Edge[] Edges { get; set; }
+
+        [JsonIgnore]
+        public Polygon[] Adjacency { get; set; }
 
         public Point2D Centroid { get
             {
@@ -17,21 +23,23 @@
         {
             Vertices = vertices;
             Edges = edges;
+            Adjacency = [];
         }
 
         public static Polygon[] PolyhedraToPolygons(Polyhedron polyhedron)
         {
             Polygon[] polygons = new Polygon[polyhedron.Faces.Length];
+            polyhedron.FlattenFaces();
+            var polyhedraToPolygonMap = new Dictionary<PolyhedraFace, Polygon>();
 
             for (int i = 0; i < polyhedron.Faces.Length; i++)
             {
-                PolyhedraFace face = polyhedron.Faces[i];
-                PolyhedraFace alignedFace = face.Rotate3DToAlign();
-                Point2D[] vertices2D = new Point2D[alignedFace.Vertices.Length];
+                PolyhedraFace flatFace = polyhedron.Faces[i];
+                Point2D[] vertices2D = new Point2D[flatFace.Vertices.Length];
 
-                for (int j = 0; j < alignedFace.Vertices.Length; j++)
+                for (int j = 0; j < flatFace.Vertices.Length; j++)
                 {
-                    vertices2D[j] = new Point2D(alignedFace.Vertices[j].X, alignedFace.Vertices[j].Z);
+                    vertices2D[j] = new Point2D(flatFace.Vertices[j].X, flatFace.Vertices[j].Z);
                 }
 
                 var sortedVertices = Point2D.SortPoints(vertices2D);
@@ -45,8 +53,22 @@
                     edges[j] = new Edge(start, end);
                 }
 
-                polygons[i] = new Polygon(sortedVertices, edges);
 
+                polygons[i] = new Polygon(sortedVertices, edges);
+                polyhedraToPolygonMap[polyhedron.Faces[i]] = polygons[i];
+            }
+
+            for (int i = 0; i < polygons.Length; i++)
+            {
+                var face = polyhedron.Faces[i];
+                var adjacencyList = new Polygon[face.Adjacency.Count];
+
+                for (int j = 0; j < face.Adjacency.Count; j++)
+                {
+                    adjacencyList[j] = polyhedraToPolygonMap[face];
+                }
+
+                polygons[i].Adjacency = adjacencyList;
             }
 
             return polygons;
