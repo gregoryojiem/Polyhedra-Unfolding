@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text;
+using System.Text.Json.Serialization;
 
 namespace Unfolding.Client.Polyhedra.DataStructs
 {
@@ -35,12 +36,12 @@ namespace Unfolding.Client.Polyhedra.DataStructs
 
             for (int i = 0; i < polyhedron.Faces.Length; i++)
             {
-                PolyhedraFace flatFace = polyhedron.Faces[i];
-                Point2D[] vertices2D = new Point2D[flatFace.Vertices.Length];
+                PolyhedraFace face = polyhedron.Faces[i];
+                Point2D[] vertices2D = new Point2D[face.Vertices.Length];
 
-                for (int j = 0; j < flatFace.Vertices.Length; j++)
+                for (int j = 0; j < face.Vertices.Length; j++)
                 {
-                    vertices2D[j] = new Point2D(flatFace.Vertices[j].X, flatFace.Vertices[j].Z);
+                    vertices2D[j] = new Point2D(face.Vertices[j].X, face.Vertices[j].Z);
                 }
 
                 var sortedVertices = Point2D.SortPoints(vertices2D);
@@ -56,7 +57,7 @@ namespace Unfolding.Client.Polyhedra.DataStructs
 
 
                 polygons[i] = new Polygon(sortedVertices, edges);
-                polyhedraToPolygonMap[polyhedron.Faces[i]] = polygons[i];
+                polyhedraToPolygonMap[face] = polygons[i];
             }
 
             for (int i = 0; i < polygons.Length; i++)
@@ -66,7 +67,7 @@ namespace Unfolding.Client.Polyhedra.DataStructs
 
                 for (int j = 0; j < face.Adjacency.Count; j++)
                 {
-                    adjacencyList[j] = polyhedraToPolygonMap[face];
+                    adjacencyList[j] = polyhedraToPolygonMap[face.Adjacency[j]];
                 }
 
                 polygons[i].Adjacency = adjacencyList;
@@ -89,6 +90,24 @@ namespace Unfolding.Client.Polyhedra.DataStructs
             {
                 Vertices[i] += pointToTranslateTo;
             }
+        }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            sb.Append("Vertices: {");
+
+            for (int i = 0; i < Vertices.Length; i++)
+            {
+                sb.Append($"({Vertices[i].X}, {Vertices[i].Y})");
+                if (i < Vertices.Length - 1)
+                {
+                    sb.Append(", ");
+                }
+            }
+            sb.Append("}\n");
+
+            return sb.ToString();
         }
     }
 }

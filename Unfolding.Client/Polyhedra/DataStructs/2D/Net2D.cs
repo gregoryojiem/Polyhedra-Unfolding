@@ -33,32 +33,28 @@
             Polygon currPoly = Polygons[currPolyIndex];
             IsPolySet[currPolyIndex] = true;
 
-            for (int i = 0; i < 0; i++)
+            for (int i = 0; i < 2; i++)
             {
-                if (!IsPolySet[i])
+                if (!IsPolySet[i] && currPoly.Adjacency.Contains(Polygons[i]))
                 {
                     Polygon nextPoly = Polygons[i];
-                    bool adjacent = true; //todo figure out if the two polygons are adjacent
-                    if (adjacent)
+                    Edge nextEdge = nextPoly.Edges[0];
+                    Edge currEdge = currPoly.Edges[0];
+
+                    // Rotate
+                    nextPoly.Rotate(nextEdge.FindAngleBetween(currEdge));
+
+                    // Translate
+                    Vec2D nextVec = new(nextEdge.Mid); //TODO replace with the adjacent edge
+                    Vec2D currVec = new(currEdge.Mid); //TODO replace with the adjacent edge
+                    nextPoly.TranslateToPoint(new(currVec - nextVec));
+
+                    // Check for intersections
+                    if (!CheckForIntersections(nextPoly))
                     {
-                        Edge nextEdge = nextPoly.Edges[0];
-                        Edge currEdge = currPoly.Edges[0];
-
-                        // Rotate
-                        nextPoly.Rotate(nextEdge.FindAngleBetween(currEdge));
-
-                        // Translate
-                        Vec2D nextVec = new(nextEdge.Mid); //TODO replace with the adjacent edge
-                        Vec2D currVec = new(currEdge.Mid); //TODO replace with the adjacent edge
-                        nextPoly.TranslateToPoint(new(currVec - nextVec));
-
-                        // Check for intersections
-                        if (!CheckForIntersections(nextPoly))
-                        {
-                            // The polygon fits in this location
-                            currPoly = nextPoly;
-                            IsPolySet[i] = true;
-                        }
+                        // The polygon fits in this location
+                        currPoly = nextPoly;
+                        IsPolySet[i] = true;
                     }
                 }
             }
