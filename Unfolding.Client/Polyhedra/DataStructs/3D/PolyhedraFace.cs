@@ -86,7 +86,7 @@ namespace Unfolding.Client.Polyhedra.DataStructs
             }
             else if (Normal.SequenceEqual([0, 1, 0]))
             {
-                angle = 180;
+                angle = Math.PI;
                 rotationAxis = new(1, 0, 0);
             }
             else
