@@ -14,10 +14,16 @@
             return new(point1.X + point2.X, point1.Y + point2.Y);
         }
 
+        public static Point2D operator -(Point2D point1, Point2D point2)
+        {
+            return new(point1.X - point2.X, point1.Y - point2.Y);
+        }
+
         public void Rotate(double theta)
         {
-            X = X * Math.Cos(theta) - Y * Math.Sin(theta);
+            var tempX = X * Math.Cos(theta) - Y * Math.Sin(theta);
             Y = X * Math.Sin(theta) + Y * Math.Cos(theta);
+            X = tempX;
         }
 
         public static Point2D[] SortPoints(Point2D[] points)
@@ -38,6 +44,11 @@
             anglesAndIndices.Sort((a, b) => a.angle.CompareTo(b.angle));
 
             return anglesAndIndices.Select(item => item.point).ToArray();
+        }
+
+        public Vec2D ToVector()
+        {
+            return new Vec2D(X, Y);
         }
 
         public override string ToString()

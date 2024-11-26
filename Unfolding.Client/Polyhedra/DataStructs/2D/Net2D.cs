@@ -43,21 +43,20 @@
                     continue;
                 }
 
-                var adjacentEdge = adjacentPolygon.Edges.First(p => p.AdjacentPolygon == currentPolygon);
-
-                // Rotate
-                adjacentPolygon.Rotate(adjacentEdge.FindAngleBetween(currentEdge));
-
-                // Translate
-                Vec2D adjacentVector = new(adjacentEdge.Mid);
-                Vec2D currentVector = new(currentEdge.Mid);
-                adjacentPolygon.TranslateToPoint(new(currentVector - adjacentVector));
+                // Find rotation angle, then rotate and translate the polygon we're attaching
+                var adjacentEdge = adjacentPolygon.GetConnectingEdge(currentPolygon);
+                var vecToCurrEdge = currentPolygon.GetVecToEdge(currentEdge);
+                var vecToAdjEdge = adjacentPolygon.GetVecToEdge(adjacentEdge);
+                var angle = vecToCurrEdge.FindAngleBetween(vecToAdjEdge * -1);
+                
+                adjacentPolygon.Rotate(angle);
+                adjacentPolygon.TranslateToPoint(new(vecToCurrEdge + vecToAdjEdge * -1));
 
                 // Check for intersections
                 if (!CheckForIntersections(adjacentPolygon))
                 {
                     // The polygon fits in this location
-                    currentPolygon = adjacentPolygon;
+                    //currentPolygon = adjacentPolygon;
                     adjacentPolygon.HasBeenPlaced = true;
                 }
             }

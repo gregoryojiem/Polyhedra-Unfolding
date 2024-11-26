@@ -85,6 +85,16 @@ namespace Unfolding.Client.Polyhedra.DataStructs
             }
         }
 
+        public Vec2D GetVecToEdge(Edge2D edge)
+        {
+            return (edge.Mid - Centroid).ToVector();
+        }
+
+        public Edge2D GetConnectingEdge(Polygon polygon)
+        {
+            return Edges.First(e => e.AdjacentPolygon == polygon);
+        }
+
         public override string ToString()
         {
             var sb = new StringBuilder();
