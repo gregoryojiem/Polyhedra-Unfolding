@@ -51,6 +51,15 @@ namespace Unfolding.Client.Polyhedra
                 new(0.5, 0.5, 0.5),
                 new(0, 1.5, 0)
             ];
+        private static Point3D[] octohedronVertices =
+            [
+                new(0, 0.5, 0),
+                new(-1/(2*Math.Sqrt(2)), 0, -1/(2*Math.Sqrt(2))),
+                new(-1/(2*Math.Sqrt(2)), 0, 1/(2*Math.Sqrt(2))),
+                new(1/(2*Math.Sqrt(2)), 0, -1/(2*Math.Sqrt(2))),
+                new(1/(2*Math.Sqrt(2)), 0, 1/(2*Math.Sqrt(2))),
+                new(0, -0.5, 0)
+            ];
 
         public static void SwapView()
         {

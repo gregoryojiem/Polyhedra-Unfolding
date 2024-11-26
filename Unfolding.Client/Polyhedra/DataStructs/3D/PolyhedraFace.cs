@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Drawing;
+using System.Text;
 using System.Text.Json.Serialization;
 
 namespace Unfolding.Client.Polyhedra.DataStructs
@@ -67,26 +68,34 @@ namespace Unfolding.Client.Polyhedra.DataStructs
         public void Rotate3DToAlign()
         {
             // TODO this should be done elsewhere
-            var newVertices = new Point3D[Vertices.Length];
+            Point3D[] newVertices = new Point3D[Vertices.Length];
             for (int i = 0; i < Vertices.Length; i++)
             {
-                newVertices[i] = new Point3D(Vertices[i].X, Vertices[i].Y, Vertices[i].Z);
+                newVertices[i] = new(Vertices[i].X, Vertices[i].Y, Vertices[i].Z);
             }
             Vertices = newVertices;
 
             TranslateToOrigin();
-
+            double angle;
+            Vec3D rotationAxis;
             if (Normal.SequenceEqual([0, -1, 0]))
             {
                 return;
             }
+            else if (Normal.SequenceEqual([0, 1, 0]))
+            {
+                angle = 180;
+                rotationAxis = new(1, 0, 0);
+            }
+            else
+            {
+                Vec3D planeNormalVec = new(Normal[0], Normal[1], Normal[2]);
+                Vec3D targetVector = new(0, -1, 0);
 
-            Vec3D planeNormalVec = new(Normal[0], Normal[1], Normal[2]);
-            Vec3D targetVector = new(0, -1, 0);
-
-            double angle = Math.Acos(planeNormalVec.Dot(targetVector));
-            var rotationAxis = planeNormalVec.Cross(targetVector);
-            rotationAxis.Normalize();
+                angle = Math.Acos(planeNormalVec.Dot(targetVector));
+                rotationAxis = planeNormalVec.Cross(targetVector);
+                rotationAxis.Normalize();
+            }
             var rotationMatrix = Matrix3D.GetRodriguezRotation(rotationAxis, angle);
 
             foreach (Point3D point in Vertices)
