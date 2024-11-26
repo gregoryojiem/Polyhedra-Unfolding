@@ -50,6 +50,12 @@
                 var vecToAdjEdge = adjacentPolygon.GetVecToEdge(adjacentEdge);
                 var angle = vecToCurrEdge.FindAngleBetween(vecToAdjEdge * -1);
 
+                var crossProduct = vecToCurrEdge.Cross(vecToAdjEdge);
+                if (crossProduct < 0)
+                {
+                    angle = 2 * Math.PI - angle;
+                }
+
                 adjacentPolygon.Rotate(angle);
                 vecToAdjEdge = adjacentPolygon.GetVecToEdge(adjacentEdge);
                 adjacentPolygon.TranslateToPoint(new(vecToCurrEdge - vecToAdjEdge));
