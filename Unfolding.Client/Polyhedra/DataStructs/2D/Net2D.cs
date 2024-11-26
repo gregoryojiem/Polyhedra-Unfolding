@@ -38,15 +38,15 @@
                 if (!IsPolySet[i] && currPoly.Adjacency.Contains(Polygons[i]))
                 {
                     Polygon nextPoly = Polygons[i];
-                    Edge nextEdge = nextPoly.Edges[0];
-                    Edge currEdge = currPoly.Edges[0];
+                    Edge nextEdge = nextPoly.Edges[0]; //TODO replace with the adjacent edge
+                    Edge currEdge = currPoly.Edges[0]; //TODO replace with the adjacent edge
 
                     // Rotate
                     nextPoly.Rotate(nextEdge.FindAngleBetween(currEdge));
 
                     // Translate
-                    Vec2D nextVec = new(nextEdge.Mid); //TODO replace with the adjacent edge
-                    Vec2D currVec = new(currEdge.Mid); //TODO replace with the adjacent edge
+                    Vec2D nextVec = new(nextEdge.Mid);
+                    Vec2D currVec = new(currEdge.Mid);
                     nextPoly.TranslateToPoint(new(currVec - nextVec));
 
                     // Check for intersections

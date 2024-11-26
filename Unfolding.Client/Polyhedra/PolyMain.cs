@@ -11,7 +11,8 @@ namespace Unfolding.Client.Polyhedra
 
         private static Point3D[] randomVertices = Point3D.GenerateRandPoints(1000, 0.5);
 
-        private static Point3D[] pyramidVertices = new Point3D[] { new Point3D(-0.5, -0.5, -0.5), new Point3D(0.5, -0.5, -0.5), new Point3D(0.5, -0.5, 0.5), new Point3D(-0.5, -0.5, 0.5), new Point3D(0, 0.5, 0) };
+        // Set test shapes
+        private static Point3D[] pyramidVertices = [new(-0.5, -0.5, -0.5), new(0.5, -0.5, -0.5), new(0.5, -0.5, 0.5), new(-0.5, -0.5, 0.5), new(0, 0.5, 0)];
 
         public static void SwapView()
         {
