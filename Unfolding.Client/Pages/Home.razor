@@ -8,6 +8,7 @@ Welcome to your new app.
 
 <button @onclick="OnSwapViewClick">Swap 2D/3D view</button>
 <button @onclick="OnStepButtonClick">Step through algorithm</button>
+<button @onclick="OnUndoButtonClick">Undo Step</button>
 
 <script type="module" src="renderer.js"></script>
 
@@ -50,4 +51,10 @@ Welcome to your new app.
         StateHasChanged();
     }
 
+    private async Task OnUndoButtonClick()
+    {
+        PolyMain.UndoStep();
+        await OnAfterRenderAsync(true);
+        StateHasChanged();
+    }
 }
