@@ -3,73 +3,77 @@
     public class Net2D
     {
         Polygon[] Polygons;
-        bool[] IsPolySet;
-        public Net2D(Polygon[] polys, int index)
+        public static int StepsToDo = 0;
+
+        public Net2D(Polygon[] polygons, Polygon largestPolygon)
         {
-            Polygons = polys;
-            IsPolySet = new bool[Polygons.Length];
-            IsPolySet[index] = true;
+            Polygons = polygons;
+            largestPolygon.HasBeenPlaced = true;
         }
 
-        public static Net2D GenerateNet(Polygon[] polys)
+        public static Net2D GenerateNet(Polygon[] polygons)
         {
             int largestIndex = 0;
-            Polygon largestPoly = polys[largestIndex];
-            for (int i = 1;  i < polys.Length; i++)
+            Polygon largestPolygon = polygons[largestIndex];
+            for (int i = 1; i < polygons.Length; i++)
             {
-                if (polys[i].Vertices.Length > largestPoly.Vertices.Length)
+                if (polygons[i].Vertices.Length > largestPolygon.Vertices.Length)
                 {
-                    largestPoly = polys[i];
+                    largestPolygon = polygons[i];
                     largestIndex = i;
                 }
             }
-            Net2D net = new(polys, largestIndex);
-            net.Test(largestIndex);
+            Net2D net = new(polygons, largestPolygon);
+            net.Test(largestPolygon);
             return GenerateNetBacktrack(net);
         }
 
-        private void Test(int currPolyIndex)
+        private void Test(Polygon currentPolygon)
         {
-            Polygon currPoly = Polygons[currPolyIndex];
-            IsPolySet[currPolyIndex] = true;
+            currentPolygon.HasBeenPlaced = true;
+            var steps = Math.Min(StepsToDo, currentPolygon.Edges.Length);
 
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i < steps; i++)
             {
-                if (!IsPolySet[i] && currPoly.Adjacency.Contains(Polygons[i]))
+                var currentEdge = currentPolygon.Edges[i];
+                var adjacentPolygon = currentEdge.AdjacentPolygon;
+
+                if (adjacentPolygon.HasBeenPlaced)
                 {
-                    Polygon nextPoly = Polygons[i];
-                    Edge nextEdge = nextPoly.Edges[0]; //TODO replace with the adjacent edge
-                    Edge currEdge = currPoly.Edges[0]; //TODO replace with the adjacent edge
+                    continue;
+                }
 
-                    // Rotate
-                    nextPoly.Rotate(nextEdge.FindAngleBetween(currEdge));
+                var adjacentEdge = adjacentPolygon.Edges.First(p => p.AdjacentPolygon == currentPolygon);
 
-                    // Translate
-                    Vec2D nextVec = new(nextEdge.Mid);
-                    Vec2D currVec = new(currEdge.Mid);
-                    nextPoly.TranslateToPoint(new(currVec - nextVec));
+                // Rotate
+                adjacentPolygon.Rotate(adjacentEdge.FindAngleBetween(currentEdge));
 
-                    // Check for intersections
-                    if (!CheckForIntersections(nextPoly))
-                    {
-                        // The polygon fits in this location
-                        currPoly = nextPoly;
-                        IsPolySet[i] = true;
-                    }
+                // Translate
+                Vec2D adjacentVector = new(adjacentEdge.Mid);
+                Vec2D currentVector = new(currentEdge.Mid);
+                adjacentPolygon.TranslateToPoint(new(currentVector - adjacentVector));
+
+                // Check for intersections
+                if (!CheckForIntersections(adjacentPolygon))
+                {
+                    // The polygon fits in this location
+                    currentPolygon = adjacentPolygon;
+                    adjacentPolygon.HasBeenPlaced = true;
                 }
             }
         }
 
-        private bool CheckForIntersections(Polygon nextPoly)
+        private bool CheckForIntersections(Polygon adjacentPolygon)
         {
             // TODO optimize by checking bounding boxes
             for (int j = 0; j < Polygons.Length; j++)
             {
-                if (IsPolySet[j])
+                var polygon = Polygons[j];
+                if (polygon.HasBeenPlaced)
                 {
-                    foreach (Edge setEdge in Polygons[j].Edges)
+                    foreach (Edge2D setEdge in Polygons[j].Edges)
                     {
-                        foreach (Edge edge in nextPoly.Edges)
+                        foreach (Edge2D edge in adjacentPolygon.Edges)
                         {
                             if (edge.Intersection(setEdge))
                             {

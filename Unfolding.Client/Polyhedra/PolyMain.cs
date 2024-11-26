@@ -85,7 +85,7 @@ namespace Unfolding.Client.Polyhedra
 
         public static void PerformStep()
         {
-
+            Net2D.StepsToDo++;
         }
     }
 }

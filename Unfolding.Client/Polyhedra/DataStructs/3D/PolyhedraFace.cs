@@ -61,7 +61,9 @@ namespace Unfolding.Client.Polyhedra.DataStructs
             var centroid = GetCentroid();
             for (int i = 0; i < Vertices.Length; i++)
             {
-                Vertices[i] -= centroid;
+                Vertices[i].X -= centroid.X;
+                Vertices[i].Y -= centroid.Y;
+                Vertices[i].Z -= centroid.Z;
             }
         }
 

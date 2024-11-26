@@ -9,7 +9,10 @@ namespace Unfolding.Client.Polyhedra.DataStructs
         public Point2D[] Vertices { get; set; }
 
         [JsonIgnore]
-        public Edge2D[] Edges { get; set; }
+        public Edge2D[] Edges { get; set; } 
+
+
+        public bool HasBeenPlaced { get; set; }
 
         public Point2D Centroid { get
             {
@@ -23,6 +26,7 @@ namespace Unfolding.Client.Polyhedra.DataStructs
         {
             Vertices = vertices;
             Edges = edges;
+            HasBeenPlaced = false;
         }
 
         public static Polygon[] PolyhedraToPolygons(Polyhedron polyhedron)
