@@ -55,7 +55,7 @@
                 adjacentPolygon.TranslateToPoint(new(vecToCurrEdge - vecToAdjEdge));
 
                 // Check for intersections
-                if (!CheckForIntersections(adjacentPolygon))
+                if (true /*TODO remove once intersections work !CheckForIntersections(adjacentPolygon)*/)
                 {
                     // The polygon fits in this location
                     //currentPolygon = adjacentPolygon;
@@ -63,7 +63,6 @@
                 }
 
                 // TODO Visualization code, can be removed later when mass testing
-                adjacentPolygon.HasBeenPlaced = true; //TODO remove once intersections work
                 adjacentPolygon.Color = [0, 0, 1, 1];
                 if (i == steps - 1)
                 {
