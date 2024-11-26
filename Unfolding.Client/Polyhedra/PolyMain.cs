@@ -12,7 +12,7 @@ namespace Unfolding.Client.Polyhedra
         private static Point3D[] randomVertices = Point3D.GenerateRandPoints(100, 0.5);
 
         // Set test shapes
-        private static Point3D[] pyramidVertices =
+        private static Point3D[] triangularPyramid =
             [
                 new(-0.5, -0.5, -0.5),
                 new(0.5, -0.5, -0.5),
@@ -20,7 +20,7 @@ namespace Unfolding.Client.Polyhedra
                 new(-0.5, -0.5, 0.5),
                 new(0, 0.5, 0)
             ];
-        private static Point3D[] cubeVertices =
+        private static Point3D[] cube =
             [
                 new(-0.5, -0.5, -0.5),
                 new(-0.5, -0.5, 0.5),
@@ -31,14 +31,14 @@ namespace Unfolding.Client.Polyhedra
                 new(0.5, 0.5, -0.5),
                 new(0.5, 0.5, 0.5)
             ];
-        private static Point3D[] tetrahedronVertices =
+        private static Point3D[] tetrahedron =
             [
                 new(0, 0.5, 0),
                 new(0.5, -0.5, 0),
                 new(Math.Sin(60), -0.5, 0.5),
                 new(Math.Sin(60), -0.5, -0.5)
             ];
-        private static Point3D[] elongatedSquareDipyramidVertices =
+        private static Point3D[] elongatedSquareDipyramid =
             [
                 new(0, -1.5, 0),
                 new(-0.5, -0.5, -0.5),
@@ -51,7 +51,7 @@ namespace Unfolding.Client.Polyhedra
                 new(0.5, 0.5, 0.5),
                 new(0, 1.5, 0)
             ];
-        private static Point3D[] octahedronVertices =
+        private static Point3D[] octahedron =
             [
                 new(0, 0.5, 0),
                 new(-1/(2*Math.Sqrt(2)), 0, -1/(2*Math.Sqrt(2))),
