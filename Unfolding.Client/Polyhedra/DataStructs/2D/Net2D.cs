@@ -49,9 +49,10 @@
                 var vecToCurrEdge = currentPolygon.GetVecToEdge(currentEdge);
                 var vecToAdjEdge = adjacentPolygon.GetVecToEdge(adjacentEdge);
                 var angle = vecToCurrEdge.FindAngleBetween(vecToAdjEdge * -1);
-                
+
                 adjacentPolygon.Rotate(angle);
-                adjacentPolygon.TranslateToPoint(new(vecToCurrEdge + vecToAdjEdge * -1));
+                vecToAdjEdge = adjacentPolygon.GetVecToEdge(adjacentEdge);
+                adjacentPolygon.TranslateToPoint(new(vecToCurrEdge - vecToAdjEdge));
 
                 // Check for intersections
                 if (!CheckForIntersections(adjacentPolygon))
@@ -69,6 +70,10 @@
                     adjacentPolygon.Color = [0, 1, 0, 1];
                 }
             }
+
+            var nextPolyIndex = Math.Min(StepsToDo, currentPolygon.Edges.Length - 1);
+            var nextPolygon = currentPolygon.Edges[nextPolyIndex].AdjacentPolygon;
+            nextPolygon.Color = [1, 1, 0, 1];
         }
 
         private bool CheckForIntersections(Polygon adjacentPolygon)

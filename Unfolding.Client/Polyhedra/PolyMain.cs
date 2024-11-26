@@ -61,11 +61,11 @@ namespace Unfolding.Client.Polyhedra
                 new(0, -0.5, 0)
             ];
 
-        private static Point3D[] currentShape = randomVertices;
+        private static Point3D[] currentShape = octahedronVertices;
 
         private static bool Flatten = false;
 
-        private static bool HideUnplacedPolygons = false;
+        private static bool HideUnplacedPolygons = true;
 
         public static void SwapView()
         {

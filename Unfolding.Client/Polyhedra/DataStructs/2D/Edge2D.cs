@@ -132,5 +132,10 @@
             }
             return false;
         }
+
+        public override string ToString()
+        {
+            return Start.ToString() + " - " + End.ToString();
+        }
     }
 }

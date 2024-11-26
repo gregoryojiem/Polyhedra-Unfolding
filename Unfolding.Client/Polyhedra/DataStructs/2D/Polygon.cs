@@ -30,7 +30,7 @@ namespace Unfolding.Client.Polyhedra.DataStructs
             Vertices = vertices;
             Edges = edges;
             HasBeenPlaced = false;
-            Color = [1, 0, 0, 1];
+            Color = [1, 0, 0, 0.2];
         }
 
         public static Polygon[] PolyhedraToPolygons(Polyhedron polyhedron)
