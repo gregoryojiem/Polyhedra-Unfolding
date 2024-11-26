@@ -6,18 +6,18 @@ namespace Unfolding.Client.Polyhedra.DataStructs
 {
     public class Polyhedron
     {
-        public PolyhedraFace[] Faces { get; set; }
+        public PolyhedronFace[] Faces { get; set; }
 
         public Polyhedron(ConvexHullCreationResult<Point3D, ConvexHullFace> convexHull)
         {
             var convexHullFaces = convexHull.Result.Faces.ToArray();
-            Faces = new PolyhedraFace[convexHullFaces.Length];
-            var polyToConvMapping = new Dictionary<PolyhedraFace, ConvexHullFace>();
-            var convToPolyMapping = new Dictionary<ConvexHullFace, PolyhedraFace>();
+            Faces = new PolyhedronFace[convexHullFaces.Length];
+            var polyToConvMapping = new Dictionary<PolyhedronFace, ConvexHullFace>();
+            var convToPolyMapping = new Dictionary<ConvexHullFace, PolyhedronFace>();
 
             for (int i = 0; i < convexHullFaces.Length; i++)
             {
-                Faces[i] = new PolyhedraFace(convexHullFaces[i]);
+                Faces[i] = new PolyhedronFace(convexHullFaces[i]);
                 polyToConvMapping[Faces[i]] = convexHullFaces[i];
                 convToPolyMapping[convexHullFaces[i]] = Faces[i];
             }
@@ -27,7 +27,7 @@ namespace Unfolding.Client.Polyhedra.DataStructs
             for (int i = 0; i < Faces.Length; i++)
             {
                 ConvexHullFace[] adjacencyList;
-                var adjacencySet = new HashSet<PolyhedraFace>();
+                var adjacencySet = new HashSet<PolyhedronFace>();
                 if (polyToConvMapping.ContainsKey(Faces[i]))
                 {
                     adjacencyList = polyToConvMapping[Faces[i]].Adjacency;
@@ -65,14 +65,20 @@ namespace Unfolding.Client.Polyhedra.DataStructs
                 }
 
                 adjacencySet.Remove(Faces[i]);
-                Faces[i].Adjacency = adjacencySet.ToList();
+                var finalAdjacencyList = adjacencySet.ToList();
+
+                for (int j = 0; j < finalAdjacencyList.Count; j++)
+                {
+                    var adjacentFace = finalAdjacencyList[j];
+                    Faces[i].Adjacency[adjacentFace] = new Edge3D(Faces[i], adjacentFace);
+                }
             }
         }
 
-        public Dictionary<PolyhedraFace, List<PolyhedraFace>> MergeCoplanarTriangles()
+        public Dictionary<PolyhedronFace, List<PolyhedronFace>> MergeCoplanarTriangles()
         {
-            var mergedMapping = new Dictionary<PolyhedraFace, List<PolyhedraFace>>();
-            var mergedFaces = new List<PolyhedraFace>();
+            var mergedMapping = new Dictionary<PolyhedronFace, List<PolyhedronFace>>();
+            var mergedFaces = new List<PolyhedronFace>();
             var faceHasMerged = new bool[Faces.Length];
 
             for (int i = 0; i < Faces.Length; i++)
@@ -86,9 +92,9 @@ namespace Unfolding.Client.Polyhedra.DataStructs
                         faceHasMerged[i] = true;
                         faceHasMerged[j] = true;
                         
-                        List<PolyhedraFace> originalFaces;
+                        List<PolyhedronFace> originalFaces;
                         if (!mergedMapping.ContainsKey(mergedFace)) {
-                            originalFaces = new List<PolyhedraFace>();
+                            originalFaces = new List<PolyhedronFace>();
                             mergedMapping[mergedFace] = originalFaces;
                         } else
                         {

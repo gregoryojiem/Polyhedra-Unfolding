@@ -1,6 +1,6 @@
 ﻿namespace Unfolding.Client.Polyhedra.DataStructs
 {
-    public class Edge
+    public class Edge2D
     {
         public Point2D Start { get; set; }
         public Point2D End { get; set; }
@@ -14,6 +14,8 @@
                 return new(X, Y);
             }
         }
+
+        public Polygon AdjacentPolygon;
 
         public double? Slope
         {
@@ -31,23 +33,21 @@
             }
         }
 
-        public bool Connector { get; set; }
-
-        public Edge(Point2D start, Point2D end)
+        public Edge2D(Point2D start, Point2D end, Polygon adjacentPolygon)
         {
             Start = start;
             End = end;
-            Connector = false;
+            AdjacentPolygon = adjacentPolygon;
         }
 
-        public double FindAngleBetween(Edge otherEdge)
+        public double FindAngleBetween(Edge2D otherEdge)
         {
             Vec2D vec = new(End.X - Start.X, End.Y - Start.Y);
             Vec2D otherVec = new(otherEdge.End.X - otherEdge.Start.X, otherEdge.End.Y - otherEdge.Start.Y);
             return Math.Acos(vec.Dot(otherVec) / (vec.Magnitude * otherVec.Magnitude));
         }
 
-        public bool Intersection(Edge otherEdge)
+        public bool Intersection(Edge2D otherEdge)
         {
             double xIntersection = 0;
 

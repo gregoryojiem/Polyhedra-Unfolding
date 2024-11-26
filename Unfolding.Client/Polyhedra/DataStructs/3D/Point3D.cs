@@ -13,7 +13,11 @@ namespace Unfolding.Client.Polyhedra.DataStructs
             get { return [X, Y, Z]; }
         }
 
-        public Point3D(double x, double y, double z) { X = x; Y = y; Z = z; }
+        public Point3D(double x, double y, double z) { 
+            X = x; 
+            Y = y; 
+            Z = z; 
+        }
 
         public static Point3D[] GenerateRandPoints(int amount, double extent)
         {
@@ -29,16 +33,6 @@ namespace Unfolding.Client.Polyhedra.DataStructs
             }
 
             return points;
-        }
-
-        public static Point3D operator +(Point3D point1, Point3D point2)
-        {
-            return new(point1.X + point2.X, point1.Y + point2.Y, point1.Z + point2.Z);
-        }
-
-        public static Point3D operator -(Point3D point1, Point3D point2)
-        {
-            return new(point1.X - point2.X, point1.Y - point2.Y, point1.Z - point2.Z);
         }
 
         public void Rotate(Matrix3D matrix)
