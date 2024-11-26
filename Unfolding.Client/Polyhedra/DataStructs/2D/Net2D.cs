@@ -69,11 +69,11 @@
         }
 
         // TODO optimize with bounding boxes
-        public int GetStatus()
+        public NetStatus GetStatus()
         {
             if (IsComplete())
             {
-                return 1;
+                return NetStatus.Complete;
             }
 
             for (int i = 0; i < Polygons.Length; i++)
@@ -93,13 +93,13 @@
 
                     if (currentPolygon.Intersecting(adjacentPolygon))
                     {
-                        return -1;
+                        return NetStatus.Invalid;
 
                     }
                 }
             }
 
-            return 0;
+            return NetStatus.Incomplete;
         }
 
         public bool IsComplete()
