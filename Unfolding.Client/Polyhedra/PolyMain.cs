@@ -61,6 +61,32 @@ namespace Unfolding.Client.Polyhedra
                 new(0, -0.5, 0)
             ];
 
+        private static double phi = (1 + Math.Sqrt(5)) / 2;
+
+        private static Point3D[] dodecahedronVertices =
+        [
+            new(1, 1, 1),
+            new(1, 1, -1),
+            new(1, -1, 1),
+            new(1, -1, -1),
+            new(-1, 1, 1),
+            new(-1, 1, -1),
+            new(-1, -1, 1),
+            new(-1, -1, -1),
+            new(0, 1/phi, phi),
+            new(0, 1/phi, -phi),
+            new(0, -1/phi, phi),
+            new(0, -1/phi, -phi),
+            new(1/phi, phi, 0),
+            new(1/phi, -phi, 0),
+            new(-1/phi, phi, 0),
+            new(-1/phi, -phi, 0),
+            new(phi, 0, 1/phi),
+            new(-phi, 0, 1/phi),
+            new(phi, 0, -1/phi),
+            new(-phi, 0, -1/phi)
+        ];
+
         private static Point3D[] currentShape = octahedronVertices;
 
         private static bool Flatten = false;

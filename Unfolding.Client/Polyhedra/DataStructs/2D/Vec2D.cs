@@ -33,6 +33,11 @@
             return (X * vec.X) + (Y * vec.Y);
         }
 
+        public double Cross(Vec2D vec)
+        {
+            return (X * vec.Y) - (Y * vec.X);
+        }
+
         public double FindAngleBetween(Vec2D otherVector)
         {
             return Math.Acos(Dot(otherVector) / (Magnitude * otherVector.Magnitude));
