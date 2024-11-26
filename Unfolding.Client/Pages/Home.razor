@@ -6,16 +6,23 @@
 
 Welcome to your new app.
 
-<br/>
-3D buttons 
-<button @onclick="OnFlattenClick">See flattened polyhedra</button>
-<button @onclick="OnSwapViewClick">Swap 2D/3D view</button>
+@if (PolyMain.currentView == "3D")
+{
+    <div>
+        <button @onclick="OnFlattenClick">See flattened polyhedra</button>
+        <button @onclick="OnSwapViewClick">Swap to 2D view</button>
+    </div>
+}
 
-<br/>
-2D Buttons 
-<button @onclick="OnStepButtonClick">Step through algorithm</button>
-<button @onclick="OnUndoButtonClick">Undo Step</button>
-<button @onclick="OnUnplacedButtonClick">Unplaced polygon visibility</button>
+else if (PolyMain.currentView == "2D")
+{
+    <div>
+        <button @onclick="OnStepButtonClick">Step through algorithm</button>
+        <button @onclick="OnUndoButtonClick">Undo Step</button>
+        <button @onclick="OnUnplacedButtonClick">Unplaced polygon visibility</button>
+        <button @onclick="OnSwapViewClick">Swap to 3D view</button>
+    </div>
+}
 
 <script type="module" src="renderer.js"></script>
 
