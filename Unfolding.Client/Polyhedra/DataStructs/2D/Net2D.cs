@@ -48,6 +48,7 @@
             Placements.RemoveAt(placementIndex);
         }
 
+        // Should always return moves until net is complete
         public List<(Polygon, Polygon)> GetMoves()
         {
             var moves = new List<(Polygon, Polygon)>();
@@ -68,8 +69,13 @@
         }
 
         // TODO optimize with bounding boxes
-        public bool Validate()
+        public int GetStatus()
         {
+            if (IsComplete())
+            {
+                return 1;
+            }
+
             for (int i = 0; i < Polygons.Length; i++)
             {
                 var currentPolygon = Polygons[i];
@@ -87,13 +93,13 @@
 
                     if (currentPolygon.Intersecting(adjacentPolygon))
                     {
-                        return false;
+                        return -1;
 
                     }
                 }
             }
 
-            return true;
+            return 0;
         }
 
         public bool IsComplete()
