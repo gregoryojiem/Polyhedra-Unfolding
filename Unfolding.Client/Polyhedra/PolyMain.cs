@@ -35,8 +35,8 @@ namespace Unfolding.Client.Polyhedra
             [
                 new(0, 0.5, 0),
                 new(0.5, -0.5, 0),
-                new(Math.Sin(60) - 0.5, -0.5, 0.5),
-                new(Math.Sin(60) - 0.5, -0.5, -0.5)
+                new(Math.Sin(60), -0.5, 0.5),
+                new(Math.Sin(60), -0.5, -0.5)
             ];
         private static Point3D[] elongatedSquareDipyramidVertices =
             [
