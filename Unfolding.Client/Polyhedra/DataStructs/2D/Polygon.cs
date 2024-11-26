@@ -99,6 +99,22 @@ namespace Unfolding.Client.Polyhedra.DataStructs
             return Edges.First(e => e.AdjacentPolygon == polygon);
         }
 
+        public bool Intersecting(Polygon otherPolygon)
+        {
+            foreach (Edge2D edge in Edges)
+            {
+                foreach (Edge2D otherEdge in otherPolygon.Edges)
+                {
+                    if (edge.Intersection(otherEdge))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
         public override string ToString()
         {
             var sb = new StringBuilder();

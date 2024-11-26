@@ -3,51 +3,102 @@
     public class Net2D
     {
         private readonly Polygon[] Polygons;
-        private readonly int[] Placements;
+        private readonly List<int> Placements = [];
+        private int placementIndex = 0;
 
         public Net2D(Polygon[] polygons)
         {
             Polygons = polygons;
-            Placements = new int[polygons.Length];
+            Placements = [];
         }
 
-        // assumes current polygon is placed, and adjacent hasn't been placed
+        // Assumes current polygon is placed, and adjacent hasn't been placed
         public void PlacePolygon(Polygon currentPolygon, Polygon adjacentPolygon)
         {
-            
+            var currentEdge = currentPolygon.GetConnectingEdge(adjacentPolygon);
+            var adjacentEdge = adjacentPolygon.GetConnectingEdge(currentPolygon);
+
+            var vecToCurrEdge = currentPolygon.GetVecToEdge(currentEdge);
+            var vecToAdjEdge = adjacentPolygon.GetVecToEdge(adjacentEdge);
+            var angle = vecToCurrEdge.FindAngleBetween(vecToAdjEdge * -1);
+            var crossProduct = vecToCurrEdge.Cross(vecToAdjEdge);
+            if (crossProduct < 0)
+            {
+                angle = 2 * Math.PI - angle;
+            }
+
+            adjacentPolygon.Rotate(angle);
+            vecToAdjEdge = adjacentPolygon.GetVecToEdge(adjacentEdge);
+            adjacentPolygon.TranslateToPoint(new(vecToCurrEdge - vecToAdjEdge));
+
+            Placements.Add(Array.IndexOf(Polygons, adjacentPolygon));
+            placementIndex++;
         }
 
         public void Undo()
         {
-
-        }
-
-        public bool Validate(Polygon adjacentPolygon)
-        {
-            // TODO optimize by checking bounding boxes
-            for (int j = 0; j < Polygons.Length; j++)
+            if (placementIndex == 0)
             {
-                var polygon = Polygons[j];
-                if (polygon.HasBeenPlaced)
-                {
-                    foreach (Edge2D setEdge in Polygons[j].Edges)
-                    {
-                        foreach (Edge2D edge in adjacentPolygon.Edges)
-                        {
-                            if (edge.Intersection(setEdge))
-                            {
-                                return true;
-                            }
-                        }
-                    }
-                }
+                throw new Exception("Can't call undo on an empty Net2D");
             }
-            return false;
+
+            placementIndex--;
+            int lastPlacedIndex = Placements[placementIndex];
+            Polygons[lastPlacedIndex].HasBeenPlaced = false;
+            Placements.RemoveAt(placementIndex);
         }
 
         public List<(Polygon, Polygon)> GetMoves()
         {
-            return null;
+            var moves = new List<(Polygon, Polygon)>();
+
+            foreach (var placement in Placements) {
+                var polygon = Polygons[placement];
+
+                foreach (var edge in polygon.Edges)
+                {
+                    if (!edge.AdjacentPolygon.HasBeenPlaced)
+                    {
+                        moves.Add((polygon, edge.AdjacentPolygon));
+                    }
+                }
+            }
+
+            return moves;
+        }
+
+        // TODO optimize with bounding boxes
+        public bool Validate()
+        {
+            for (int i = 0; i < Polygons.Length; i++)
+            {
+                var currentPolygon = Polygons[i];
+                if (currentPolygon.HasBeenPlaced)
+                {
+                    continue;
+                }
+                for (int j = 0; j < Polygons.Length; j++)
+                {
+                    var adjacentPolygon = Polygons[j];
+                    if (adjacentPolygon.HasBeenPlaced)
+                    {
+                        continue;
+                    }
+
+                    if (currentPolygon.Intersecting(adjacentPolygon))
+                    {
+                        return false;
+
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        public bool IsComplete()
+        {
+            return false;
         }
     }
 }
