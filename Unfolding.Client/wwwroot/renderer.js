@@ -81,12 +81,17 @@ function drawScene2D(scene, renderer, shapes) {
 	);
 
 	shapes.forEach(shape => {
-		// add the shape to the scene
+		// add the shape to the scene 
 		const vertices = shape.Vertices.map(v => new THREE.Vector3(v.X, v.Y, 0)); 
 
 		const shapeGeometry = new THREE.BufferGeometry();
 		shapeGeometry.setFromPoints(vertices);
-		const shapeMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, side: THREE.DoubleSide });
+		const shapeMaterial = new THREE.MeshBasicMaterial({
+			color: new THREE.Color(shape.Color[0], shape.Color[1], shape.Color[2]),
+			side: THREE.DoubleSide,
+			transparent: shape.Color[3] < 1,
+			opacity: shape.Color[3]
+		});
 		const shapeMesh = new THREE.Mesh(shapeGeometry, shapeMaterial);
 
 		if (vertices.length > 3) {
@@ -99,8 +104,8 @@ function drawScene2D(scene, renderer, shapes) {
 
 		scene.add(shapeMesh);
 
-		// add an outline to the shape
-		const outlineMaterial = new THREE.LineBasicMaterial({ color: 0x0000ff });
+		// add a shape outline to the scene
+		const outlineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
 		const outlinePoints = vertices.slice();
 		outlinePoints.push(outlinePoints[0]);
 		const outlineGeometry = new THREE.BufferGeometry().setFromPoints(outlinePoints);

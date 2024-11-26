@@ -25,6 +25,7 @@
             }
             Net2D net = new(polygons, largestPolygon);
             net.Test(largestPolygon);
+            largestPolygon.Color = [0, 0, 1, 1];
             return GenerateNetBacktrack(net);
         }
 
@@ -58,6 +59,14 @@
                     // The polygon fits in this location
                     //currentPolygon = adjacentPolygon;
                     adjacentPolygon.HasBeenPlaced = true;
+                }
+
+                // TODO Visualization code, can be removed later when mass testing
+                adjacentPolygon.HasBeenPlaced = true; //TODO remove once intersections work
+                adjacentPolygon.Color = [0, 0, 1, 1];
+                if (i == steps - 1)
+                {
+                    adjacentPolygon.Color = [0, 1, 0, 1];
                 }
             }
         }

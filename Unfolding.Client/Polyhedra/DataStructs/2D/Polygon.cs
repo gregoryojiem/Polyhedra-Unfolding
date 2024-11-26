@@ -8,12 +8,15 @@ namespace Unfolding.Client.Polyhedra.DataStructs
     {
         public Point2D[] Vertices { get; set; }
 
+        public double[] Color { get; set; }
+
         [JsonIgnore]
-        public Edge2D[] Edges { get; set; } 
+        public Edge2D[] Edges { get; set; }
 
-
+        [JsonIgnore]
         public bool HasBeenPlaced { get; set; }
 
+        [JsonIgnore]
         public Point2D Centroid { get
             {
                 double X = Vertices.Average(p => p.X);
@@ -27,6 +30,7 @@ namespace Unfolding.Client.Polyhedra.DataStructs
             Vertices = vertices;
             Edges = edges;
             HasBeenPlaced = false;
+            Color = [1, 0, 0, 1];
         }
 
         public static Polygon[] PolyhedraToPolygons(Polyhedron polyhedron)

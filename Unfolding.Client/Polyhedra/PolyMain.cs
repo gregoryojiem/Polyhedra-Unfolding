@@ -61,25 +61,48 @@ namespace Unfolding.Client.Polyhedra
                 new(0, -0.5, 0)
             ];
 
+        private static Point3D[] currentShape = tetrahedronVertices;
+
+        private static bool Flatten = false;
+
+        private static bool HideUnplacedPolygons = false;
+
         public static void SwapView()
         {
             currentView = (currentView == "3D") ? "2D" : "3D";
         }
 
+        public static void FlattenToggle()
+        {
+            Flatten = !Flatten;
+        }
+
+        public static void UnplacedVisibilityToggle()
+        {
+            HideUnplacedPolygons = !HideUnplacedPolygons;
+        }
+        
         public static Polyhedron GetPolyhedron()
         {
-            var convexHull = ConvexHull.Create<Point3D, ConvexHullFace>(pyramidVertices);
+            var convexHull = ConvexHull.Create<Point3D, ConvexHullFace>(currentShape);
             var polyhedron = new Polyhedron(convexHull);
-            polyhedron.FlattenFaces();
+            if (Flatten)
+            {
+                polyhedron.FlattenFaces();
+            }
             return polyhedron;
         }
 
         public static string GetPolygonsJSON()
         {
-            var convexHull = ConvexHull.Create<Point3D, ConvexHullFace>(pyramidVertices);
+            var convexHull = ConvexHull.Create<Point3D, ConvexHullFace>(currentShape);
             var polyhedron = new Polyhedron(convexHull);
             var polygons = Polygon.PolyhedraToPolygons(polyhedron);
             var net = Net2D.GenerateNet(polygons);
+            if (HideUnplacedPolygons)
+            {
+                polygons = polygons.Where(p => p.HasBeenPlaced).ToArray();
+            }
             return JsonSerializer.Serialize(polygons, new JsonSerializerOptions { WriteIndented = true });
         }
 

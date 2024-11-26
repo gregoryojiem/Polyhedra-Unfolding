@@ -6,9 +6,16 @@
 
 Welcome to your new app.
 
+<br/>
+3D buttons 
+<button @onclick="OnFlattenClick">See flattened polyhedra</button>
 <button @onclick="OnSwapViewClick">Swap 2D/3D view</button>
+
+<br/>
+2D Buttons 
 <button @onclick="OnStepButtonClick">Step through algorithm</button>
 <button @onclick="OnUndoButtonClick">Undo Step</button>
+<button @onclick="OnUnplacedButtonClick">Unplaced polygon visibility</button>
 
 <script type="module" src="renderer.js"></script>
 
@@ -37,6 +44,13 @@ Welcome to your new app.
         }
     }
 
+    private async Task OnFlattenClick()
+    {
+        PolyMain.FlattenToggle();
+        await OnAfterRenderAsync(true);
+        StateHasChanged();
+    }
+
     private async Task OnSwapViewClick()
     {
         PolyMain.SwapView();
@@ -54,6 +68,13 @@ Welcome to your new app.
     private async Task OnUndoButtonClick()
     {
         PolyMain.UndoStep();
+        await OnAfterRenderAsync(true);
+        StateHasChanged();
+    }
+
+    private async Task OnUnplacedButtonClick()
+    {
+        PolyMain.UnplacedVisibilityToggle();
         await OnAfterRenderAsync(true);
         StateHasChanged();
     }
