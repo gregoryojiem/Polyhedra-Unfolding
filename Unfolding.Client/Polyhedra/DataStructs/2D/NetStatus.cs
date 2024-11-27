@@ -2,7 +2,7 @@
 {
     public enum NetStatus
     {
-        Incomplete,
+        Valid,
         Complete,
         Invalid
     }

@@ -94,7 +94,7 @@
                 }
             }
 
-            return NetStatus.Incomplete;
+            return NetStatus.Valid;
         }
 
         public NetStatus GetStatus()
@@ -108,7 +108,7 @@
             {
                 if (!polygon.HasBeenPlaced)
                 {
-                    return NetStatus.Incomplete;
+                    return NetStatus.Valid;
                 }
             }
 
