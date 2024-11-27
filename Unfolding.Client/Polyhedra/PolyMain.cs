@@ -60,10 +60,20 @@ namespace Unfolding.Client.Polyhedra
                 new(1/(2*Math.Sqrt(2)), 0, 1/(2*Math.Sqrt(2))),
                 new(0, -0.5, 0)
             ];
+        private static Point3D[] hexagonalPyramid =
+            [
+                new(0, 0.5*Math.Sqrt(3)/2, 0),
+                new(-0.5, -0.5*Math.Sqrt(3)/2, 0),
+                new(0.5, -0.5*Math.Sqrt(3)/2, 0),
+                new(-0.25, -0.5*Math.Sqrt(3)/2, -0.25*Math.Sqrt(3)),
+                new(-0.25, -0.5*Math.Sqrt(3)/2, 0.25*Math.Sqrt(3)),
+                new(0.25, -0.5*Math.Sqrt(3)/2, -0.25*Math.Sqrt(3)),
+                new(0.25, -0.5*Math.Sqrt(3)/2, 0.25*Math.Sqrt(3))
+            ];
 
         private static double phi = (1 + Math.Sqrt(5)) / 2;
 
-        private static Point3D[] dodecahedronVertices =
+        private static Point3D[] dodecahedron =
         [
             new(1, 1, 1),
             new(1, 1, -1),
@@ -87,7 +97,7 @@ namespace Unfolding.Client.Polyhedra
             new(-phi, 0, -1/phi)
         ];
 
-        private static Point3D[] currentShape = octahedronVertices;
+        private static Point3D[] currentShape = octahedron;
 
         private static bool Flatten = false;
 

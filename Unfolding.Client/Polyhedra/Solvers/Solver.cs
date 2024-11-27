@@ -4,6 +4,6 @@ namespace Unfolding.Client.Polyhedra.Solvers
 {
     public abstract class Solver
     {
-        public abstract Net2D Solve(Net2D unplaced);
+        public abstract Net2D Solve(Net2D net);
     }
 }
