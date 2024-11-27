@@ -1,6 +1,6 @@
 ﻿namespace Unfolding.Client.Polyhedra.DataStructs
 {
-    enum NetStatus
+    public enum NetStatus
     {
         Incomplete,
         Complete,

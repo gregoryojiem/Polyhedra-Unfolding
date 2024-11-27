@@ -69,13 +69,8 @@
         }
 
         // TODO optimize with bounding boxes
-        public NetStatus GetStatus()
+        private NetStatus Validate()
         {
-            if (IsComplete())
-            {
-                return NetStatus.Complete;
-            }
-
             for (int i = 0; i < Polygons.Length; i++)
             {
                 var currentPolygon = Polygons[i];
@@ -102,9 +97,22 @@
             return NetStatus.Incomplete;
         }
 
-        public bool IsComplete()
+        public NetStatus GetStatus()
         {
-            return false;
+            if (Validate() == NetStatus.Invalid)
+            {
+                return NetStatus.Invalid;
+            }
+
+            foreach (var polygon in Polygons)
+            {
+                if (!polygon.HasBeenPlaced)
+                {
+                    return NetStatus.Incomplete;
+                }
+            }
+
+            return NetStatus.Complete;
         }
     }
 }
