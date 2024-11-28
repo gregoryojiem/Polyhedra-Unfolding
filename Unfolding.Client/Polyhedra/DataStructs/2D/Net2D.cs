@@ -45,10 +45,14 @@ namespace Unfolding.Client.Polyhedra.DataStructs
             adjacentPolygon.HasBeenPlaced = true;
             Placements.Add(Array.IndexOf(Polygons, adjacentPolygon));
             placementIndex++;
+
+            Polygons[Placements[Placements.Count - 1]].Color = [0, 1, 0, 1];
+            Polygons[Placements[Placements.Count - 2]].Color = [1, 0, 0, 1];
         }
 
         public void Undo()
         {
+            Console.WriteLine("Net2D is calling undo.");
             if (placementIndex == 0)
             {
                 throw new Exception("Can't call undo on an empty Net2D");
@@ -57,7 +61,7 @@ namespace Unfolding.Client.Polyhedra.DataStructs
             placementIndex--;
             int lastPlacedIndex = Placements[placementIndex];
             Polygons[lastPlacedIndex].HasBeenPlaced = false;
-            Polygons[lastPlacedIndex].Color = [1, 0, 0, 1];
+            Polygons[lastPlacedIndex].Color = [1, 0, 0, 0.2];
             Placements.RemoveAt(placementIndex);
 
         }

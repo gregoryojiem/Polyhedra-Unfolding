@@ -104,6 +104,8 @@ namespace Unfolding.Client.Polyhedra
 
         private static bool HideUnplacedPolygons = true;
 
+        public static int StepsToDo = 0;
+
         public static void SwapView()
         {
             currentView = (currentView == "3D") ? "2D" : "3D";
@@ -144,17 +146,27 @@ namespace Unfolding.Client.Polyhedra
             {
                 Console.WriteLine(e);
             }
+            if (HideUnplacedPolygons)
+            {
+                polygons = polygons.Where(p => p.HasBeenPlaced).ToArray();
+            }
             return JsonSerializer.Serialize(polygons, new JsonSerializerOptions { WriteIndented = true });
         }
 
         public static void PerformStep()
         {
-            
+            StepsToDo++;
+            Console.WriteLine("Going to step: " + StepsToDo);
         }
 
         public static void UndoStep()
         {
-            
+            Console.WriteLine("Undoing step: " + StepsToDo);
+            if (StepsToDo > 0)
+            {
+                StepsToDo--;
+            }
+
         }
     }
 }
