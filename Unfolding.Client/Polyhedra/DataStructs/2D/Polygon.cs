@@ -85,7 +85,8 @@ namespace Unfolding.Client.Polyhedra.DataStructs
         {
             for (int i = 0; i < Vertices.Length; i++)
             {
-                Vertices[i] += pointToTranslateTo;
+                Vertices[i].X += pointToTranslateTo.X;
+                Vertices[i].Y += pointToTranslateTo.Y;
             }
         }
 
@@ -103,8 +104,16 @@ namespace Unfolding.Client.Polyhedra.DataStructs
         {
             foreach (Edge2D edge in Edges)
             {
+                if (edge.AdjacentPolygon == otherPolygon)
+                {
+                    continue;
+                }
                 foreach (Edge2D otherEdge in otherPolygon.Edges)
                 {
+                    if (otherEdge.AdjacentPolygon == this)
+                    {
+                        continue;
+                    }
                     if (edge.Intersection(otherEdge))
                     {
                         return true;
