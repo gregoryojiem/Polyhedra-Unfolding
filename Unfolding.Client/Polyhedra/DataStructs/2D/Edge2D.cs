@@ -40,97 +40,31 @@
             AdjacentPolygon = adjacentPolygon;
         }
 
-        public bool Intersection(Edge2D otherEdge)
+        public bool Intersection(Edge2D otherEdge) //TODO: Is there a way to avoid all the floating point related checks?
         {
-            double xIntersection = 0;
-
-            Point2D start = Start;
-            Point2D end = End;
-            double slope;
-            bool swap = false;
-            Point2D otherStart = otherEdge.Start;
-            Point2D otherEnd = otherEdge.End;
-            double otherSlope;
-            bool otherSwap = false;
-            if (start.X > end.X) { (end, start) = (start, end); swap = true; }
-            if (otherStart.X > otherEnd.X) { (otherEnd, otherStart) = (otherStart, otherEnd); swap = false; }
-
-            if (Slope == null && otherEdge.Slope == null)
+            var sharedLeftEndpoint = Start == otherEdge.Start || Start == otherEdge.End;
+            var sharedRightEndpoint = End == otherEdge.Start || End == otherEdge.End;
+            if (sharedLeftEndpoint && sharedRightEndpoint)
             {
-                // Both lines are vertical
+                return true;
+            }
+
+            var thisEdgeVec = new Vec2D(End - Start);
+            var otherEdgeVec = new Vec2D(otherEdge.End - otherEdge.Start); 
+
+            double cp1 = thisEdgeVec.Cross(new Vec2D(otherEdge.Start - Start));
+            double cp2 = thisEdgeVec.Cross(new Vec2D(otherEdge.End - Start));
+            double cp3 = otherEdgeVec.Cross(new Vec2D(Start - otherEdge.Start));
+            double cp4 = otherEdgeVec.Cross(new Vec2D(End - otherEdge.Start));
+         
+            double epsilon = 1e-8;
+            var collinearOrEndpointTouchCheck = (cp1 * cp2) > -epsilon || (cp3 * cp4) > -epsilon;
+            if ((sharedLeftEndpoint || sharedRightEndpoint) && collinearOrEndpointTouchCheck)
+            {
                 return false;
             }
-            else if (Slope == null)
-            {
-                // This line is vertical
-                if (Start.Y > End.Y)
-                {
-                    (end, start) = (start, end);
-                }
-                otherSlope = (double)otherEdge.Slope;
-                if (otherSwap)
-                {
-                    otherSlope = otherSlope * -1;
-                }
 
-                double x = Start.X;
-                double y = otherSlope * (x - otherStart.X) + otherStart.Y;
-
-                if ((Start.Y < y && y < End.Y) && (otherStart.X < x && x < otherEnd.X) )
-                {
-                    return true;
-                }
-            }
-            else if (otherEdge.Slope == null)
-            {
-                // Other line is vertical
-                if (otherEdge.Start.Y > otherEdge.End.Y)
-                {
-                    (otherEnd, otherStart) = (otherStart, otherEnd);
-                }
-                slope = (double)Slope;
-                if (swap)
-                {
-                    slope = slope * -1;
-                }
-
-                double x = otherStart.X;
-                double y = slope * (x - start.X) + start.Y;
-
-                if ((otherStart.Y < y && y < otherEnd.Y) && (start.X < x && x < end.X))
-                {
-                    return true;
-                }
-            }
-            else
-            {
-                slope = (double)Slope;
-                otherSlope = (double)otherEdge.Slope;
-                if (swap)
-                {
-                    slope = slope * -1;
-                }
-                if (otherSwap)
-                {
-                    otherSlope = otherSlope * -1;
-                }
-
-                try
-                {
-                    xIntersection = (double)((otherStart.Y - otherSlope * otherStart.X - start.Y + slope * start.X) / (slope - otherSlope));
-                }
-                catch (DivideByZeroException)
-                {
-                    // Parallel lines
-                    return false;
-                }
-
-                if (Math.Max(start.X, otherStart.X) < xIntersection && xIntersection < Math.Min(end.X, otherEnd.X))
-                {
-                    return true;
-                }
-            }
-            return false;
+            return (cp1 * cp2 < 0 && cp3 * cp4 < 0);
         }
 
         public override string ToString()

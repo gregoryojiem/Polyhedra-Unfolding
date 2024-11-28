@@ -55,5 +55,38 @@
         {
             return "(" + X + ", " + Y + ")";
         }
+
+        //TODO come up with a more efficient way of handling minor rotation differences?
+        public static bool operator ==(Point2D p1, Point2D p2)
+        {
+            if (ReferenceEquals(p1, p2))
+            {
+                return true;
+            }
+            if (p1 is null || p2 is null)
+            {
+                return false;
+            }
+            return Math.Abs(p1.X - p2.X) < 0.0001 && Math.Abs(p1.Y - p2.Y) < 0.0001;
+        }
+
+        public static bool operator !=(Point2D p1, Point2D p2)
+        {
+            return !(p1 == p2);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Point2D other)
+            {
+                return this == other;
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return X.GetHashCode() ^ Y.GetHashCode();
+        }
     }
 }

@@ -13,12 +13,13 @@ namespace Unfolding.Client.Polyhedra.Solvers
             {
                 net.PlacePolygon(move.Item1, move.Item2);
                 StepsTaken++;
+                var status = net.GetStatus();
 
-                if (net.GetStatus() == NetStatus.Complete || StepsTaken >= PolyMain.StepsToDo)
+                if (status == NetStatus.Complete || StepsTaken >= PolyMain.StepsToDo)
                 {
                     return net;
                 }
-                else if (net.GetStatus() == NetStatus.Valid) {
+                else if (status == NetStatus.Valid) {
                     Solve(net);
                     if (net.GetStatus() == NetStatus.Complete || StepsTaken >= PolyMain.StepsToDo)
                     {

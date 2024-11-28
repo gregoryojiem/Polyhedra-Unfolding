@@ -116,7 +116,10 @@ namespace Unfolding.Client.Polyhedra.DataStructs
                     }
                     if (edge.Intersection(otherEdge))
                     {
-                        return true;
+                        if (edge.Intersection(otherEdge))
+                        {
+                            return true;
+                        }
                     }
                 }
             }
