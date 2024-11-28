@@ -6,7 +6,7 @@ namespace Unfolding.Client.Polyhedra.Solvers
     {
         public override Net2D Solve(Net2D net)
         {
-            List<(Polygon, Polygon)> moves = net.GetMoves();
+            List<(Polygon, Polygon?)> moves = net.GetMoves();
             foreach (var move in moves)
             {
                 net.PlacePolygon(move.Item1, move.Item2);

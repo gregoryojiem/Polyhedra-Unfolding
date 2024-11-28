@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Text.Json;
 using Unfolding.Client.Polyhedra.DataStructs;
+using Unfolding.Client.Polyhedra.Solvers;
 
 namespace Unfolding.Client.Polyhedra
 {
@@ -134,25 +135,26 @@ namespace Unfolding.Client.Polyhedra
             var convexHull = ConvexHull.Create<Point3D, ConvexHullFace>(currentShape);
             var polyhedron = new Polyhedron(convexHull);
             var polygons = Polygon.PolyhedraToPolygons(polyhedron);
-            var net = Net2D.GenerateNet(polygons);
-            if (HideUnplacedPolygons)
+            var net = new Net2D(polygons);
+            var solver = new DFS();
+            try
             {
-                polygons = polygons.Where(p => p.HasBeenPlaced).ToArray();
+                solver.Solve(net);
+            } catch (Exception e)
+            {
+                Console.WriteLine(e);
             }
             return JsonSerializer.Serialize(polygons, new JsonSerializerOptions { WriteIndented = true });
         }
 
         public static void PerformStep()
         {
-            Net2D.StepsToDo++;
+            
         }
 
         public static void UndoStep()
         {
-            if (Net2D.StepsToDo > 0)
-            {
-                Net2D.StepsToDo--;
-            }
+            
         }
     }
 }

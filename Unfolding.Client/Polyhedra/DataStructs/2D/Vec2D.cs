@@ -40,7 +40,9 @@
 
         public double FindAngleBetween(Vec2D otherVector)
         {
-            return Math.Acos(Dot(otherVector) / (Magnitude * otherVector.Magnitude));
+            var cosOfTheta = Dot(otherVector) / (Magnitude * otherVector.Magnitude);
+            var angle = Math.Acos(Math.Clamp(cosOfTheta, -1, 1));
+            return angle;
         }
     }
 }
