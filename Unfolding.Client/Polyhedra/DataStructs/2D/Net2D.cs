@@ -1,6 +1,4 @@
-﻿using MIConvexHull;
-
-namespace Unfolding.Client.Polyhedra.DataStructs
+﻿namespace Unfolding.Client.Polyhedra.DataStructs
 {
     public class Net2D
     {
@@ -19,10 +17,9 @@ namespace Unfolding.Client.Polyhedra.DataStructs
         {
             if (adjacentPolygon == null)
             {
-                currentPolygon.HasBeenPlaced = true;
+                currentPolygon.Status = PolygonStatus.Starting;
                 Placements.Add(Array.IndexOf(Polygons, currentPolygon));
                 placementIndex++;
-                currentPolygon.Color = [0, 0, 1, 1];
                 return;
             }
 
@@ -42,12 +39,17 @@ namespace Unfolding.Client.Polyhedra.DataStructs
             vecToAdjEdge = adjacentPolygon.GetVecToEdge(adjacentEdge);
             adjacentPolygon.TranslateToPoint(new(vecToCurrEdge - vecToAdjEdge));
 
-            adjacentPolygon.HasBeenPlaced = true;
+            adjacentPolygon.Status = PolygonStatus.Current;
+            var lastPolygonPlaced = Polygons[Placements[Placements.Count - 1]];
+            if (lastPolygonPlaced.Status != PolygonStatus.Starting)
+            {
+                lastPolygonPlaced.Status = PolygonStatus.Placed;
+            }
             Placements.Add(Array.IndexOf(Polygons, adjacentPolygon));
             placementIndex++;
 
-            Polygons[Placements[Placements.Count - 1]].Color = [0, 1, 0, 1];
-            Polygons[Placements[Placements.Count - 2]].Color = [1, 0, 0, 1];
+            currentEdge.Connector = true;
+            adjacentEdge.Connector = true;
         }
 
         public void Undo()
@@ -60,10 +62,26 @@ namespace Unfolding.Client.Polyhedra.DataStructs
 
             placementIndex--;
             int lastPlacedIndex = Placements[placementIndex];
-            Polygons[lastPlacedIndex].HasBeenPlaced = false;
-            Polygons[lastPlacedIndex].Color = [1, 0, 0, 0.2];
+            var polygon = Polygons[lastPlacedIndex];
+            polygon.Status = PolygonStatus.Unplaced;
             Placements.RemoveAt(placementIndex);
 
+            if (placementIndex > 0) // Ignore starting polygon's edges
+            {
+                return;
+            }
+
+            foreach (var edge in polygon.Edges)
+            {
+                if (!edge.Connector)
+                {
+                    continue;
+                }
+
+                edge.Connector = false;
+                var adjacentEdge = polygon.GetConnectingEdge(edge.AdjacentPolygon);
+                adjacentEdge.Connector = false;
+            }
         }
 
         // Should always return moves until net is complete
@@ -86,7 +104,7 @@ namespace Unfolding.Client.Polyhedra.DataStructs
 
                 foreach (var edge in polygon.Edges)
                 {
-                    if (!edge.AdjacentPolygon.HasBeenPlaced)
+                    if (edge.AdjacentPolygon.Status == PolygonStatus.Unplaced)
                     {
                         moves.Add((polygon, edge.AdjacentPolygon));
                     }
@@ -102,14 +120,14 @@ namespace Unfolding.Client.Polyhedra.DataStructs
             for (int i = 0; i < Polygons.Length; i++)
             {
                 var currentPolygon = Polygons[i];
-                if (!currentPolygon.HasBeenPlaced)
+                if (currentPolygon.Status == PolygonStatus.Unplaced)
                 {
                     continue;
                 }
                 for (int j = 0; j < Polygons.Length; j++)
                 {
                     var adjacentPolygon = Polygons[j];
-                    if (i == j || !adjacentPolygon.HasBeenPlaced)
+                    if (i == j || adjacentPolygon.Status == PolygonStatus.Unplaced)
                     {
                         continue;
                     }
@@ -134,7 +152,7 @@ namespace Unfolding.Client.Polyhedra.DataStructs
 
             foreach (var polygon in Polygons)
             {
-                if (!polygon.HasBeenPlaced)
+                if (polygon.Status == PolygonStatus.Unplaced)
                 {
                     return NetStatus.Valid;
                 }

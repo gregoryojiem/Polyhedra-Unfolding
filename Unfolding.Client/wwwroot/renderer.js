@@ -1,4 +1,7 @@
-﻿import * as THREE from "../node_modules/three/build/three.module.js"
+﻿import * as THREE from 'three';
+import { Line2 } from 'three/addons/lines/Line2.js';
+import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
+import { LineGeometry } from 'three/addons/lines/LineGeometry.js';
 
 // ---------------------------
 // Globals and initialization
@@ -64,6 +67,64 @@ function getBounds2D(shapes) {
 	return { centerX, centerY, width, height };
 }
 
+function getColor(status) {
+	switch (status) {
+		case 0:
+			return { color: new THREE.Color(1, 0, 0), opacity: 0.2 };
+		case 1:
+			return { color: new THREE.Color(0, 0, 1), opacity: 1 };
+		case 2:
+			return { color: new THREE.Color(1, 0, 0), opacity: 1 };
+		case 3:
+			return { color: new THREE.Color(0, 1, 0), opacity: 1 };
+		default:
+			return { color: new THREE.Color(1, 1, 1), opacity: 1 };
+	}
+}
+
+function drawShape(shape, scene) {
+	const vertices = shape.Vertices.map(v => new THREE.Vector3(v.X, v.Y, 0));
+	const { color, opacity } = getColor(shape.Status);
+
+	const shapeMaterial = new THREE.MeshBasicMaterial({
+		color: color,
+		side: THREE.DoubleSide,
+		transparent: opacity < 1,
+		opacity: opacity
+	});
+
+	const shapeGeometry = new THREE.BufferGeometry();
+	shapeGeometry.setFromPoints(vertices);
+	if (vertices.length > 3) {
+		const indices = [];
+		for (let i = 1; i < vertices.length - 1; i++) {
+			indices.push(0, i, i + 1);
+		}
+		shapeGeometry.setIndex(indices);
+	}
+
+	const shapeMesh = new THREE.Mesh(shapeGeometry, shapeMaterial);
+	scene.add(shapeMesh);
+}
+
+function drawShapeEdge(edge, scene) {
+	const edgeColor = edge.Connector ? 0x000000 : 0xffffff;
+	const edgeMaterial = new LineMaterial({
+		color: edgeColor,
+		linewidth: 3
+	});
+
+	const edgePoints = [
+		new THREE.Vector3(edge.Start.X, edge.Start.Y, 0),
+		new THREE.Vector3(edge.End.X, edge.End.Y, 0)
+	];
+	const edgeGeometry = new LineGeometry();
+	edgeGeometry.setPositions(edgePoints.map(v => v.toArray()).flat());
+
+	const line = new Line2(edgeGeometry, edgeMaterial);
+	scene.add(line);
+}
+
 function drawScene2D(scene, renderer, shapes) {
 	scene.clear();
 	doAnimation = false;
@@ -81,36 +142,11 @@ function drawScene2D(scene, renderer, shapes) {
 	);
 
 	shapes.forEach(shape => {
-		// add the shape to the scene 
-		const vertices = shape.Vertices.map(v => new THREE.Vector3(v.X, v.Y, 0)); 
+		drawShape(shape, scene)
 
-		const shapeGeometry = new THREE.BufferGeometry();
-		shapeGeometry.setFromPoints(vertices);
-		const shapeMaterial = new THREE.MeshBasicMaterial({
-			color: new THREE.Color(shape.Color[0], shape.Color[1], shape.Color[2]),
-			side: THREE.DoubleSide,
-			transparent: shape.Color[3] < 1,
-			opacity: shape.Color[3]
-		});
-		const shapeMesh = new THREE.Mesh(shapeGeometry, shapeMaterial);
-
-		if (vertices.length > 3) {
-			const indices = [];
-			for (let i = 1; i < vertices.length - 1; i++) {
-				indices.push(0, i, i + 1);
-			}
-			shapeGeometry.setIndex(indices);
-		}
-
-		scene.add(shapeMesh);
-
-		// add a shape outline to the scene
-		const outlineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
-		const outlinePoints = vertices.slice();
-		outlinePoints.push(outlinePoints[0]);
-		const outlineGeometry = new THREE.BufferGeometry().setFromPoints(outlinePoints);
-		const outline = new THREE.Line(outlineGeometry, outlineMaterial);
-		scene.add(outline);
+		shape.Edges.forEach(edge => {
+			drawShapeEdge(edge, scene)
+		})
 	});
 
 	renderer.render(scene, camera);

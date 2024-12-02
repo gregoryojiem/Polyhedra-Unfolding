@@ -1,10 +1,19 @@
-﻿namespace Unfolding.Client.Polyhedra.DataStructs
+﻿using System.Text.Json.Serialization;
+
+namespace Unfolding.Client.Polyhedra.DataStructs
 {
     public class Edge2D
     {
         public Point2D Start { get; set; }
+
         public Point2D End { get; set; }
 
+        public bool Connector { get; set; }
+
+        [JsonIgnore]
+        public Polygon AdjacentPolygon;
+
+        [JsonIgnore]
         public Point2D Mid
         {
             get
@@ -15,8 +24,7 @@
             }
         }
 
-        public Polygon AdjacentPolygon;
-
+        [JsonIgnore]
         public double? Slope
         {
             get

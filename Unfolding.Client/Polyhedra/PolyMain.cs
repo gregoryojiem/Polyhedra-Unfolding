@@ -1,5 +1,4 @@
 ﻿using MIConvexHull;
-using System.Diagnostics;
 using System.Text.Json;
 using Unfolding.Client.Polyhedra.DataStructs;
 using Unfolding.Client.Polyhedra.Solvers;
@@ -148,7 +147,7 @@ namespace Unfolding.Client.Polyhedra
             }
             if (HideUnplacedPolygons)
             {
-                polygons = polygons.Where(p => p.HasBeenPlaced).ToArray();
+                polygons = polygons.Where(p => p.Status != PolygonStatus.Unplaced).ToArray();
             }
             return JsonSerializer.Serialize(polygons, new JsonSerializerOptions { WriteIndented = true });
         }
