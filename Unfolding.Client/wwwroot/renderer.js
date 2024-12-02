@@ -2,6 +2,7 @@
 import { Line2 } from 'three/addons/lines/Line2.js';
 import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
 import { LineGeometry } from 'three/addons/lines/LineGeometry.js';
+import { Earcut } from 'three/extras/Earcut.js';
 
 // ---------------------------
 // Globals and initialization
@@ -82,8 +83,27 @@ function getColor(status) {
 	}
 }
 
+function sortVertices2D(vertices2D) {
+	const centerX = vertices2D.reduce((sum, v) => sum + v[0], 0) / vertices2D.length;
+	const centerY = vertices2D.reduce((sum, v) => sum + v[1], 0) / vertices2D.length;
+
+	const sortedIndices = vertices2D.map((v, i) => i).sort((a, b) => {
+		const angleA = Math.atan2(vertices2D[a][1] - centerY, vertices2D[a][0] - centerX);
+		const angleB = Math.atan2(vertices2D[b][1] - centerY, vertices2D[b][0] - centerX);
+		return angleA - angleB;
+	});
+
+	return sortedIndices;
+}
+
+function triangulate2D(vertices2D) {
+	const sortedIndices = sortVertices2D(vertices2D);
+	const sortedVertices2D = sortedIndices.map(i => vertices2D[i])
+	const indices = Earcut.triangulate(sortedVertices2D.flat(), [], 2);
+    return indices.map(i => sortedIndices[i]); 
+}
+
 function drawShape(shape, scene) {
-	const vertices = shape.Vertices.map(v => new THREE.Vector3(v.X, v.Y, 0));
 	const { color, opacity } = getColor(shape.Status);
 
 	const shapeMaterial = new THREE.MeshBasicMaterial({
@@ -93,15 +113,11 @@ function drawShape(shape, scene) {
 		opacity: opacity
 	});
 
+	const vertices = shape.Vertices.map(v => new THREE.Vector3(v.X, v.Y, 0))
+	const indices = triangulate2D(vertices.map(v => [v.x, v.y]));
 	const shapeGeometry = new THREE.BufferGeometry();
 	shapeGeometry.setFromPoints(vertices);
-	if (vertices.length > 3) {
-		const indices = [];
-		for (let i = 1; i < vertices.length - 1; i++) {
-			indices.push(0, i, i + 1);
-		}
-		shapeGeometry.setIndex(indices);
-	}
+	shapeGeometry.setIndex(indices);
 
 	const shapeMesh = new THREE.Mesh(shapeGeometry, shapeMaterial);
 	scene.add(shapeMesh);
@@ -170,7 +186,7 @@ function drawScene3D(scene, renderer, polyhedron) {
 	setLighting()
 
 	let camera = new THREE.PerspectiveCamera(70, width / height, 0.01, 10);
-	camera.position.z = 2;
+	camera.position.z = 5;
 
 	drawPolyhedron(polyhedron, scene)
 	const edges = getUniqueEdges(polyhedron)
@@ -193,24 +209,32 @@ function drawScene3D(scene, renderer, polyhedron) {
 	doAnimation = true;
 }
 
+function rotateTo2D(vertices, normal) {
+	const quaternion = new THREE.Quaternion().setFromUnitVectors(normal, new THREE.Vector3(0, 1, 0));
+	const rotationMatrix = new THREE.Matrix4().makeRotationFromQuaternion(quaternion);
+	const rotatedVertices = vertices.map(v => v.clone().applyMatrix4(rotationMatrix));
+	const vertices2D = rotatedVertices.map(v => [v.x, v.z]);
+	return vertices2D;
+}
+
 function drawPolyhedron(polyhedron, scene) {
+	var i = 0;
 	polyhedron.Faces.forEach(face => {
 		const vertices = face.Vertices.map(v => new THREE.Vector3(v.X, v.Y, v.Z));
-		const geometry = new THREE.BufferGeometry().setFromPoints(vertices);
 		const material = new THREE.MeshPhongMaterial({ color: 0xff0000, side: THREE.DoubleSide });
-		const mesh = new THREE.Mesh(geometry, material);
+		const geometry = new THREE.BufferGeometry().setFromPoints(vertices);
 
-		const indices = [];
-		for (let i = 1; i < vertices.length - 1; i++) {
-			indices.push(0, i, i + 1);
-		}
+		// TODO probably a more elegant way to do this when merging the convex hull faces
+		// look for alternate solutions
+		const normal = new THREE.Vector3(face.Normal[0], face.Normal[1], face.Normal[2]);
+		const vertices2D = rotateTo2D(vertices, normal);
+		const indices = triangulate2D(vertices2D); 
 		geometry.setIndex(indices);
 
-		if (face.Normal) {
-			mesh.geometry.computeVertexNormals();
-		}
-
+		const mesh = new THREE.Mesh(geometry, material);
+		mesh.geometry.computeVertexNormals(); // TODO might be faster to just use existing normals
 		scene.add(mesh);
+		i++;
 	});
 }
 
@@ -218,7 +242,11 @@ function getUniqueEdges(polyhedron) {
 	const edges = [];
 
 	polyhedron.Faces.forEach(face => {
-		const vertices = face.Vertices.map(v => new THREE.Vector3(v.X, v.Y, v.Z));
+		const unsortedVertices = face.Vertices.map(v => new THREE.Vector3(v.X, v.Y, v.Z));
+		const normal = new THREE.Vector3(face.Normal[0], face.Normal[1], face.Normal[2]);
+		const vertices2D = rotateTo2D(unsortedVertices, normal);
+		const sortedIndices = sortVertices2D(vertices2D); 
+		const vertices = sortedIndices.map(i => unsortedVertices[i]);
 
 		for (let i = 0; i < vertices.length; i++) {
 			const v1 = vertices[i];

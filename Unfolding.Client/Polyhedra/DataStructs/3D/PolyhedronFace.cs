@@ -38,7 +38,9 @@ namespace Unfolding.Client.Polyhedra.DataStructs
                 return false;
             }
 
-            return Normal.SequenceEqual(otherFace.Normal);
+            return Math.Abs(Normal[0] - otherFace.Normal[0]) < 0.0001 && 
+                Math.Abs(Normal[1] - otherFace.Normal[1]) < 0.0001 && 
+                Math.Abs(Normal[2] - otherFace.Normal[2]) < 0.0001;
         }
 
         public PolyhedronFace Merge(PolyhedronFace otherFace)
@@ -78,6 +80,11 @@ namespace Unfolding.Client.Polyhedra.DataStructs
 
             if (Normal.SequenceEqual([0, -1, 0]))
             {
+                return;
+            }
+            if (Normal.SequenceEqual([0, 1, 0]))
+            {
+                Normal = [0, -1, 0];
                 return;
             }
 

@@ -1,4 +1,5 @@
 ﻿using MIConvexHull;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 
@@ -22,7 +23,17 @@ namespace Unfolding.Client.Polyhedra.DataStructs
                 convToPolyMapping[convexHullFaces[i]] = Faces[i];
             }
 
-            var mergedMapping = MergeCoplanarTriangles();
+            // TODO clean up this section... truly atrocious
+            var mergingResults = MergeCoplanarTriangles();
+            var mergedMapping = new Dictionary<PolyhedronFace, List<PolyhedronFace>>();
+            var merges = mergingResults.Values.ToList();
+            foreach (var merge in merges)
+            {
+                var associatedFaces = mergingResults.Where(kvp => kvp.Value.Equals(merge))
+                    .Select(kvp => kvp.Key)
+                    .ToList();
+                mergedMapping[merge] = associatedFaces;
+            }
 
             for (int i = 0; i < Faces.Length; i++)
             {
@@ -75,54 +86,53 @@ namespace Unfolding.Client.Polyhedra.DataStructs
             }
         }
 
-        public Dictionary<PolyhedronFace, List<PolyhedronFace>> MergeCoplanarTriangles()
+        public Dictionary<PolyhedronFace, PolyhedronFace> MergeCoplanarTriangles()
         {
-            var mergedMapping = new Dictionary<PolyhedronFace, List<PolyhedronFace>>();
-            var mergedFaces = new List<PolyhedronFace>();
+            var mergedMapping = new Dictionary<PolyhedronFace, PolyhedronFace>();
             var faceHasMerged = new bool[Faces.Length];
-
+            var mappingsToAssign = new List<(int, int)>();
+            
             for (int i = 0; i < Faces.Length; i++)
             {
+                if (faceHasMerged[i])
+                {
+                    continue;
+                }
+
+                PolyhedronFace currentFace = Faces[i];
                 for (int j = i + 1; j < Faces.Length; j++)
                 {
-                    if (!faceHasMerged[j] && Faces[i].Mergeable(Faces[j]))
+                    PolyhedronFace faceToMerge = Faces[j];
+                    if (faceHasMerged[j] || !currentFace.Mergeable(faceToMerge))
                     {
-                        var mergedFace = Faces[i].Merge(Faces[j]);
-                        mergedFaces.Add(mergedFace);
-                        faceHasMerged[i] = true;
-                        faceHasMerged[j] = true;
-                        
-                        List<PolyhedronFace> originalFaces;
-                        if (!mergedMapping.ContainsKey(mergedFace)) {
-                            originalFaces = new List<PolyhedronFace>();
-                            mergedMapping[mergedFace] = originalFaces;
-                        } else
-                        {
-                            originalFaces = mergedMapping[mergedFace];
-                        }
-                        
-                        if (!originalFaces.Contains(Faces[i]))
-                        {
-                            originalFaces.Add(Faces[i]);
-                        }
-
-                        if (!originalFaces.Contains(Faces[j]))
-                        {
-                            originalFaces.Add(Faces[j]);
-                        }
+                        continue;
                     }
+
+                    var mergedFace = currentFace.Merge(Faces[j]);
+                    faceHasMerged[j] = true;
+                    faceHasMerged[i] = true;
+                    mergedMapping[Faces[i]] = mergedFace;
+                    mappingsToAssign.Add((j, i));
+                    currentFace = mergedFace;
                 }
             }
 
+            var newFaces = new List<PolyhedronFace>();
             for (int i = 0; i < Faces.Length; i++)
             {
                 if (!faceHasMerged[i])
                 {
-                    mergedFaces.Add(Faces[i]);
+                    newFaces.Add(Faces[i]);
                 }
             }
+            newFaces.AddRange(mergedMapping.Values.ToList());
 
-            Faces = mergedFaces.ToArray();
+            foreach (var kvp in mappingsToAssign) 
+            {
+                mergedMapping[Faces[kvp.Item1]] = mergedMapping[Faces[kvp.Item2]]; 
+            }
+
+            Faces = newFaces.ToArray();
             return mergedMapping;
         }
 

@@ -97,7 +97,7 @@ namespace Unfolding.Client.Polyhedra
             new(-phi, 0, -1/phi)
         ];
 
-        private static Point3D[] currentShape = octahedron;
+        private static Point3D[] currentShape = hexagonalPyramid;
 
         private static bool Flatten = false;
 

@@ -51,22 +51,37 @@ namespace Unfolding.Client.Polyhedra.DataStructs
             return "(" + X + ", " + Y + ", " + Z + ")";
         }
 
-        public override bool Equals(object obj)
+        //TODO come up with a more efficient way of handling minor rotation differences?
+        public static bool operator ==(Point3D p1, Point3D p2)
         {
-            if (obj == null || GetType() != obj.GetType())
+            if (ReferenceEquals(p1, p2))
+            {
+                return true;
+            }
+            if (p1 is null || p2 is null)
+            {
                 return false;
+            }
+            return Math.Abs(p1.X - p2.X) < 0.0001 && Math.Abs(p1.Y - p2.Y) < 0.0001 && Math.Abs(p1.Z - p2.Z) < 0.0001;
+        }
 
-            Point3D other = (Point3D)obj;
-            return X == other.X && Y == other.Y && Z == other.Z;
+        public static bool operator !=(Point3D p1, Point3D p2)
+        {
+            return !(p1 == p2);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is Point3D other)
+            {
+                return this == other;
+            }
+            return false;
         }
 
         public override int GetHashCode()
         {
-            int hashX = X.GetHashCode();
-            int hashY = Y.GetHashCode();
-            int hashZ = Z.GetHashCode();
-
-            return hashX ^ hashY ^ hashZ;
+            return X.GetHashCode() ^ Y.GetHashCode() ^ Z.GetHashCode();
         }
     }
 }
