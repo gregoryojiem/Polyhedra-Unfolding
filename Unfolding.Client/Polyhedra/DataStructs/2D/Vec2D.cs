@@ -18,9 +18,19 @@
             return new(vec1.X + vec2.X, vec1.Y + vec2.Y);
         }
 
+        public static Vec2D operator +(Vec2D vec1, Point2D p2)
+        {
+            return new(vec1.X + p2.X, vec1.Y + p2.Y);
+        }
+
         public static Vec2D operator -(Vec2D vec1, Vec2D vec2)
         {
             return new(vec1.X - vec2.X, vec1.Y - vec2.Y);
+        }
+
+        public static Vec2D operator -(Vec2D vec1, Point2D p2)
+        {
+            return new(vec1.X - p2.X, vec1.Y - p2.Y);
         }
 
         public static Vec2D operator *(Vec2D vec1, double number)
@@ -43,6 +53,11 @@
             var cosOfTheta = Dot(otherVector) / (Magnitude * otherVector.Magnitude);
             var angle = Math.Acos(Math.Clamp(cosOfTheta, -1, 1));
             return angle;
+        }
+
+        public Point2D ToPoint()
+        {
+            return new Point2D(X, Y);
         }
     }
 }

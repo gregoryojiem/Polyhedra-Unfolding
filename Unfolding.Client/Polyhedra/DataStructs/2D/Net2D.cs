@@ -37,7 +37,8 @@
 
             adjacentPolygon.Rotate(angle);
             vecToAdjEdge = adjacentPolygon.GetVecToEdge(adjacentEdge);
-            adjacentPolygon.TranslateToPoint(new(vecToCurrEdge - vecToAdjEdge));
+            var adjacentPolygonCentroid = vecToCurrEdge - vecToAdjEdge + currentPolygon.Centroid;
+            adjacentPolygon.TranslateToPoint(adjacentPolygonCentroid.ToPoint());
 
             adjacentPolygon.Status = PolygonStatus.Current;
             var lastPolygonPlaced = Polygons[Placements[Placements.Count - 1]];
