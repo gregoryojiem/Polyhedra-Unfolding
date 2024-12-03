@@ -67,7 +67,7 @@
             polygon.Status = PolygonStatus.Unplaced;
             Placements.RemoveAt(placementIndex);
 
-            if (placementIndex > 0) // Ignore starting polygon's edges
+            if (placementIndex == 0) // We can ignore the starting polygon's edges
             {
                 return;
             }
@@ -80,7 +80,7 @@
                 }
 
                 edge.Connector = false;
-                var adjacentEdge = polygon.GetConnectingEdge(edge.AdjacentPolygon);
+                var adjacentEdge = edge.AdjacentPolygon.GetConnectingEdge(polygon);
                 adjacentEdge.Connector = false;
             }
         }
