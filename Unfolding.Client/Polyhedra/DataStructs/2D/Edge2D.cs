@@ -75,6 +75,11 @@ namespace Unfolding.Client.Polyhedra.DataStructs
             return (cp1 * cp2 < 0 && cp3 * cp4 < 0);
         }
 
+        public Vec2D ToVector()
+        {
+            return new Vec2D(End.X - Start.X, End.Y - Start.Y);
+        }
+
         public override string ToString()
         {
             return Start.ToString() + " - " + End.ToString();
