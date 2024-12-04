@@ -9,7 +9,7 @@ namespace Unfolding.Client.Polyhedra
     {
         public static string currentView = "3D";
 
-        private static Point3D[] randomVertices = Point3D.GenerateRandPoints(100, 0.5);
+        private static Point3D[] randomVertices = Point3D.GenerateRandPoints(50, 0.5);
 
         // Set test shapes
         private static Point3D[] triangularPyramid =
@@ -97,7 +97,7 @@ namespace Unfolding.Client.Polyhedra
             new(-phi, 0, -1/phi)
         ];
 
-        private static Point3D[] currentShape = hexagonalPyramid;
+        private static Point3D[] currentShape = dodecahedron;
 
         private static bool Flatten = false;
 
@@ -155,12 +155,10 @@ namespace Unfolding.Client.Polyhedra
         public static void PerformStep()
         {
             StepsToDo++;
-            Console.WriteLine("Going to step: " + StepsToDo);
         }
 
         public static void UndoStep()
         {
-            Console.WriteLine("Undoing step: " + StepsToDo);
             if (StepsToDo > 0)
             {
                 StepsToDo--;

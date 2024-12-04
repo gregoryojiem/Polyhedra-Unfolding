@@ -75,9 +75,20 @@ namespace Unfolding.Client.Polyhedra.DataStructs
                 Vertices[i].Rotate(theta);
             }
         }
+         
+        public void TranslateToOrigin()
+        {
+            var centroid = Centroid;
+            for (int i = 0; i < Vertices.Length; i++)
+            {
+                Vertices[i].X -= centroid.X;
+                Vertices[i].Y -= centroid.Y;
+            }
+        }
 
         public void TranslateToPoint(Point2D pointToTranslateTo)
         {
+            TranslateToOrigin();
             for (int i = 0; i < Vertices.Length; i++)
             {
                 Vertices[i].X += pointToTranslateTo.X;

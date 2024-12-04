@@ -31,8 +31,8 @@ renderingInit();
 // ---------------------------
 window.handleRendering2D = function (jsonArray) {
 	const shapes = JSON.parse(jsonArray);
-	console.log("Parsed 2D shapes")
-	console.log(shapes);
+	//console.log("Parsed 2D shapes")
+	//console.log(shapes);
 	drawScene2D(scene, renderer, shapes);
 }
 
@@ -186,7 +186,7 @@ function drawScene3D(scene, renderer, polyhedron) {
 	setLighting()
 
 	let camera = new THREE.PerspectiveCamera(70, width / height, 0.01, 10);
-	camera.position.z = 5;
+	camera.position.z = 2;
 
 	drawPolyhedron(polyhedron, scene)
 	const edges = getUniqueEdges(polyhedron)

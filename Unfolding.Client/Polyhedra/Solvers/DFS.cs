@@ -8,6 +8,7 @@ namespace Unfolding.Client.Polyhedra.Solvers
 
         public override Net2D Solve(Net2D net)
         {
+            Console.WriteLine(net.Placements.Count);
             List<(Polygon, Polygon?)> moves = net.GetMoves();
             foreach (var move in moves)
             {

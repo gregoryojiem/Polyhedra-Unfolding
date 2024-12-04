@@ -48,16 +48,26 @@
             return (X * vec.Y) - (Y * vec.X);
         }
 
-        public double FindAngleBetween(Vec2D otherVector)
+        public double FindAngleBetween(Vec2D otherVector, bool invertForCross)
         {
             var cosOfTheta = Dot(otherVector) / (Magnitude * otherVector.Magnitude);
             var angle = Math.Acos(Math.Clamp(cosOfTheta, -1, 1));
+            var crossProduct = Cross(otherVector * (invertForCross ? -1 : 1));
+            if (crossProduct < 0)
+            {
+                angle = 2 * Math.PI - angle;
+            }
             return angle;
         }
 
         public Point2D ToPoint()
         {
             return new Point2D(X, Y);
+        }
+
+        public Edge2D ToEdge(Point2D centroid)
+        {
+            return new Edge2D(centroid, new Point2D(X + centroid.X, Y + centroid.Y), null);
         }
     }
 }

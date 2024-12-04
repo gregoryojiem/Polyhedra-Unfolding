@@ -3,7 +3,7 @@
     public class Net2D
     {
         private readonly Polygon[] Polygons;
-        private readonly List<int> Placements = [];
+        public readonly List<int> Placements = [];
         private int placementIndex = 0;
 
         public Net2D(Polygon[] polygons)
@@ -24,21 +24,54 @@
             }
 
             var currentEdge = currentPolygon.GetConnectingEdge(adjacentPolygon);
-            var adjacentEdge = adjacentPolygon.GetConnectingEdge(currentPolygon);
 
+            Edge2D adjacentEdge = null;
+            try
+            {
+                adjacentEdge = adjacentPolygon.GetConnectingEdge(currentPolygon);
+            }
+            catch
+            {
+                adjacentPolygon.Status = PolygonStatus.Current;
+                var lastPolygonPlacedTest = Polygons[Placements[Placements.Count - 1]];
+                if (lastPolygonPlacedTest.Status != PolygonStatus.Starting)
+                {
+                    lastPolygonPlacedTest.Status = PolygonStatus.Placed;
+                }
+                Placements.Add(Array.IndexOf(Polygons, adjacentPolygon));
+                placementIndex++;
+
+                currentEdge.Connector = true;
+                return;
+            }
+            
             var vecToCurrEdge = currentPolygon.GetVecToEdge(currentEdge);
             var vecToAdjEdge = adjacentPolygon.GetVecToEdge(adjacentEdge);
-            var angle = vecToCurrEdge.FindAngleBetween(vecToAdjEdge * -1);
-            var crossProduct = vecToCurrEdge.Cross(vecToAdjEdge);
-            if (crossProduct < 0)
-            {
-                angle = 2 * Math.PI - angle;
+
+            // Improve this section
+            var perpendicularCurr = new Vec2D(
+                -(currentEdge.End.Y - currentEdge.Start.Y),
+                currentEdge.End.X - currentEdge.Start.X);
+
+            var perpendicularAdj = new Vec2D(
+                -(adjacentEdge.End.Y - adjacentEdge.Start.Y),
+                adjacentEdge.End.X - adjacentEdge.Start.X);
+
+            if (!perpendicularCurr.ToEdge(currentPolygon.Centroid).Intersection(currentEdge)) {
+                perpendicularCurr.X = -perpendicularCurr.X;
+                perpendicularCurr.Y = -perpendicularCurr.Y;
             }
 
+            if (!perpendicularAdj.ToEdge(adjacentPolygon.Centroid).Intersection(adjacentEdge)) {
+                perpendicularAdj.X = -perpendicularAdj.X;
+                perpendicularAdj.Y = -perpendicularAdj.Y;
+            }
+
+            var angle = perpendicularCurr.FindAngleBetween(perpendicularAdj * -1, true);
             adjacentPolygon.Rotate(angle);
             vecToAdjEdge = adjacentPolygon.GetVecToEdge(adjacentEdge);
             var adjacentPolygonCentroid = vecToCurrEdge - vecToAdjEdge + currentPolygon.Centroid;
-            adjacentPolygon.TranslateToPoint(adjacentPolygonCentroid.ToPoint());
+            adjacentPolygon.TranslateToPoint((adjacentPolygonCentroid * 1.01).ToPoint());
 
             adjacentPolygon.Status = PolygonStatus.Current;
             var lastPolygonPlaced = Polygons[Placements[Placements.Count - 1]];
@@ -55,7 +88,6 @@
 
         public void Undo()
         {
-            Console.WriteLine("Net2D is calling undo.");
             if (placementIndex == 0)
             {
                 throw new Exception("Can't call undo on an empty Net2D");

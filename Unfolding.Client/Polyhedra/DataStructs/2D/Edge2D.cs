@@ -65,7 +65,7 @@ namespace Unfolding.Client.Polyhedra.DataStructs
             double cp3 = otherEdgeVec.Cross(new Vec2D(Start - otherEdge.Start));
             double cp4 = otherEdgeVec.Cross(new Vec2D(End - otherEdge.Start));
          
-            double epsilon = 1e-8;
+            double epsilon = 1e-4;
             var collinearOrEndpointTouchCheck = (cp1 * cp2) > -epsilon || (cp3 * cp4) > -epsilon;
             if ((sharedLeftEndpoint || sharedRightEndpoint) && collinearOrEndpointTouchCheck)
             {
@@ -82,7 +82,7 @@ namespace Unfolding.Client.Polyhedra.DataStructs
 
         public override string ToString()
         {
-            return Start.ToString() + " - " + End.ToString();
+            return Start.ToString() + ", " + End.ToString();
         }
     }
 }
