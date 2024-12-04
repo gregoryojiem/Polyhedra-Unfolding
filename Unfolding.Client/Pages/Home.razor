@@ -4,31 +4,26 @@
 
 <script type="importmap">
     {
-      "imports": {
-          "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
-          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/",
-          "three/extras/": "https://cdn.jsdelivr.net/npm/three@0.169.0/src/extras/"
+    "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/",
+    "three/extras/": "https://cdn.jsdelivr.net/npm/three@0.169.0/src/extras/"
 
-      }
+    }
     }
 </script>
-<link rel="stylesheet" href="styles.css" />
 
 <script type="module" src="renderer.js"></script>
 
 <h1>Polyhedra Unfolding</h1>
 
 <div class="dropdown">
-    <button class="drop-btn">Shapes &#9660;</button>
+    <button class="drop-btn">Shapes ▼</button>
     <div class="dropdown-content">
-        <a>Triangular Pyramid</a>
-        <a>Cube</a>
-        <a>Tetrahedron</a>
-        <a>octahedron</a>
-        <a>Hexagonal Pyramid</a>
-        <a>Dodecahedron</a>
-        <a>Elongated Square Dipyramid</a>
-        <a>Random Polyhedra</a>
+        @foreach (var shapeName in shapeNames)
+        {
+            <a @onclick="@(() => OnSelectedShapeClick(shapeName))">@shapeName</a>
+        }
     </div>
 </div>
 
@@ -54,6 +49,11 @@ else if (PolyMain.currentView == "2D")
 @using Unfolding.Client.Polyhedra
 
 @code {
+    private List<string> shapeNames = new List<string>() {
+        "Triangular Pyramid", "Cube", "Tetrahedron", "Octahedron",
+        "Hexagonal Pyramid", "Dodecahedron", "Elongated Square Dipyramid", "Random Polyhedra"
+    };
+
     protected override async Task OnAfterRenderAsync(bool begunRender)
     {
         if (begunRender)
@@ -106,6 +106,14 @@ else if (PolyMain.currentView == "2D")
     private async Task OnUnplacedButtonClick()
     {
         PolyMain.UnplacedVisibilityToggle();
+        await OnAfterRenderAsync(true);
+        StateHasChanged();
+    }
+
+    private async Task OnSelectedShapeClick(string name)
+    {
+        Console.WriteLine(name);
+        // PolyMain.SomeFunction(name);
         await OnAfterRenderAsync(true);
         StateHasChanged();
     }
