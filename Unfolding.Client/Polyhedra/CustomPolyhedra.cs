@@ -89,5 +89,14 @@ namespace Unfolding.Client.Polyhedra
             new(phi, 0, -1/phi),
             new(-phi, 0, -1/phi)
         ];
+
+        public static List<string> GetShapeNames()
+        {
+            return new List<string>() {
+                "Triangular Pyramid", "Cube", "Tetrahedron", "Octahedron",
+                "Hexagonal Pyramid", "Dodecahedron", "Elongated Square Dipyramid",
+                "Random Polyhedra"
+            };
+        }
     }
 }
