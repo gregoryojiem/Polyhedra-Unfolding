@@ -11,6 +11,8 @@ namespace Unfolding.Client.Polyhedra.DataStructs
         [JsonIgnore]
         public Dictionary<PolyhedronFace, Edge3D> Adjacency { get; set; }
 
+        public int Id = 0;
+
         public PolyhedronFace(ConvexHullFace convexHullFace)
         {
             var convHullVertices = convexHullFace.Vertices;
@@ -133,7 +135,7 @@ namespace Unfolding.Client.Polyhedra.DataStructs
             }
             sb.Append(")"); 
 
-            return sb.ToString();
+            return Id + " with " + Vertices.Length + " vertices. " + sb.ToString();
         }
 
         public override bool Equals(object obj)
@@ -160,7 +162,8 @@ namespace Unfolding.Client.Polyhedra.DataStructs
                 return false;
             }
 
-            return true;
+            // TODO re-examine possible edge cases. Should just be able to use one check?
+            return Id == other.Id;
         }
 
         public override int GetHashCode()

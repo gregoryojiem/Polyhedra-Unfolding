@@ -84,6 +84,12 @@ namespace Unfolding.Client.Polyhedra.DataStructs
                     Faces[i].Adjacency[adjacentFace] = new Edge3D(Faces[i], adjacentFace);
                 }
             }
+
+            var idCounter = 1;
+            foreach (var face in Faces)
+            {
+                face.Id = idCounter++;
+            }
         }
 
         public Dictionary<PolyhedronFace, PolyhedronFace> MergeCoplanarTriangles()

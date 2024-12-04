@@ -97,7 +97,7 @@ namespace Unfolding.Client.Polyhedra
             new(-phi, 0, -1/phi)
         ];
 
-        private static Point3D[] currentShape = dodecahedron;
+        private static Point3D[] currentShape = elongatedSquareDipyramid;
 
         private static bool Flatten = false;
 

@@ -24,26 +24,7 @@
             }
 
             var currentEdge = currentPolygon.GetConnectingEdge(adjacentPolygon);
-
-            Edge2D adjacentEdge = null;
-            try
-            {
-                adjacentEdge = adjacentPolygon.GetConnectingEdge(currentPolygon);
-            }
-            catch
-            {
-                adjacentPolygon.Status = PolygonStatus.Current;
-                var lastPolygonPlacedTest = Polygons[Placements[Placements.Count - 1]];
-                if (lastPolygonPlacedTest.Status != PolygonStatus.Starting)
-                {
-                    lastPolygonPlacedTest.Status = PolygonStatus.Placed;
-                }
-                Placements.Add(Array.IndexOf(Polygons, adjacentPolygon));
-                placementIndex++;
-
-                currentEdge.Connector = true;
-                return;
-            }
+            var adjacentEdge = adjacentPolygon.GetConnectingEdge(currentPolygon);
             
             var vecToCurrEdge = currentPolygon.GetVecToEdge(currentEdge);
             var vecToAdjEdge = adjacentPolygon.GetVecToEdge(adjacentEdge);

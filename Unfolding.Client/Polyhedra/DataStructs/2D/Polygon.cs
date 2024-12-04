@@ -12,6 +12,8 @@ namespace Unfolding.Client.Polyhedra.DataStructs
 
         public PolygonStatus Status { get; set; }
 
+        public int Id;
+
         [JsonIgnore]
         public Point2D Centroid { get
             {
@@ -21,11 +23,12 @@ namespace Unfolding.Client.Polyhedra.DataStructs
             }
         }
 
-        public Polygon(Point2D[] vertices, Edge2D[] edges)
+        public Polygon(Point2D[] vertices, Edge2D[] edges, int id)
         {
             Vertices = vertices;
             Edges = edges;
             Status = PolygonStatus.Unplaced;
+            Id = id;
         }
 
         public static Polygon[] PolyhedraToPolygons(Polyhedron polyhedron)
@@ -45,7 +48,7 @@ namespace Unfolding.Client.Polyhedra.DataStructs
                 }
 
                 var edges = new Edge2D[face.Adjacency.Count];
-                polygons[i] = new Polygon(vertices2D, edges);
+                polygons[i] = new Polygon(vertices2D, edges, face.Id);
                 polyhedraToPolygonMap[face] = polygons[i];
             }
 
@@ -148,7 +151,7 @@ namespace Unfolding.Client.Polyhedra.DataStructs
             }
             sb.Append("}\n");
 
-            return sb.ToString();
+            return Id + " with " + Vertices.Length + " vertices. " + sb.ToString();
         }
     }
 }
