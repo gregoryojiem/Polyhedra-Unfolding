@@ -186,7 +186,7 @@ function drawScene3D(scene, renderer, polyhedron) {
 	setLighting()
 
 	let camera = new THREE.PerspectiveCamera(70, width / height, 0.01, 10);
-	camera.position.z = 2;
+	camera.position.z = 3;
 
 	drawPolyhedron(polyhedron, scene)
 	const edges = getUniqueEdges(polyhedron)

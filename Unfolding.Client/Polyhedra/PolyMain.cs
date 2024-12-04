@@ -103,7 +103,7 @@ namespace Unfolding.Client.Polyhedra
 
         private static bool HideUnplacedPolygons = true;
 
-        public static int StepsToDo = 0;
+        public static int StepsToDo = 1;
 
         public static void SwapView()
         {
