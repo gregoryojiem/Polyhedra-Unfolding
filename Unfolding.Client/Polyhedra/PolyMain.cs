@@ -9,9 +9,7 @@ namespace Unfolding.Client.Polyhedra
     {
         public static string currentView = "3D";
 
-        private static Point3D[] randomVertices = Point3D.GenerateRandPoints(50, 0.5);
-
-        private static Point3D[] currentShape = CustomPolyhedra.dodecahedron;
+        private static Point3D[] currentPolyhedra = CustomPolyhedra.cube;
 
         private static bool Flatten = false;
 
@@ -36,7 +34,7 @@ namespace Unfolding.Client.Polyhedra
         
         public static Polyhedron GetPolyhedron()
         {
-            var convexHull = ConvexHull.Create<Point3D, ConvexHullFace>(currentShape);
+            var convexHull = ConvexHull.Create<Point3D, ConvexHullFace>(currentPolyhedra);
             var polyhedron = new Polyhedron(convexHull);
             if (Flatten)
             {
@@ -47,7 +45,7 @@ namespace Unfolding.Client.Polyhedra
 
         public static string GetPolygonsJSON()
         {
-            var convexHull = ConvexHull.Create<Point3D, ConvexHullFace>(currentShape);
+            var convexHull = ConvexHull.Create<Point3D, ConvexHullFace>(currentPolyhedra);
             var polyhedron = new Polyhedron(convexHull);
             var polygons = Polygon.PolyhedraToPolygons(polyhedron);
             var net = new Net2D(polygons);
@@ -78,6 +76,12 @@ namespace Unfolding.Client.Polyhedra
                 StepsToDo--;
             }
 
+        }
+
+        public static void SelectPolyhedra(string polyhedra)
+        {
+            currentPolyhedra = CustomPolyhedra.GetPolyhedraPoints(polyhedra);
+            GetPolyhedron();
         }
     }
 }

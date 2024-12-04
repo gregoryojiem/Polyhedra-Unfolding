@@ -110,10 +110,9 @@ else if (PolyMain.currentView == "2D")
         StateHasChanged();
     }
 
-    private async Task OnSelectedShapeClick(string name)
+    private async Task OnSelectedShapeClick(string polyhedra)
     {
-        Console.WriteLine(name);
-        // PolyMain.SomeFunction(name);
+        PolyMain.SelectPolyhedra(polyhedra);
         await OnAfterRenderAsync(true);
         StateHasChanged();
     }
