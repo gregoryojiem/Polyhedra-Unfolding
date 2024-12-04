@@ -11,7 +11,7 @@ namespace Unfolding.Client.Polyhedra
 
         private static Point3D[] randomVertices = Point3D.GenerateRandPoints(50, 0.5);
 
-        private static Point3D[] currentShape = CustomPolyhedra.octahedron;
+        private static Point3D[] currentShape = CustomPolyhedra.dodecahedron;
 
         private static bool Flatten = false;
 
