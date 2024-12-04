@@ -29,14 +29,6 @@ namespace Unfolding
             }
 
             app.UseHttpsRedirection();
-
-            app.UseFileServer(new FileServerOptions()
-            {
-                FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(),
-                @"..", @"Unfolding.Client", @"node_modules")),
-                RequestPath = new PathString("/node_modules"),
-                EnableDirectoryBrowsing = true
-            });
             app.UseStaticFiles();
             app.UseAntiforgery();
 
