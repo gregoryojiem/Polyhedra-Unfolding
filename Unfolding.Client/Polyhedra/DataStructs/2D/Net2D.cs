@@ -128,28 +128,29 @@
             return moves;
         }
 
-        // TODO optimize with bounding boxes
         private NetStatus Validate()
         {
             for (int i = 0; i < Polygons.Length; i++)
             {
                 var currentPolygon = Polygons[i];
-                if (currentPolygon.Status == PolygonStatus.Unplaced)
+                if (currentPolygon.Status == PolygonStatus.Placed)
                 {
-                    continue;
-                }
-                for (int j = 0; j < Polygons.Length; j++)
-                {
-                    var adjacentPolygon = Polygons[j];
-                    if (i == j || adjacentPolygon.Status == PolygonStatus.Unplaced)
+                    for (int j = 0; j < Polygons.Length; j++)
                     {
-                        continue;
-                    }
+                        var adjacentPolygon = Polygons[j];
+                        // TODO optimize with bounding boxes
+                        if (currentPolygon.DoBoundsIntersect(adjacentPolygon))
+                        {
+                            if (i == j || adjacentPolygon.Status == PolygonStatus.Unplaced)
+                            {
+                                continue;
+                            }
 
-                    if (currentPolygon.Intersecting(adjacentPolygon))
-                    {
-                        return NetStatus.Invalid;
-
+                            if (currentPolygon.Intersecting(adjacentPolygon))
+                            {
+                                return NetStatus.Invalid;
+                            }
+                        }
                     }
                 }
             }

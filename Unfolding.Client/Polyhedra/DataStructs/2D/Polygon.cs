@@ -15,11 +15,23 @@ namespace Unfolding.Client.Polyhedra.DataStructs
         public int Id;
 
         [JsonIgnore]
-        public Point2D Centroid { get
+        public Point2D Centroid {
+            get
             {
                 double X = Vertices.Average(p => p.X);
                 double Y = Vertices.Average(p => p.Y);
                 return new(X, Y);
+            }
+        }
+
+        public Point2D[] Bounds {
+            get
+            {
+                double maxX = Vertices.Max(v => v.X);
+                double minX = Vertices.Min(v => v.X);
+                double maxY = Vertices.Max(v => v.Y);
+                double minY = Vertices.Min(v => v.Y);
+                return [new(minX, minY), new(minX, maxY), new(maxX, minY), new(maxX, maxY)];
             }
         }
 
@@ -133,6 +145,14 @@ namespace Unfolding.Client.Polyhedra.DataStructs
                 }
             }
 
+            return false;
+        }
+
+        public bool DoBoundsIntersect(Polygon otherpolygon)
+        {
+            //this.Bounds;
+            //otherpolygon.Bounds;
+            //TODO check for bound intersection
             return false;
         }
 
