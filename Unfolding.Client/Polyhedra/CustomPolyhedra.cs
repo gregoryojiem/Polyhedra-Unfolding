@@ -90,8 +90,6 @@ namespace Unfolding.Client.Polyhedra
             new(-phi, 0, -1/phi)
         ];
 
-        private static Point3D[] randomVertices = Point3D.GenerateRandPoints(50, 0.5);
-
         public static Point3D[] GetPolyhedraPoints(string polyhedra)
         {
             Point3D[] poly = cube;
@@ -119,7 +117,7 @@ namespace Unfolding.Client.Polyhedra
                     poly = elongatedSquareDipyramid;
                     break;
                 case "Random Polyhedra":
-                    poly = randomVertices;
+                    poly = Point3D.GenerateRandPoints(50, 0.5); ;
                     break;
                 default: throw new InvalidDataException();
             }
