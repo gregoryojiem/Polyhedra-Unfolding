@@ -153,7 +153,7 @@ namespace Unfolding.Client.Polyhedra.DataStructs
             //this.Bounds;
             //otherpolygon.Bounds;
             //TODO check for bound intersection
-            return false;
+            return true;
         }
 
         public override string ToString()

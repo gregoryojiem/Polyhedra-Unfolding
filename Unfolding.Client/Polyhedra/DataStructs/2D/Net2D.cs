@@ -138,7 +138,6 @@
                     for (int j = 0; j < Polygons.Length; j++)
                     {
                         var adjacentPolygon = Polygons[j];
-                        // TODO optimize with bounding boxes
                         if (currentPolygon.DoBoundsIntersect(adjacentPolygon))
                         {
                             if (i == j || adjacentPolygon.Status == PolygonStatus.Unplaced)
