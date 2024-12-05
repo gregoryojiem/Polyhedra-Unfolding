@@ -22,7 +22,7 @@ namespace Unfolding.Client.Polyhedra.DataStructs
         public static Point3D[] GenerateRandPoints(int amount, double extent)
         {
             var points = new Point3D[amount];
-            var rand = new Random(5);
+            var rand = new Random();
 
             for (int i = 0; i < amount; i++)
             {
