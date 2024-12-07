@@ -32,7 +32,7 @@
     }
 </div>
 
-@if (PolyMain.currentView == "3D")
+@if (MainPageViewModel.currentView == "3D")
 {
     <div>
         <button @onclick="OnFlattenClick">See flattened polyhedra</button>
@@ -40,7 +40,7 @@
     </div>
 }
 
-else if (PolyMain.currentView == "2D")
+else if (MainPageViewModel.currentView == "2D")
 {
     <div>
         <button @onclick="OnStepButtonClick">Step through algorithm</button>
@@ -55,22 +55,22 @@ else if (PolyMain.currentView == "2D")
 
 @code {
     private bool displayDropdown = false;
-    private List<string> shapeNames = CustomPolyhedra.GetShapeNames();
+    private List<string> shapeNames = PolyhedronLibrary.GetShapeNames();
 
     protected override async Task OnAfterRenderAsync(bool begunRender)
     {
         if (begunRender)
         {
-            var currentView = PolyMain.currentView;
+            var currentView = MainPageViewModel.currentView;
 
             if (currentView == "2D")
             {
-                var data2D = PolyMain.GetPolygonsJSON();
-                await JSRuntime.InvokeVoidAsync("handleRendering2D", data2D);
+                var polygonNetJSON = MainPageViewModel.GetDisplayNetJSON();
+                await JSRuntime.InvokeVoidAsync("handleRendering2D", polygonNetJSON);
             }
             else if (currentView == "3D")
             {
-                var polyhedronJSON = PolyMain.GetPolyhedron().GetPolyhedraJSON();
+                var polyhedronJSON = MainPageViewModel.GetDisplayPolyhedronJSON();
                 await JSRuntime.InvokeVoidAsync("handleRendering3D", polyhedronJSON);
             }
 
@@ -80,42 +80,42 @@ else if (PolyMain.currentView == "2D")
 
     private async Task OnFlattenClick()
     {
-        PolyMain.FlattenToggle();
+        MainPageViewModel.FlattenToggle();
         await OnAfterRenderAsync(true);
         StateHasChanged();
     }
 
     private async Task OnSwapViewClick()
     {
-        PolyMain.SwapView();
+        MainPageViewModel.SwapView();
         await OnAfterRenderAsync(true);
         StateHasChanged();
     }
 
     private async Task OnStepButtonClick()
     {
-        PolyMain.PerformStep();
+        MainPageViewModel.PerformStep();
         await OnAfterRenderAsync(true);
         StateHasChanged();
     }
 
     private async Task OnUndoButtonClick()
     {
-        PolyMain.UndoStep();
+        MainPageViewModel.UndoStep();
         await OnAfterRenderAsync(true);
         StateHasChanged();
     }
 
     private async Task OnUnplacedButtonClick()
     {
-        PolyMain.UnplacedVisibilityToggle();
+        MainPageViewModel.UnplacedVisibilityToggle();
         await OnAfterRenderAsync(true);
         StateHasChanged();
     }
 
     private async Task OnSelectedShapeClick(string polyhedra)
     {
-        PolyMain.SelectPolyhedra(polyhedra);
+        MainPageViewModel.SelectPolyhedra(polyhedra);
         await OnAfterRenderAsync(true);
         StateHasChanged();
     }

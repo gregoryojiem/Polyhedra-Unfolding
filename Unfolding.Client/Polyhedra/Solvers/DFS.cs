@@ -6,6 +6,10 @@ namespace Unfolding.Client.Polyhedra.Solvers
     {
         public int StepsTaken = 0;
 
+        public DFS(Net2D net) : base(net)
+        {
+        }
+
         public override Net2D Solve(Net2D net)
         {
             Console.WriteLine(net.Placements.Count);
@@ -16,13 +20,13 @@ namespace Unfolding.Client.Polyhedra.Solvers
                 StepsTaken++;
                 var status = net.GetStatus();
 
-                if (status == NetStatus.Complete || StepsTaken >= PolyMain.StepsToDo)
+                if (status == NetStatus.Complete || StepsTaken >= StepsToDo)
                 {
                     return net;
                 }
                 else if (status == NetStatus.Valid) {
                     Solve(net);
-                    if (net.GetStatus() == NetStatus.Complete || StepsTaken >= PolyMain.StepsToDo)
+                    if (net.GetStatus() == NetStatus.Complete || StepsTaken >= StepsToDo)
                     {
                         return net;
                     }

@@ -4,6 +4,10 @@ namespace Unfolding.Client.Polyhedra.Solvers
 {
     public class BFS : Solver
     {
+        public BFS(Net2D net) : base(net)
+        {
+        }
+
         public override Net2D Solve(Net2D net)
         {
             // TODO needs proper thought to work properly

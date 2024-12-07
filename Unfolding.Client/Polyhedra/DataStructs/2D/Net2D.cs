@@ -1,8 +1,10 @@
-﻿namespace Unfolding.Client.Polyhedra.DataStructs
+﻿using System.Text.Json;
+
+namespace Unfolding.Client.Polyhedra.DataStructs
 {
     public class Net2D
     {
-        private readonly Polygon[] Polygons;
+        public Polygon[] Polygons;
         public readonly List<int> Placements = [];
         private int placementIndex = 0;
 
@@ -173,6 +175,12 @@
             }
 
             return NetStatus.Complete;
+        }
+
+        public string ToJSON(bool hideUnplaced)
+        {
+            var polygons = Polygons.Where(p => p.Status != PolygonStatus.Unplaced).ToArray();
+            return JsonSerializer.Serialize(polygons, new JsonSerializerOptions { WriteIndented = true });
         }
     }
 }

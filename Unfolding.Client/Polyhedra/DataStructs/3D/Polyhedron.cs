@@ -1,5 +1,4 @@
 ﻿using MIConvexHull;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 
@@ -9,81 +8,20 @@ namespace Unfolding.Client.Polyhedra.DataStructs
     {
         public PolyhedronFace[] Faces { get; set; }
 
-        public Polyhedron(ConvexHullCreationResult<Point3D, ConvexHullFace> convexHull)
+        public Polyhedron(int faceLength)
         {
+            Faces = new PolyhedronFace[faceLength];
+        }
+
+        public Polyhedron(Point3D[] convexHullPoints)
+        {
+            var convexHull = ConvexHull.Create<Point3D, ConvexHullFace>(convexHullPoints);
             var convexHullFaces = convexHull.Result.Faces.ToArray();
             Faces = new PolyhedronFace[convexHullFaces.Length];
-            var polyToConvMapping = new Dictionary<PolyhedronFace, ConvexHullFace>();
-            var convToPolyMapping = new Dictionary<ConvexHullFace, PolyhedronFace>();
 
-            for (int i = 0; i < convexHullFaces.Length; i++)
-            {
-                Faces[i] = new PolyhedronFace(convexHullFaces[i]);
-                polyToConvMapping[Faces[i]] = convexHullFaces[i];
-                convToPolyMapping[convexHullFaces[i]] = Faces[i];
-            }
-
-            // TODO clean up this section... truly atrocious
-            var mergingResults = MergeCoplanarTriangles();
-            var mergedMapping = new Dictionary<PolyhedronFace, List<PolyhedronFace>>();
-            var merges = mergingResults.Values.ToList();
-            foreach (var merge in merges)
-            {
-                var associatedFaces = mergingResults.Where(kvp => kvp.Value.Equals(merge))
-                    .Select(kvp => kvp.Key)
-                    .ToList();
-                mergedMapping[merge] = associatedFaces;
-            }
-
-            for (int i = 0; i < Faces.Length; i++)
-            {
-                ConvexHullFace[] adjacencyList;
-                var adjacencySet = new HashSet<PolyhedronFace>();
-                if (polyToConvMapping.ContainsKey(Faces[i]))
-                {
-                    adjacencyList = polyToConvMapping[Faces[i]].Adjacency;
-                } else
-                {
-                    var originalFaces = mergedMapping[Faces[i]];
-                    var mergedFaces = new HashSet<ConvexHullFace>();
-                    foreach (var originalFace in originalFaces)
-                    {
-                        foreach (var adjFace in polyToConvMapping[originalFace].Adjacency)
-                        {
-                            mergedFaces.Add(adjFace);
-                        }
-                    }
-                    adjacencyList = mergedFaces.ToArray();
-                }
-
-                for (int j = 0; j < adjacencyList.Length; j++)
-                {
-                    var adjacentFace = adjacencyList[j];
-                    var foundMatch = false;
-                    foreach (var kvp in mergedMapping)
-                    {
-                        if (kvp.Value.Contains(convToPolyMapping[adjacentFace]))
-                        {
-                            adjacencySet.Add(kvp.Key);
-                            foundMatch = true;
-                            break;
-                        }
-                    }
-                    if (!foundMatch)
-                    {
-                        adjacencySet.Add(convToPolyMapping[adjacentFace]);
-                    }
-                }
-
-                adjacencySet.Remove(Faces[i]);
-                var finalAdjacencyList = adjacencySet.ToList();
-
-                for (int j = 0; j < finalAdjacencyList.Count; j++)
-                {
-                    var adjacentFace = finalAdjacencyList[j];
-                    Faces[i].Adjacency[adjacentFace] = new Edge3D(Faces[i], adjacentFace);
-                }
-            }
+            BuildAdjacency(convexHullFaces);
+            var mergeMapping = MergeCoplanarTriangles();
+            RemapMergedAdjacencies(mergeMapping);
 
             var idCounter = 1;
             foreach (var face in Faces)
@@ -92,6 +30,67 @@ namespace Unfolding.Client.Polyhedra.DataStructs
             }
         }
 
+        public void RemapMergedAdjacencies(Dictionary<PolyhedronFace, PolyhedronFace> mergeMapping)
+        {
+            foreach (var face in Faces)
+            {
+                for (int i = face.Adjacency.Count - 1; i >= 0; i--)
+                {
+                    var edge = face.Adjacency[i];
+                    var adjacentFace = edge.ConnectedFace;
+                    if (!mergeMapping.ContainsKey(adjacentFace))
+                    {
+                        continue;
+                    }
+
+                    face.Adjacency.Remove(edge);
+                    var mergedFace = mergeMapping[adjacentFace];
+                    if (face == mergedFace)
+                    {
+                        continue;
+                    }
+
+                    var newEdge = new Edge3D(face, mergedFace);
+                    if (!face.Adjacency.Contains(newEdge))
+                    {
+                        face.Adjacency.Add(newEdge);
+                    }
+                }
+            }
+        }
+
+        public void BuildAdjacency(ConvexHullFace[] convexHullFaces)
+        {
+            var convToPolyMapping = new Dictionary<ConvexHullFace, PolyhedronFace>();
+            var polyToConvMapping = new Dictionary<PolyhedronFace, ConvexHullFace>();
+            for (int i = 0; i < convexHullFaces.Length; i++)
+            {
+                Faces[i] = new PolyhedronFace(convexHullFaces[i]);
+                convToPolyMapping[convexHullFaces[i]] = Faces[i];
+                polyToConvMapping[Faces[i]] = convexHullFaces[i];
+            }
+
+            for (int i = 0; i < Faces.Length; i++)
+            {
+                var adjacencyList = polyToConvMapping[Faces[i]].Adjacency;
+
+                for (int j = 0; j < adjacencyList.Length; j++)
+                {
+                    var adjacentFace = convToPolyMapping[adjacencyList[j]];
+                    if (adjacentFace != Faces[i])
+                    {
+                        Faces[i].Adjacency.Add(new Edge3D(Faces[i], adjacentFace));
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// A function to combine triangles that lie on the same 2D plane in 3D space
+        /// This is required because our convex hull algorithm only returns triangular
+        /// faces
+        /// </summary>
+        /// <returns>A Dictionary of Original face -> New merged face object </returns>
         public Dictionary<PolyhedronFace, PolyhedronFace> MergeCoplanarTriangles()
         {
             var mergedMapping = new Dictionary<PolyhedronFace, PolyhedronFace>();
@@ -151,14 +150,35 @@ namespace Unfolding.Client.Polyhedra.DataStructs
 
         }
 
-        public string GetPolyhedraJSON()
+        public Polyhedron Copy()
         {
-            var options = new JsonSerializerOptions
-            {
-                WriteIndented = true
-            };
+            var polyhedron = new Polyhedron(Faces.Length);
+            var faces = polyhedron.Faces;
 
-            return JsonSerializer.Serialize(this, options);
+            for (int i = 0; i < faces.Length; i++)
+            {
+                faces[i] = new PolyhedronFace(Faces[i]);
+            }
+
+            for (int i = 0; i < faces.Length; i++)
+            {
+                faces[i].CopyAdjacency(polyhedron, this);
+            }
+
+            return polyhedron;
+        }
+
+        public Net2D ToNet2D()
+        {
+            var copyPolyhedron = Copy();
+            var polygons = Polygon.PolyhedraToPolygons(copyPolyhedron);
+            var net = new Net2D(polygons);
+            return net;
+        }
+
+        public string ToJSON()
+        {
+            return JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
         }
     }
 }

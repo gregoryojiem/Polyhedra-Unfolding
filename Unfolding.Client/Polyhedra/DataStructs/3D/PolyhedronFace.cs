@@ -9,7 +9,7 @@ namespace Unfolding.Client.Polyhedra.DataStructs
         public double[] Normal { get; set; }
 
         [JsonIgnore]
-        public Dictionary<PolyhedronFace, Edge3D> Adjacency { get; set; }
+        public List<Edge3D> Adjacency { get; set; }
 
         public int Id = 0;
 
@@ -22,14 +22,40 @@ namespace Unfolding.Client.Polyhedra.DataStructs
                 Vertices[i] = new Point3D(convHullVertices[i].X, convHullVertices[i].Y, convHullVertices[i].Z);
             }
             Normal = convexHullFace.Normal;
-            Adjacency = new Dictionary<PolyhedronFace, Edge3D>();
+            Adjacency = [];
         }
 
-        public PolyhedronFace(Point3D[] points, double[] normal)
+        public PolyhedronFace(Point3D[] points, double[] normal, List<Edge3D> adjacency)
         {
             Vertices = points;
             Normal = normal;
-            Adjacency = new Dictionary<PolyhedronFace, Edge3D>();
+            Adjacency = adjacency;
+        }
+
+        public PolyhedronFace(PolyhedronFace face)
+        {
+            var vertices = face.Vertices;
+            Vertices = new Point3D[vertices.Length];
+            for (int i = 0; i < vertices.Length; i++)
+            {
+                Vertices[i] = new Point3D(vertices[i].X, vertices[i].Y, vertices[i].Z);
+            }
+            Normal = (double[])face.Normal.Clone();
+            Adjacency = [];
+            Id = face.Id;
+        }
+        
+        public void CopyAdjacency(Polyhedron copyPolyhedron, Polyhedron oldPolyhedron)
+        {
+            var thisFaceIndex = Array.IndexOf(copyPolyhedron.Faces, this);
+            var oldFace = oldPolyhedron.Faces[thisFaceIndex];
+            
+            foreach (var edge in oldFace.Adjacency)
+            {
+                var keyIndex = Array.IndexOf(oldPolyhedron.Faces, edge.ConnectedFace);
+                var matchingAdjacentFace = copyPolyhedron.Faces[keyIndex];
+                Adjacency.Add(new Edge3D(this, matchingAdjacentFace));
+            }
         }
 
         public bool Mergeable(PolyhedronFace otherFace)
@@ -49,7 +75,14 @@ namespace Unfolding.Client.Polyhedra.DataStructs
         {
             var mergedVertices = new HashSet<Point3D>(Vertices);
             mergedVertices.UnionWith(otherFace.Vertices);
-            return new PolyhedronFace(mergedVertices.ToArray(), Normal);
+
+            var mergedAdjacency = new List<Edge3D>();
+            mergedAdjacency.AddRange(Adjacency);
+            mergedAdjacency.AddRange(otherFace.Adjacency);
+            mergedAdjacency = mergedAdjacency.Distinct().ToList();
+            mergedAdjacency.RemoveAll(edge => edge.ConnectedFace == this || edge.ConnectedFace == otherFace);
+
+            return new PolyhedronFace(mergedVertices.ToArray(), (double[])Normal.Clone(), mergedAdjacency);
         }
 
         private Point3D GetCentroid()
@@ -138,14 +171,22 @@ namespace Unfolding.Client.Polyhedra.DataStructs
             return Id + " with " + Vertices.Length + " vertices. " + sb.ToString();
         }
 
-        public override bool Equals(object obj)
+        public static bool operator ==(PolyhedronFace face1, PolyhedronFace face2)
         {
-            if (obj == null || GetType() != obj.GetType())
+            return face1.Equals(face2);
+        }
+
+        public static bool operator !=(PolyhedronFace face1, PolyhedronFace face2)
+        {
+            return !(face1.Equals(face2));
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is not PolyhedronFace other)
             {
                 return false;
             }
-
-            PolyhedronFace other = (PolyhedronFace)obj;
 
             if (Vertices.Length != other.Vertices.Length || Normal.Length != other.Normal.Length)
             {

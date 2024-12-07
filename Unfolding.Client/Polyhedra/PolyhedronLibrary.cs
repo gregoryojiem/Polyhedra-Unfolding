@@ -1,9 +1,8 @@
-﻿using System.Linq.Expressions;
-using Unfolding.Client.Polyhedra.DataStructs;
+﻿using Unfolding.Client.Polyhedra.DataStructs;
 
 namespace Unfolding.Client.Polyhedra
 {
-    public class CustomPolyhedra
+    public class PolyhedronLibrary
     {
         // Set test shapes
         private static Point3D[] triangularPyramid =
@@ -90,47 +89,47 @@ namespace Unfolding.Client.Polyhedra
             new(-phi, 0, -1/phi)
         ];
 
-        public static Point3D[] GetPolyhedraPoints(string polyhedra)
+        public static Polyhedron GetPolyhedron(string polyhedra)
         {
-            Point3D[] poly = cube;
+            Point3D[] points;
             switch (polyhedra)
             {
                 case "Triangular Pyramid":
-                    poly = triangularPyramid;
+                    points = triangularPyramid;
                     break;
                 case "Cube":
-                    poly = cube;
+                    points = cube;
                     break;
                 case "Tetrahedron":
-                    poly = tetrahedron;
+                    points = tetrahedron;
                     break;
                 case "Octahedron":
-                    poly = octahedron;
+                    points = octahedron;
                     break;
                 case "Hexagonal Pyramid":
-                    poly = hexagonalPyramid;
+                    points = hexagonalPyramid;
                     break;
                 case "Dodecahedron":
-                    poly = dodecahedron;
+                    points = dodecahedron;
                     break;
                 case "Elongated Square Dipyramid":
-                    poly = elongatedSquareDipyramid;
+                    points = elongatedSquareDipyramid;
                     break;
                 case "Random Polyhedra":
-                    poly = Point3D.GenerateRandPoints(50, 0.5); ;
+                    points = Point3D.GenerateRandPoints(50, 0.5); ;
                     break;
                 default: throw new InvalidDataException();
             }
-            return poly;
+            return new Polyhedron(points);
         }
 
         public static List<string> GetShapeNames()
         {
-            return new List<string>() {
+            return [
                 "Triangular Pyramid", "Cube", "Tetrahedron", "Octahedron",
                 "Hexagonal Pyramid", "Dodecahedron", "Elongated Square Dipyramid",
                 "Random Polyhedra"
-            };
+            ];
         }
     }
 }

@@ -70,12 +70,11 @@ namespace Unfolding.Client.Polyhedra.DataStructs
                 var polygon = polygons[i];
 
                 var counter = 0;
-                foreach (var kvp in face.Adjacency)
+                foreach (var edge in face.Adjacency)
                 {
-                    var edge = kvp.Value;
                     var start = polygon.Vertices.First(v => v.X == edge.Vertices[0].X && v.Y == edge.Vertices[0].Z);
                     var end = polygon.Vertices.First(v => v.X == edge.Vertices[1].X && v.Y == edge.Vertices[1].Z);
-                    var adjacentPoly = polyhedraToPolygonMap[edge.ConnectedPoly];
+                    var adjacentPoly = polyhedraToPolygonMap[edge.ConnectedFace];
                     polygon.Edges[counter++] = new Edge2D(start, end, adjacentPoly);
                 }
             }
