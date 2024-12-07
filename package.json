@@ -1,0 +1,9 @@
+{
+    "version": "1.0.0",
+    "name": "asp.net",
+    "private": true,
+    "devDependencies": {
+        "eslint": "^9.16.0",
+        "three": "0.169.0"
+    }
+}

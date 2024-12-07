@@ -1,0 +1,200 @@
+﻿@page "/"
+
+<PageTitle>Unfolding</PageTitle>
+
+<title>Polyhedra Unfolding</title>
+
+<header>
+    <h1>Polyhedra Unfolding</h1>
+    <p>Designing efficient edge-unfolding algorithms</p>
+</header>
+
+<main>
+    <section id="problem-description">
+        <h2>Problem 9: Edge-Unfolding Convex Polyhedra</h2>
+        <div class="problem-statement">
+            Can every convex polyhedron be cut along its edges and unfolded flat to a single, nonoverlapping, simple polygon?
+        </div>
+
+        <div class="origin">
+            <strong>Origin:</strong> First stated in [She75], but in spirit at least goes back to Albrecht Dürer [Dür25].
+        </div>
+
+        <div class="status">
+            <strong>Status/Conjectures:</strong> Open. It seems to be a widespread hunch that the answer is yes.
+        </div>
+
+        <div class="results">
+            <strong>Partial and Related Results:</strong> The answer is known to be no for nonconvex polyhedra even with triangular faces [BDE+03], but has been long open for convex polyhedra [She75], [O'R00].  There is a pseudo-polynomial time algorithm for unfolding any convex polyhedron to a non-overlapping net.
+        </div>
+
+        <div class="related-problems">
+            <strong>Related Open Problems:</strong>
+            <ul>
+                <li>Problem 42: Vertex-Unfolding Polyhedra.</li>
+                <li>Problem 43: General Unfolding of Nonconvex Polyhedra.</li>
+                <li>Problem 64: Edge-Unfolding Polyhedra Built from Cubes.</li>
+            </ul>
+        </div>
+
+        <div class="appearances">
+            <strong>Appearances:</strong> [She75], [O'R00], [MO01]
+        </div>
+
+        <div class="categories">
+            <strong>Categories:</strong> folding and unfolding; polyhedra
+        </div>
+    </section>
+
+    <section id="our-approach">
+        <h2>Our Approach</h2>
+        <p>
+            Our unfolding algorithm employs a depth-first search (DFS) strategy combined with 3D rotations.
+            The algorithm begins by constructing a 3D representation of a convex polyhedron. Next, it systematically rotates each face of the polyhedron to align it with the x-y plane. Maintaining a list of adjacent faces for each face, the algorithm then utilizes a DFS approach to connect these aligned faces. The DFS strategically selects edges to cut and unfolds the polyhedron into a 2D net. During each step of the DFS, checks are performed to ensure that no two faces of the net intersect, ensuring the creation of a valid, non-overlapping, simple polygon.  This process is visualized below. Try unfolding a few shapes yourself!
+        </p>
+    </section>
+
+
+    <section class="bibliography">
+        <h2>Bibliography</h2>
+        <dl>
+            <dt>[BDE+03]</dt>
+            <dd>Marshall Bern, Erik D. Demaine, David Eppstein, Eric Kuo, Andrea Mantler, and Jack Snoeyink. Ununfoldable polyhedra with convex faces. Comput. Geom. Theory Appl., 24(2):51–62, 2003.</dd>
+
+            <dt>[Dür25]</dt>
+            <dd>Albrecht Dürer. The painter’s manual: A manual of measurement of lines, areas, and solids by means of compass and ruler assembled by Albrecht Dürer for the use of all lovers of art with appropriate illustrations arranged to be printed in the year MDXXV. New York: Abaris Books, 1977, 1525. English translation by Walter L. Strauss of ‘Unterweysung der Messung mit dem Zirkel un Richtscheyt in Linien Ebnen uhnd Gantzen Corporen’.</dd>
+
+            <dt>[MO01]</dt>
+            <dd>J. S. B. Mitchell and Joseph O’Rourke. Computational geometry column 42. Internat. J. Comput. Geom. Appl., 11(5):573–582, 2001. Also in SIGACT News 32(3):63-72 (2001), Issue 120.</dd>
+
+            <dt>[O'R00]</dt>
+            <dd>Joseph O’Rourke. Folding and unfolding in computational geometry. In Proc. 1998 Japan Conf. Discrete Comput. Geom., volume 1763 of Lecture Notes Comput. Sci., pages 258–266. Springer-Verlag, 2000.</dd>
+
+            <dt>[She75]</dt>
+            <dd>Geoffrey C. Shephard. Convex polytopes with convex nets. Math. Proc. Camb. Phil. Soc., 78:389–403, 1975.</dd>
+        </dl>
+    </section>
+</main>
+
+<script type="module" src="renderer.js"></script>
+
+<div id="visualization">
+    <h3>Interactive Demo</h3>
+    <div class="dropdown">
+        <button class="drop-btn" @onclick="ToggleDropdown">Shapes ▼</button>
+        @if (displayDropdown)
+        {
+            <div class="dropdown-content">
+                @foreach (var shapeName in shapeNames)
+                {
+                    <a @onclick="@(async () => { await OnSelectedShapeClick(shapeName); ToggleDropdown(); })">
+                        @shapeName
+                    </a>
+                }
+            </div>
+        }
+    </div>
+
+    @if (MainPageViewModel.currentView == "3D")
+    {
+        <div>
+            <button @onclick="OnFlattenClick">See flattened polyhedra</button>
+            <button @onclick="OnSwapViewClick">Swap to 2D view</button>
+        </div>
+    }
+
+    else if (MainPageViewModel.currentView == "2D")
+    {
+        <div>
+            <button @onclick="OnStepButtonClick">Step through algorithm</button>
+            <button @onclick="OnUndoButtonClick">Undo Step</button>
+            <button @onclick="OnUnplacedButtonClick">Unplaced polygon visibility</button>
+            <button @onclick="OnSwapViewClick">Swap to 3D view</button>
+        </div>
+    }
+</div>
+
+@inject IJSRuntime JSRuntime
+@using Polyhedra
+
+@code {
+    private bool displayDropdown = false;
+    private List<string> shapeNames = PolyhedronLibrary.GetShapeNames();
+
+    protected override async Task OnAfterRenderAsync(bool begunRender)
+    {
+        if (!begunRender)
+        {
+            return;
+        }
+
+        while (await JSRuntime.InvokeAsync<bool>("eval", "typeof handleRendering3D === 'undefined'"))
+        {
+            await Task.Delay(100);
+        }
+
+        var currentView = MainPageViewModel.currentView;
+
+        if (currentView == "2D")
+        {
+            var polygonNetJSON = MainPageViewModel.GetDisplayNetJSON();
+            await JSRuntime.InvokeVoidAsync("handleRendering2D", polygonNetJSON);
+        }
+        else if (currentView == "3D")
+        {
+            var polyhedronJSON = MainPageViewModel.GetDisplayPolyhedronJSON();
+            await JSRuntime.InvokeVoidAsync("handleRendering3D", polyhedronJSON);
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task OnFlattenClick()
+    {
+        MainPageViewModel.FlattenToggle();
+        await OnAfterRenderAsync(true);
+        StateHasChanged();
+    }
+
+    private async Task OnSwapViewClick()
+    {
+        MainPageViewModel.SwapView();
+        await OnAfterRenderAsync(true);
+        StateHasChanged();
+    }
+
+    private async Task OnStepButtonClick()
+    {
+        MainPageViewModel.PerformStep();
+        await OnAfterRenderAsync(true);
+        StateHasChanged();
+    }
+
+    private async Task OnUndoButtonClick()
+    {
+        MainPageViewModel.UndoStep();
+        await OnAfterRenderAsync(true);
+        StateHasChanged();
+    }
+
+    private async Task OnUnplacedButtonClick()
+    {
+        MainPageViewModel.UnplacedVisibilityToggle();
+        await OnAfterRenderAsync(true);
+        StateHasChanged();
+    }
+
+    private async Task OnSelectedShapeClick(string polyhedra)
+    {
+        MainPageViewModel.SelectPolyhedra(polyhedra);
+        await OnAfterRenderAsync(true);
+        StateHasChanged();
+    }
+
+    private void ToggleDropdown()
+    {
+        Console.WriteLine("toggling dropdown");
+        displayDropdown = !displayDropdown;
+        StateHasChanged();
+    }
+}
