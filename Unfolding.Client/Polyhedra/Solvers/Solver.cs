@@ -12,6 +12,11 @@ namespace Unfolding.Client.Polyhedra.Solvers
             netToSolve = net;
         }
 
+        public Solver(Polyhedron polyhedron)
+        {
+            netToSolve = polyhedron.Copy().ToNet2D();
+        }
+
         public abstract Net2D Solve(Net2D net);
 
         public Net2D Solve()

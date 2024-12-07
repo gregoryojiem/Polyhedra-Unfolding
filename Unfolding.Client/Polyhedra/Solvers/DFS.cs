@@ -10,6 +10,10 @@ namespace Unfolding.Client.Polyhedra.Solvers
         {
         }
 
+        public DFS(Polyhedron polyhedron) : base(polyhedron)
+        {
+        }
+
         public override Net2D Solve(Net2D net)
         {
             Console.WriteLine(net.Placements.Count);

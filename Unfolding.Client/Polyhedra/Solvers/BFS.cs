@@ -4,7 +4,12 @@ namespace Unfolding.Client.Polyhedra.Solvers
 {
     public class BFS : Solver
     {
+
         public BFS(Net2D net) : base(net)
+        {
+        }
+
+        public BFS(Polyhedron polyhedron) : base(polyhedron)
         {
         }
 

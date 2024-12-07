@@ -8,7 +8,7 @@ namespace Unfolding.Client.Polyhedra
     {
         public static string currentView = "3D";
 
-        private static Polyhedron currentPolyhedra = PolyhedronLibrary.GetPolyhedron("Cube");
+        private static Polyhedron currentPolyhedron = PolyhedronLibrary.GetPolyhedron("Cube");
 
         private static bool Flatten = false;
 
@@ -31,7 +31,7 @@ namespace Unfolding.Client.Polyhedra
         
         public static string GetDisplayPolyhedronJSON()
         {
-            var polyhedron = currentPolyhedra.Copy();
+            var polyhedron = currentPolyhedron.Copy();
             if (Flatten)
             {
                 polyhedron.FlattenFaces();
@@ -41,8 +41,7 @@ namespace Unfolding.Client.Polyhedra
 
         public static string GetDisplayNetJSON()
         {
-            var inputNet = currentPolyhedra.Copy().ToNet2D();
-            var solver = new DFS(inputNet);
+            var solver = new DFS(currentPolyhedron);
             var outputNet = solver.Solve();
             return outputNet.ToJSON(HideUnplacedPolygons);
         }
@@ -63,7 +62,7 @@ namespace Unfolding.Client.Polyhedra
 
         public static void SelectPolyhedra(string polyhedron)
         {
-            currentPolyhedra = PolyhedronLibrary.GetPolyhedron(polyhedron);
+            currentPolyhedron = PolyhedronLibrary.GetPolyhedron(polyhedron);
         }
     }
 }
