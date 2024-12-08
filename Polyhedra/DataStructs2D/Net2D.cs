@@ -8,7 +8,8 @@ namespace Polyhedra.DataStructs2D
         public readonly List<int> Placements = [];
         private int placementIndex = 0;
 
-        private Polygon LastPolygonPlaced { 
+        private Polygon LastPolygonPlaced
+        {
             get
             {
                 return Polygons[Placements[Placements.Count - 1]];
@@ -34,7 +35,7 @@ namespace Polyhedra.DataStructs2D
 
             var currentEdge = currentPolygon.GetConnectingEdge(adjacentPolygon);
             var adjacentEdge = adjacentPolygon.GetConnectingEdge(currentPolygon);
-            
+
             var vecToCurrEdge = currentPolygon.GetVecToEdge(currentEdge);
             var vecToAdjEdge = adjacentPolygon.GetVecToEdge(adjacentEdge);
 
@@ -47,12 +48,14 @@ namespace Polyhedra.DataStructs2D
                 -(adjacentEdge.End.Y - adjacentEdge.Start.Y),
                 adjacentEdge.End.X - adjacentEdge.Start.X);
 
-            if (!perpendicularCurr.ToEdge(currentPolygon.Centroid).Intersection(currentEdge)) {
+            if (!perpendicularCurr.ToEdge(currentPolygon.Centroid).Intersection(currentEdge))
+            {
                 perpendicularCurr.X = -perpendicularCurr.X;
                 perpendicularCurr.Y = -perpendicularCurr.Y;
             }
 
-            if (!perpendicularAdj.ToEdge(adjacentPolygon.Centroid).Intersection(adjacentEdge)) {
+            if (!perpendicularAdj.ToEdge(adjacentPolygon.Centroid).Intersection(adjacentEdge))
+            {
                 perpendicularAdj.X = -perpendicularAdj.X;
                 perpendicularAdj.Y = -perpendicularAdj.Y;
             }
@@ -121,7 +124,8 @@ namespace Polyhedra.DataStructs2D
             }
 
 
-            foreach (var placement in Placements) {
+            foreach (var placement in Placements)
+            {
                 var polygon = Polygons[placement];
 
                 foreach (var edge in polygon.Edges)

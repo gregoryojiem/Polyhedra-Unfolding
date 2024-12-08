@@ -25,7 +25,7 @@ namespace Polyhedra.Solvers
                 StepsTaken++;
                 var status = net.GetStatus();
 
-                if (status == NetStatus.Complete || (StepsTaken >= StepsToDo && ! MainPageViewModel.DoUnfoldAnimation))
+                if (status == NetStatus.Complete || (StepsTaken >= StepsToDo && !MainPageViewModel.DoUnfoldAnimation))
                 {
                     return net;
                 }
@@ -33,7 +33,8 @@ namespace Polyhedra.Solvers
                 {
                     net.Undo();
                 }
-                else if (status == NetStatus.Valid) {
+                else if (status == NetStatus.Valid)
+                {
                     var solvedNet = Solve(net);
                     if (solvedNet.GetStatus() == NetStatus.Complete || (StepsTaken >= StepsToDo && !MainPageViewModel.DoUnfoldAnimation))
                     {
