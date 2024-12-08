@@ -25,20 +25,21 @@ namespace Polyhedra.Solvers
                 StepsTaken++;
                 var status = net.GetStatus();
 
-                if (status == NetStatus.Complete || StepsTaken >= StepsToDo)
+                if (status == NetStatus.Complete || (StepsTaken >= StepsToDo && ! MainPageViewModel.DoUnfoldAnimation))
                 {
                     return net;
                 }
-                else if (status == NetStatus.Valid) {
-                    Solve(net);
-                    if (net.GetStatus() == NetStatus.Complete || StepsTaken >= StepsToDo)
-                    {
-                        return net;
-                    }
-                }
-                else
+                else if (status == NetStatus.Invalid)
                 {
                     net.Undo();
+                }
+                else if (status == NetStatus.Valid) {
+                    var solvedNet = Solve(net);
+                    if (solvedNet.GetStatus() == NetStatus.Complete || (StepsTaken >= StepsToDo && !MainPageViewModel.DoUnfoldAnimation))
+                    {
+                        StepsToDo = StepsTaken;
+                        return solvedNet;
+                    }
                 }
             }
             return net;

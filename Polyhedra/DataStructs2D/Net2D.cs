@@ -8,6 +8,13 @@ namespace Polyhedra.DataStructs2D
         public readonly List<int> Placements = [];
         private int placementIndex = 0;
 
+        private Polygon LastPolygonPlaced { 
+            get
+            {
+                return Polygons[Placements[Placements.Count - 1]];
+            }
+        }
+
         public Net2D(Polygon[] polygons)
         {
             Polygons = polygons;
@@ -57,10 +64,9 @@ namespace Polyhedra.DataStructs2D
             adjacentPolygon.TranslateToPoint((adjacentPolygonCentroid * 1.01).ToPoint());
 
             adjacentPolygon.Status = PolygonStatus.Current;
-            var lastPolygonPlaced = Polygons[Placements[Placements.Count - 1]];
-            if (lastPolygonPlaced.Status != PolygonStatus.Starting)
+            if (LastPolygonPlaced.Status != PolygonStatus.Starting)
             {
-                lastPolygonPlaced.Status = PolygonStatus.Placed;
+                LastPolygonPlaced.Status = PolygonStatus.Placed;
             }
             Placements.Add(Array.IndexOf(Polygons, adjacentPolygon));
             placementIndex++;
@@ -130,28 +136,22 @@ namespace Polyhedra.DataStructs2D
             return moves;
         }
 
-        private NetStatus Validate()
+        private NetStatus ValidateLastMove()
         {
             for (int i = 0; i < Polygons.Length; i++)
             {
-                var currentPolygon = Polygons[i];
-                if (currentPolygon.Status == PolygonStatus.Placed)
-                {
-                    for (int j = 0; j < Polygons.Length; j++)
-                    {
-                        var adjacentPolygon = Polygons[j];
-                        if (currentPolygon.DoBoundsIntersect(adjacentPolygon))
-                        {
-                            if (i == j || adjacentPolygon.Status == PolygonStatus.Unplaced)
-                            {
-                                continue;
-                            }
+                var polygon = Polygons[i];
 
-                            if (currentPolygon.Intersecting(adjacentPolygon))
-                            {
-                                return NetStatus.Invalid;
-                            }
-                        }
+                if (polygon.Status == PolygonStatus.Unplaced || i == Placements[Placements.Count - 1])
+                {
+                    continue;
+                }
+
+                if (LastPolygonPlaced.DoBoundsIntersect(polygon))
+                {
+                    if (LastPolygonPlaced.Intersecting(polygon))
+                    {
+                        return NetStatus.Invalid;
                     }
                 }
             }
@@ -161,7 +161,7 @@ namespace Polyhedra.DataStructs2D
 
         public NetStatus GetStatus()
         {
-            if (Validate() == NetStatus.Invalid)
+            if (ValidateLastMove() == NetStatus.Invalid)
             {
                 return NetStatus.Invalid;
             }
