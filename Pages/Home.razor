@@ -78,6 +78,9 @@
 
 <script type="module" src="renderer.js"></script>
 
+<br />
+<br />
+
 <div id="visualization">
     <h3>Interactive Demo</h3>
     <div class="dropdown">
@@ -100,6 +103,7 @@
         <div>
             <button @onclick="OnFlattenClick">See flattened polyhedra</button>
             <button @onclick="OnSwapViewClick">Swap to 2D view</button>
+            @*<button @onclick="OnUnfoldClick">View unfolding</button>*@
         </div>
     }
 
@@ -135,7 +139,13 @@
 
         var currentView = MainPageViewModel.currentView;
 
-        if (currentView == "2D")
+        if (MainPageViewModel.DoUnfoldAnimation)
+        {
+            var polyhedronJSON = MainPageViewModel.GetDisplayPolyhedronJSON();
+            var polygonNetJSON = MainPageViewModel.GetDisplayNetJSON();
+            await JSRuntime.InvokeVoidAsync("handleUnfoldAnimation", polyhedronJSON, polygonNetJSON);
+        }
+        else if (currentView == "2D")
         {
             var polygonNetJSON = MainPageViewModel.GetDisplayNetJSON();
             await JSRuntime.InvokeVoidAsync("handleRendering2D", polygonNetJSON);
@@ -159,6 +169,13 @@
     private async Task OnSwapViewClick()
     {
         MainPageViewModel.SwapView();
+        await OnAfterRenderAsync(true);
+        StateHasChanged();
+    }
+
+    private async Task OnUnfoldClick()
+    {
+        MainPageViewModel.UnfoldAnimation();
         await OnAfterRenderAsync(true);
         StateHasChanged();
     }

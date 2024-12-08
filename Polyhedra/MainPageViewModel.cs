@@ -1,5 +1,6 @@
 ﻿using Polyhedra.DataStructs3D;
 using Polyhedra.Solvers;
+using System.Runtime.InteropServices;
 
 namespace Polyhedra
 {
@@ -9,8 +10,12 @@ namespace Polyhedra
 
         private static Polyhedron currentPolyhedron = PolyhedronLibrary.GetPolyhedron("Cube");
 
+        // 3D toggles
         private static bool Flatten = false;
 
+        public static bool DoUnfoldAnimation = false;
+
+        // 2D toggles
         private static bool HideUnplacedPolygons = true;
 
         public static void SwapView()
@@ -23,11 +28,16 @@ namespace Polyhedra
             Flatten = !Flatten;
         }
 
+        public static void UnfoldAnimation()
+        {
+            DoUnfoldAnimation = true;
+        }
+
         public static void UnplacedVisibilityToggle()
         {
             HideUnplacedPolygons = !HideUnplacedPolygons;
         }
-        
+
         public static string GetDisplayPolyhedronJSON()
         {
             var polyhedron = currentPolyhedron.Copy();
