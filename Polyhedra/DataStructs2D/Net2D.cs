@@ -35,35 +35,8 @@ namespace Polyhedra.DataStructs2D
 
             var currentEdge = currentPolygon.GetConnectingEdge(adjacentPolygon);
             var adjacentEdge = adjacentPolygon.GetConnectingEdge(currentPolygon);
-
-            var vecToCurrEdge = currentPolygon.GetVecToEdge(currentEdge);
-            var vecToAdjEdge = adjacentPolygon.GetVecToEdge(adjacentEdge);
-
-            // Improve this section
-            var perpendicularCurr = new Vec2D(
-                -(currentEdge.End.Y - currentEdge.Start.Y),
-                currentEdge.End.X - currentEdge.Start.X);
-
-            var perpendicularAdj = new Vec2D(
-                -(adjacentEdge.End.Y - adjacentEdge.Start.Y),
-                adjacentEdge.End.X - adjacentEdge.Start.X);
-
-            var invertPerpCurr = vecToCurrEdge.Dot(perpendicularCurr) > 0;
-            var invertPerpAdj = vecToAdjEdge.Dot(perpendicularAdj) > 0;
-            if (invertPerpCurr)
-            {
-                perpendicularCurr = perpendicularCurr * -1;
-            }
-            if (invertPerpAdj)
-            {
-                perpendicularAdj = perpendicularAdj * -1;
-            }
-
-            var angle = perpendicularCurr.FindAngleBetween(perpendicularAdj * -1, true);
-            adjacentPolygon.Rotate(angle);
-            vecToAdjEdge = adjacentPolygon.GetVecToEdge(adjacentEdge);
-            var adjacentPolygonCentroid = vecToCurrEdge - vecToAdjEdge + currentPolygon.Centroid;
-            adjacentPolygon.TranslateToPoint((adjacentPolygonCentroid).ToPoint());
+            adjacentPolygon.Rotate(currentEdge.FindAngleBetween(adjacentEdge));
+            adjacentPolygon.TranslateToEdge(adjacentEdge, currentEdge);
 
             adjacentPolygon.Status = PolygonStatus.Current;
             if (LastPolygonPlaced.Status != PolygonStatus.Starting)

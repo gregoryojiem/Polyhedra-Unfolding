@@ -35,6 +35,33 @@ namespace Polyhedra.DataStructs2D
             AdjacentPolygon = adjacentPolygon;
         }
 
+        public double FindAngleBetween(Edge2D adjacentEdge)
+        {
+            var vecToCurrEdge = Polygon.GetVecToEdge(this);
+            var vecToAdjEdge = AdjacentPolygon.GetVecToEdge(adjacentEdge);
+
+            var perpendicularCurr = new Vec2D(
+                -(End.Y - Start.Y),
+                End.X - Start.X);
+
+            var perpendicularAdj = new Vec2D(
+                -(adjacentEdge.End.Y - adjacentEdge.Start.Y),
+                adjacentEdge.End.X - adjacentEdge.Start.X);
+
+            var invertPerpCurr = vecToCurrEdge.Dot(perpendicularCurr) > 0;
+            var invertPerpAdj = vecToAdjEdge.Dot(perpendicularAdj) > 0;
+            if (invertPerpCurr)
+            {
+                perpendicularCurr = perpendicularCurr * -1;
+            }
+            if (invertPerpAdj)
+            {
+                perpendicularAdj = perpendicularAdj * -1;
+            }
+
+            return perpendicularCurr.FindAngleBetween(perpendicularAdj * -1, true);
+        }
+
         public bool Intersection(Edge2D otherEdge) //TODO: Is there a way to avoid all the floating point related checks?
         {
             var sharedLeftEndpoint = Start == otherEdge.Start || Start == otherEdge.End;

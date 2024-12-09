@@ -110,6 +110,14 @@ namespace Polyhedra.DataStructs2D
             }
         }
 
+        public void TranslateToEdge(Edge2D edge, Edge2D matchingEdge)
+        {
+            var vecToCurrEdge = matchingEdge.Polygon.GetVecToEdge(matchingEdge);
+            var vecToAdjEdge = GetVecToEdge(edge);
+            var adjacentPolygonCentroid = vecToCurrEdge - vecToAdjEdge + matchingEdge.Polygon.Centroid;
+            TranslateToPoint(adjacentPolygonCentroid.ToPoint());
+        }
+
         public Vec2D GetVecToEdge(Edge2D edge)
         {
             return (edge.Mid - Centroid).ToVector();
