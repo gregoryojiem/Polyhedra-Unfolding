@@ -3,6 +3,7 @@ import { Line2 } from 'three/addons/lines/Line2.js';
 import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
 import { LineGeometry } from 'three/addons/lines/LineGeometry.js';
 import { Earcut } from 'three/extras/Earcut.js';
+import { Tween, Easing, update } from 'three/addons/libs/tween.module.js';
 
 // ---------------------------
 // Globals and initialization
@@ -12,35 +13,44 @@ let doAnimation = false;
 function renderingInit() {
 	width = window.innerWidth
 	height = window.innerHeight;
-	
+
 	scene = new THREE.Scene();
 
 	renderer = new THREE.WebGLRenderer({ antialias: true });
 	renderer.setSize(width, height);
-	document.body.appendChild(renderer.domElement);	
+	document.body.appendChild(renderer.domElement);
 
 	return { scene, renderer }
 }
 
-renderingInit(); 
+renderingInit();
 
 // ---------------------------
 // Blazor input/event handling
 // ---------------------------
-window.handleRendering2D = function (jsonArray) {
-	const shapes = JSON.parse(jsonArray);
-	console.log("Parsed 2D shapes")
+window.handleRendering2D = function (polygonsJSON) {
+	const shapes = JSON.parse(polygonsJSON);
+	console.log("Parsed 2D shapes");
 	console.log(shapes);
 	drawScene2D(scene, renderer, shapes);
 }
 
-window.handleRendering3D = function (jsonArray) {
-	const polyhedron = JSON.parse(jsonArray);
-	console.log("Parsed polyhedra:")
+window.handleRendering3D = function (polyhedronJSON) {
+	const polyhedron = JSON.parse(polyhedronJSON);
+	console.log("Parsed polyhedra:");
 	console.log(polyhedron);
 	drawScene3D(scene, renderer, polyhedron);
 }
 
+window.handleUnfoldAnimation = function (polyhedronJSON, polygonsJSON) {
+	const polyhedron = JSON.parse(polyhedronJSON);
+	const shapes = JSON.parse(polygonsJSON);
+	console.log("Parsed polyhedra:");
+	console.log(polyhedron);
+	console.log("Parsed 2D shapes");
+	console.log(shapes);
+	drawUnfolding(scene, renderer, polyhedron, shapes);
+}
 
 // --------------------------
 // 2D Rendering
@@ -98,7 +108,7 @@ function triangulate2D(vertices2D) {
 	const sortedIndices = sortVertices2D(vertices2D);
 	const sortedVertices2D = sortedIndices.map(i => vertices2D[i])
 	const indices = Earcut.triangulate(sortedVertices2D.flat(), [], 2);
-    return indices.map(i => sortedIndices[i]); 
+	return indices.map(i => sortedIndices[i]);
 }
 
 function drawShape(shape, scene) {
@@ -178,13 +188,19 @@ function setLighting() {
 	scene.add(directionalLight);
 }
 
+function GetCamera3D() {
+	let camera = new THREE.PerspectiveCamera(70, width / height, 0.01, 10);
+	camera.rotateX(-0.3);
+	camera.position.z = 2.5;
+	camera.position.y = 1;
+	return camera;
+}
 
 function drawScene3D(scene, renderer, polyhedron) {
-	scene.clear();  
+	scene.clear();
 	setLighting()
 
-	let camera = new THREE.PerspectiveCamera(70, width / height, 0.01, 10);
-	camera.position.z = 2.5;
+	let camera = GetCamera3D()
 
 	drawPolyhedron(polyhedron, scene)
 	const edges = getUniqueEdges(polyhedron)
@@ -196,7 +212,7 @@ function drawScene3D(scene, renderer, polyhedron) {
 		}
 
 		scene.children.forEach(mesh => {
-			mesh.rotation.x = time / 2000;
+			//mesh.rotation.x = time / 2000;
 			mesh.rotation.y = time / 1000;
 		});
 
@@ -226,7 +242,7 @@ function drawPolyhedron(polyhedron, scene) {
 		// look for alternate solutions
 		const normal = new THREE.Vector3(face.Normal[0], face.Normal[1], face.Normal[2]);
 		const vertices2D = rotateTo2D(vertices, normal);
-		const indices = triangulate2D(vertices2D); 
+		const indices = triangulate2D(vertices2D);
 		geometry.setIndex(indices);
 
 		const mesh = new THREE.Mesh(geometry, material);
@@ -243,7 +259,7 @@ function getUniqueEdges(polyhedron) {
 		const unsortedVertices = face.Vertices.map(v => new THREE.Vector3(v.X, v.Y, v.Z));
 		const normal = new THREE.Vector3(face.Normal[0], face.Normal[1], face.Normal[2]);
 		const vertices2D = rotateTo2D(unsortedVertices, normal);
-		const sortedIndices = sortVertices2D(vertices2D); 
+		const sortedIndices = sortVertices2D(vertices2D);
 		const vertices = sortedIndices.map(i => unsortedVertices[i]);
 
 		for (let i = 0; i < vertices.length; i++) {
@@ -276,4 +292,17 @@ function drawEdges(edges, scene) {
 		const edgeMesh = new THREE.Mesh(edgeGeometry, edgeMaterial);
 		scene.add(edgeMesh);
 	});
+}
+
+// ---------------------------
+// Unfolding animation
+// ---------------------------
+
+function drawUnfolding(scene, renderer, polyhedron, shapes) {
+	scene.clear();
+	setLighting();
+
+	let camera = GetCamera3D()
+
+	
 }
