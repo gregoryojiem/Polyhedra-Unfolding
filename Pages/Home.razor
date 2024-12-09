@@ -24,7 +24,53 @@
     <section id="our-approach">
         <h2>Our Approach</h2>
         <p>
-            Filler text
+            Libraries/frameworks
+            <ul>
+                <li>Our website is built with ASP.NET.</li>
+                <li>This allows us to combine C# with Javascript libraries</li>
+                <li>We use C# code for our backend data structures and algorithms, and it’s compiled down to WebAssembly</li>
+                <li>The website is written in HTML, and all of the rendering is done through Three.js</li>
+            </ul>
+            Rendering
+            <ul>
+                <li>We have various data structures in C# that can be serialized into JSON and passed to our renderer</li>
+                <li>Renderer is written in Javascript and uses Three.js</li>
+                <li>For polyhedra, it uses the vertices and indices of each face to render triangles. Normals are used for lighting</li>
+                <li>For nets, we pass in polygons, and they have various attributes that we use to color them (edges, status information)</li>
+            </ul>
+            Algorithm
+            <ul>
+                <li>We take a list of points (can be a predefined shape like a cube, or random)</li>
+                <li>Find their convex hull (using the Quickhull algorithm).</li>
+                <li>Next, we convert the 3D polyhedron faces to 2D.
+                    <ul>
+                        <li>Rotate the face vertices (Rodrigues' rotation formula) by aligning the normal vector to the upwards unit vector.</li>
+                    </ul>
+                </li>
+                <li>Now, we have a list of polygons.</li>
+                <li>We can use DFS to construct a net from our polygon list.
+                    <ul>
+                        <li>With some starting polygon, we can try placing its adjacent polygons next to it.</li>
+                        <li>If we place a face and it intersects with an existing one, we backtrack.</li>
+                    </ul>
+                </li>
+                <li>Placing polygons
+                    <ul>
+                        <li>When placing a polygon, we rotate it so that its connecting edge aligns with the existing polygon’s connecting edge.
+                            <ul>
+                                <li>We can do this by finding the perpendicular vector of both edges, inverting one, and then finding a rotation that aligns both vectors.</li>
+                                <li>This is a relatively fast operation.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li> 
+                <li>Intersection checks
+                    <ul>
+                        <li>Once we’ve rotated and translated the polygon into place, we check if it intersects with any other placed polygons.</li>
+                        <li>Intersection checks between convex polygons are also cheap.</li>
+                    </ul>
+                </li>
+            </ul>
         </p>
     </section>
 
