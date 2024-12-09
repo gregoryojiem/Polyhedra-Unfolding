@@ -62,12 +62,22 @@ namespace Polyhedra
 
         public static void UndoStep()
         {
-            if (Solver.StepsToDo > 0)
+            if (Solver.StepsToDo > 1)
             {
                 Solver.StepsToDo--;
             }
-
         }
+
+        public static void CompleteStep()
+        {
+            Solver.StepsToDo = int.MaxValue;
+        }
+
+        public static void ResetStep()
+        {
+            Solver.StepsToDo = 1;
+        }
+
         public static void SelectPolyhedra(string polyhedron)
         {
             currentPolyhedron = PolyhedronLibrary.GetPolyhedron(polyhedron);

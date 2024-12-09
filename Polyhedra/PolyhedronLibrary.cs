@@ -110,17 +110,32 @@ namespace Polyhedra
                     points = hexagonalPyramid;
                     break;
                 case "Dodecahedron":
-                    points = dodecahedron;
+                    points = ScalePoints(dodecahedron, 0.5);
                     break;
                 case "Elongated Square Dipyramid":
-                    points = elongatedSquareDipyramid;
+                    points = ScalePoints(elongatedSquareDipyramid, 0.75);
                     break;
                 case "Random Polyhedra":
-                    points = Point3D.GenerateRandPoints(50, 0.5); ;
+                    points = Point3D.GenerateRandPoints(20, 1);
                     break;
                 default: throw new InvalidDataException();
             }
             return new Polyhedron(points);
+        }
+
+        public static Point3D[] ScalePoints(Point3D[] points, double scale)
+        {
+            var scaledPoints = new Point3D[points.Length];
+
+            for (int i = 0; i < points.Length; i++)
+            {
+                scaledPoints[i] = new Point3D(
+                    points[i].X * scale,
+                    points[i].Y * scale,
+                    points[i].Z * scale);
+            }
+
+            return scaledPoints;
         }
 
         public static List<string> GetShapeNames()

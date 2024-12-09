@@ -111,7 +111,9 @@
     {
         <div>
             <button @onclick="OnStepButtonClick">Step through algorithm</button>
-            <button @onclick="OnUndoButtonClick">Undo Step</button>
+            <button @onclick="OnUndoButtonClick">Undo step</button>
+            <button @onclick="OnCompleteButtonClick">Unfold completely</button>
+            <button @onclick="OnResetButtonClick">Reset</button>
             <button @onclick="OnUnplacedButtonClick">Unplaced polygon visibility</button>
             <button @onclick="OnSwapViewClick">Swap to 3D view</button>
         </div>
@@ -190,6 +192,20 @@
     private async Task OnUndoButtonClick()
     {
         MainPageViewModel.UndoStep();
+        await OnAfterRenderAsync(true);
+        StateHasChanged();
+    }
+
+    private async Task OnCompleteButtonClick()
+    {
+        MainPageViewModel.CompleteStep();
+        await OnAfterRenderAsync(true);
+        StateHasChanged();
+    }
+
+    private async Task OnResetButtonClick()
+    {
+        MainPageViewModel.ResetStep();
         await OnAfterRenderAsync(true);
         StateHasChanged();
     }

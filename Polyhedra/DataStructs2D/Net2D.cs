@@ -183,7 +183,7 @@ namespace Polyhedra.DataStructs2D
 
         public string ToJSON(bool hideUnplaced)
         {
-            var polygons = Polygons.Where(p => p.Status != PolygonStatus.Unplaced).ToArray();
+            var polygons = Polygons.Where(p => p.Status != PolygonStatus.Unplaced || !hideUnplaced).ToArray();
             return JsonSerializer.Serialize(polygons, new JsonSerializerOptions { WriteIndented = true });
         }
     }
