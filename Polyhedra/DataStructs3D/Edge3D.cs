@@ -3,9 +3,9 @@
     public class Edge3D
     {
         public Point3D[] Vertices;
-        public PolyhedronFace ConnectedFace;
+        public Polygon3D ConnectedFace;
 
-        public Edge3D(PolyhedronFace firstFace, PolyhedronFace secondFace) 
+        public Edge3D(Polygon3D firstFace, Polygon3D secondFace) 
         {
             var sharedVertices = firstFace.Vertices.Intersect(secondFace.Vertices).ToArray();
             Vertices = sharedVertices.Select(v => firstFace.Vertices.First(p => p.Equals(v))).ToArray();

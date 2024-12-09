@@ -12,7 +12,7 @@ namespace Polyhedra.DataStructs2D
 
         public PolygonStatus Status { get; set; }
 
-        public int Id;
+        public int Id { get; set; }
 
         [JsonIgnore]
         public Point2D Centroid {
@@ -47,11 +47,11 @@ namespace Polyhedra.DataStructs2D
         {
             Polygon[] polygons = new Polygon[polyhedron.Faces.Length];
             polyhedron.FlattenFaces();
-            var polyhedraToPolygonMap = new Dictionary<PolyhedronFace, Polygon>();
+            var polyhedraToPolygonMap = new Dictionary<Polygon3D, Polygon>();
 
             for (int i = 0; i < polyhedron.Faces.Length; i++)
             {
-                PolyhedronFace face = polyhedron.Faces[i];
+                Polygon3D face = polyhedron.Faces[i];
                 Point2D[] vertices2D = new Point2D[face.Vertices.Length];
 
                 for (int j = 0; j < face.Vertices.Length; j++)
@@ -75,7 +75,7 @@ namespace Polyhedra.DataStructs2D
                     var start = polygon.Vertices.First(v => v.X == edge.Vertices[0].X && v.Y == edge.Vertices[0].Z);
                     var end = polygon.Vertices.First(v => v.X == edge.Vertices[1].X && v.Y == edge.Vertices[1].Z);
                     var adjacentPoly = polyhedraToPolygonMap[edge.ConnectedFace];
-                    polygon.Edges[counter++] = new Edge2D(start, end, adjacentPoly);
+                    polygon.Edges[counter++] = new Edge2D(start, end, polygon, adjacentPoly);
                 }
             }
 
@@ -157,20 +157,7 @@ namespace Polyhedra.DataStructs2D
 
         public override string ToString()
         {
-            var sb = new StringBuilder();
-            sb.Append("Vertices: {");
-
-            for (int i = 0; i < Vertices.Length; i++)
-            {
-                sb.Append($"({Vertices[i].X}, {Vertices[i].Y})");
-                if (i < Vertices.Length - 1)
-                {
-                    sb.Append(", ");
-                }
-            }
-            sb.Append("}\n");
-
-            return Id + " with " + Vertices.Length + " vertices. " + sb.ToString();
+            return Id + ", " + Vertices.Length + " vertices.";
         }
     }
 }

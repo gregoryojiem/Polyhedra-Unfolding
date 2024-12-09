@@ -64,7 +64,7 @@ namespace Polyhedra.DataStructs2D
             adjacentPolygon.Rotate(angle);
             vecToAdjEdge = adjacentPolygon.GetVecToEdge(adjacentEdge);
             var adjacentPolygonCentroid = vecToCurrEdge - vecToAdjEdge + currentPolygon.Centroid;
-            adjacentPolygon.TranslateToPoint((adjacentPolygonCentroid * 1.01).ToPoint());
+            adjacentPolygon.TranslateToPoint((adjacentPolygonCentroid).ToPoint());
 
             adjacentPolygon.Status = PolygonStatus.Current;
             if (LastPolygonPlaced.Status != PolygonStatus.Starting)

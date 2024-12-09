@@ -6,18 +6,18 @@ namespace Polyhedra.DataStructs3D
 {
     public class Polyhedron
     {
-        public PolyhedronFace[] Faces { get; set; }
+        public Polygon3D[] Faces { get; set; }
 
         public Polyhedron(int faceLength)
         {
-            Faces = new PolyhedronFace[faceLength];
+            Faces = new Polygon3D[faceLength];
         }
 
         public Polyhedron(Point3D[] convexHullPoints)
         {
             var convexHull = ConvexHull.Create<Point3D, ConvexHullFace>(convexHullPoints);
             var convexHullFaces = convexHull.Result.Faces.ToArray();
-            Faces = new PolyhedronFace[convexHullFaces.Length];
+            Faces = new Polygon3D[convexHullFaces.Length];
 
             BuildAdjacency(convexHullFaces);
             var mergeMapping = MergeCoplanarTriangles();
@@ -30,7 +30,7 @@ namespace Polyhedra.DataStructs3D
             }
         }
 
-        public void RemapMergedAdjacencies(Dictionary<PolyhedronFace, PolyhedronFace> mergeMapping)
+        public void RemapMergedAdjacencies(Dictionary<Polygon3D, Polygon3D> mergeMapping)
         {
             foreach (var face in Faces)
             {
@@ -61,11 +61,11 @@ namespace Polyhedra.DataStructs3D
 
         public void BuildAdjacency(ConvexHullFace[] convexHullFaces)
         {
-            var convToPolyMapping = new Dictionary<ConvexHullFace, PolyhedronFace>();
-            var polyToConvMapping = new Dictionary<PolyhedronFace, ConvexHullFace>();
+            var convToPolyMapping = new Dictionary<ConvexHullFace, Polygon3D>();
+            var polyToConvMapping = new Dictionary<Polygon3D, ConvexHullFace>();
             for (int i = 0; i < convexHullFaces.Length; i++)
             {
-                Faces[i] = new PolyhedronFace(convexHullFaces[i]);
+                Faces[i] = new Polygon3D(convexHullFaces[i]);
                 convToPolyMapping[convexHullFaces[i]] = Faces[i];
                 polyToConvMapping[Faces[i]] = convexHullFaces[i];
             }
@@ -91,9 +91,9 @@ namespace Polyhedra.DataStructs3D
         /// faces
         /// </summary>
         /// <returns>A Dictionary of Original face -> New merged face object </returns>
-        public Dictionary<PolyhedronFace, PolyhedronFace> MergeCoplanarTriangles()
+        public Dictionary<Polygon3D, Polygon3D> MergeCoplanarTriangles()
         {
-            var mergedMapping = new Dictionary<PolyhedronFace, PolyhedronFace>();
+            var mergedMapping = new Dictionary<Polygon3D, Polygon3D>();
             var faceHasMerged = new bool[Faces.Length];
             var mappingsToAssign = new List<(int, int)>();
             
@@ -104,10 +104,10 @@ namespace Polyhedra.DataStructs3D
                     continue;
                 }
 
-                PolyhedronFace currentFace = Faces[i];
+                Polygon3D currentFace = Faces[i];
                 for (int j = i + 1; j < Faces.Length; j++)
                 {
-                    PolyhedronFace faceToMerge = Faces[j];
+                    Polygon3D faceToMerge = Faces[j];
                     if (faceHasMerged[j] || !currentFace.Mergeable(faceToMerge))
                     {
                         continue;
@@ -122,7 +122,7 @@ namespace Polyhedra.DataStructs3D
                 }
             }
 
-            var newFaces = new List<PolyhedronFace>();
+            var newFaces = new List<Polygon3D>();
             for (int i = 0; i < Faces.Length; i++)
             {
                 if (!faceHasMerged[i])
@@ -145,7 +145,7 @@ namespace Polyhedra.DataStructs3D
         {
             for (int i = 0; i < Faces.Length; i++)
             {
-                Faces[i].Rotate3DToAlign();
+                Faces[i].AlignFaceWithXZPlane();
             }
 
         }
@@ -157,7 +157,7 @@ namespace Polyhedra.DataStructs3D
 
             for (int i = 0; i < faces.Length; i++)
             {
-                faces[i] = new PolyhedronFace(Faces[i]);
+                faces[i] = new Polygon3D(Faces[i]);
             }
 
             for (int i = 0; i < faces.Length; i++)

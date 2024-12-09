@@ -11,6 +11,9 @@ namespace Polyhedra.DataStructs2D
         public bool Connector { get; set; }
 
         [JsonIgnore]
+        public Polygon Polygon;
+
+        [JsonIgnore]
         public Polygon AdjacentPolygon;
 
         [JsonIgnore]
@@ -24,27 +27,11 @@ namespace Polyhedra.DataStructs2D
             }
         }
 
-        [JsonIgnore]
-        public double? Slope
-        {
-            get
-            {
-                try
-                {
-                    return (End.Y - Start.Y) / (End.X - Start.X);
-                }
-                catch (DivideByZeroException)
-                {
-                    // Vertical line
-                    return null;
-                }
-            }
-        }
-
-        public Edge2D(Point2D start, Point2D end, Polygon adjacentPolygon)
+        public Edge2D(Point2D start, Point2D end, Polygon polygon, Polygon adjacentPolygon)
         {
             Start = start;
             End = end;
+            Polygon = polygon;
             AdjacentPolygon = adjacentPolygon;
         }
 
@@ -82,7 +69,7 @@ namespace Polyhedra.DataStructs2D
 
         public override string ToString()
         {
-            return Start.ToString() + ", " + End.ToString();
+            return Polygon.ToString() + ":" + AdjacentPolygon.ToString();
         }
     }
 }

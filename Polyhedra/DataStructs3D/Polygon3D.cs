@@ -1,9 +1,10 @@
-﻿using System.Text;
+﻿using System.Numerics;
+using System.Text;
 using System.Text.Json.Serialization;
 
 namespace Polyhedra.DataStructs3D
 {
-    public class PolyhedronFace
+    public class Polygon3D
     {
         public Point3D[] Vertices { get; set; }
         public double[] Normal { get; set; }
@@ -13,7 +14,7 @@ namespace Polyhedra.DataStructs3D
 
         public int Id = 0;
 
-        public PolyhedronFace(ConvexHullFace convexHullFace)
+        public Polygon3D(ConvexHullFace convexHullFace)
         {
             var convHullVertices = convexHullFace.Vertices;
             Vertices = new Point3D[convHullVertices.Length];
@@ -25,14 +26,14 @@ namespace Polyhedra.DataStructs3D
             Adjacency = [];
         }
 
-        public PolyhedronFace(Point3D[] points, double[] normal, List<Edge3D> adjacency)
+        public Polygon3D(Point3D[] points, double[] normal, List<Edge3D> adjacency)
         {
             Vertices = points;
             Normal = normal;
             Adjacency = adjacency;
         }
 
-        public PolyhedronFace(PolyhedronFace face)
+        public Polygon3D(Polygon3D face)
         {
             var vertices = face.Vertices;
             Vertices = new Point3D[vertices.Length];
@@ -58,7 +59,7 @@ namespace Polyhedra.DataStructs3D
             }
         }
 
-        public bool Mergeable(PolyhedronFace otherFace)
+        public bool Mergeable(Polygon3D otherFace)
         {
             var sharedVertices = Vertices.Intersect(otherFace.Vertices).ToArray();
             if (sharedVertices.Length != 2)
@@ -71,7 +72,7 @@ namespace Polyhedra.DataStructs3D
                 Math.Abs(Normal[2] - otherFace.Normal[2]) < 0.0001;
         }
 
-        public PolyhedronFace Merge(PolyhedronFace otherFace)
+        public Polygon3D Merge(Polygon3D otherFace)
         {
             var mergedVertices = new HashSet<Point3D>(Vertices);
             mergedVertices.UnionWith(otherFace.Vertices);
@@ -82,7 +83,7 @@ namespace Polyhedra.DataStructs3D
             mergedAdjacency = mergedAdjacency.Distinct().ToList();
             mergedAdjacency.RemoveAll(edge => edge.ConnectedFace == this || edge.ConnectedFace == otherFace);
 
-            return new PolyhedronFace(mergedVertices.ToArray(), (double[])Normal.Clone(), mergedAdjacency);
+            return new Polygon3D(mergedVertices.ToArray(), (double[])Normal.Clone(), mergedAdjacency);
         }
 
         private Point3D GetCentroid()
@@ -109,10 +110,10 @@ namespace Polyhedra.DataStructs3D
             }
         }
 
-        public void Rotate3DToAlign()
+        public void AlignFaceWithXZPlane()
         {
             TranslateToOrigin();
-
+            
             if (Normal.SequenceEqual([0, -1, 0]))
             {
                 return;
@@ -120,20 +121,23 @@ namespace Polyhedra.DataStructs3D
             if (Normal.SequenceEqual([0, 1, 0]))
             {
                 Normal = [0, -1, 0];
+                foreach (Point3D point in Vertices)
+                {
+                    point.X = -point.X;
+                    point.Z = -point.Z;
+                }
                 return;
             }
 
-            Vec3D planeNormalVec = new(Normal[0], Normal[1], Normal[2]);
-            Vec3D targetVector = new(0, -1, 0);
-
-            double angle = Math.Acos(planeNormalVec.Dot(targetVector));
-            var rotationAxis = planeNormalVec.Cross(targetVector);
-            rotationAxis.Normalize();
-            var rotationMatrix = Matrix3D.GetRodriguezRotation(rotationAxis, angle);
+            Vector3 planeNormalVec = new((float)Normal[0], (float)Normal[1], (float)Normal[2]);
+            Vector3 targetVector = new(0, -1, 0);
+            Vector3 axis = Vector3.Normalize(Vector3.Cross(planeNormalVec, targetVector));
+            var angle = (float)Math.Acos(Vector3.Dot(planeNormalVec, targetVector));
+            Quaternion rotationQuaternion = Quaternion.CreateFromAxisAngle(axis, angle);
 
             foreach (Point3D point in Vertices)
             {
-                point.Rotate(rotationMatrix);
+                point.Rotate(rotationQuaternion);
             }
 
             Normal[0] = 0;
@@ -171,19 +175,19 @@ namespace Polyhedra.DataStructs3D
             return Id + " with " + Vertices.Length + " vertices. " + sb.ToString();
         }
 
-        public static bool operator ==(PolyhedronFace face1, PolyhedronFace face2)
+        public static bool operator ==(Polygon3D face1, Polygon3D face2)
         {
             return face1.Equals(face2);
         }
 
-        public static bool operator !=(PolyhedronFace face1, PolyhedronFace face2)
+        public static bool operator !=(Polygon3D face1, Polygon3D face2)
         {
             return !(face1.Equals(face2));
         }
 
         public override bool Equals(object? obj)
         {
-            if (obj is not PolyhedronFace other)
+            if (obj is not Polygon3D other)
             {
                 return false;
             }

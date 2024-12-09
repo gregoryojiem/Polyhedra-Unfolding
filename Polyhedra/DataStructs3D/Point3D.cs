@@ -1,4 +1,5 @@
 ﻿using MIConvexHull;
+using System.Numerics;
 
 namespace Polyhedra.DataStructs3D
 {
@@ -35,15 +36,13 @@ namespace Polyhedra.DataStructs3D
             return points;
         }
 
-        public void Rotate(Matrix3D matrix)
+        public void Rotate(Quaternion rotation)
         {
-            double newX = matrix[0, 0] * X + matrix[0, 1] * Y + matrix[0, 2] * Z;
-            double newY = matrix[1, 0] * X + matrix[1, 1] * Y + matrix[1, 2] * Z;
-            double newZ = matrix[2, 0] * X + matrix[2, 1] * Y + matrix[2, 2] * Z;
-
-            X = newX;
-            Y = newY;
-            Z = newZ;
+            Vector3 vector = new Vector3((float)X, (float)Y, (float)Z);
+            vector = Vector3.Transform(vector, rotation);
+            X = vector.X;
+            Y = vector.Y;
+            Z = vector.Z;
         }
 
         public override string ToString()
