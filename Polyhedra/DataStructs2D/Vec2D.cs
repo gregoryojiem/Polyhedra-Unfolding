@@ -69,5 +69,10 @@
         {
             return new Edge2D(centroid, new Point2D(X + centroid.X, Y + centroid.Y), null, null);
         }
+
+        public override string ToString()
+        {
+            return "(" + X + ", " + Y + ")";
+        }
     }
 }

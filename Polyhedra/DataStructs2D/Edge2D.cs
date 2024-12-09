@@ -69,7 +69,7 @@ namespace Polyhedra.DataStructs2D
 
         public override string ToString()
         {
-            return Polygon.ToString() + ":" + AdjacentPolygon.ToString();
+            return Start + "\n" + End;
         }
     }
 }
