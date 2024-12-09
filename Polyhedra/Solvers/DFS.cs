@@ -1,5 +1,5 @@
-﻿using Polyhedra.DataStructs2D;
-using Polyhedra.DataStructs3D;
+﻿using Polyhedra.DataStructs3D;
+using Polyhedra.DataStructs2D.Nets;
 
 namespace Polyhedra.Solvers
 {
@@ -18,10 +18,10 @@ namespace Polyhedra.Solvers
         public override Net2D Solve(Net2D net)
         {
             Console.WriteLine(net.Placements.Count);
-            List<(Polygon, Polygon?)> moves = net.GetMoves();
+            List<NetMove> moves = net.GetMoves();
             foreach (var move in moves)
             {
-                net.PlacePolygon(move.Item1, move.Item2);
+                net.MakeMove(move);
                 StepsTaken++;
                 var status = net.GetStatus();
 

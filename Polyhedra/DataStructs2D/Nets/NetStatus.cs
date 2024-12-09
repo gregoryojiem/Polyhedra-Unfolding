@@ -1,4 +1,4 @@
-﻿namespace Polyhedra.DataStructs2D
+﻿namespace Polyhedra.DataStructs2D.Nets
 {
     public enum NetStatus
     {

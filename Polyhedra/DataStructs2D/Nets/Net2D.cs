@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-namespace Polyhedra.DataStructs2D
+namespace Polyhedra.DataStructs2D.Nets
 {
     public class Net2D
     {
@@ -22,17 +22,15 @@ namespace Polyhedra.DataStructs2D
             Placements = [];
         }
 
-        // Assumes current polygon is placed, and adjacent hasn't been placed
-        public void PlacePolygon(Polygon currentPolygon, Polygon? adjacentPolygon)
+        private void PlaceStartingPolygon(Polygon polygon)
         {
-            if (adjacentPolygon == null)
-            {
-                currentPolygon.Status = PolygonStatus.Starting;
-                Placements.Add(Array.IndexOf(Polygons, currentPolygon));
-                placementIndex++;
-                return;
-            }
+            polygon.Status = PolygonStatus.Starting;
+            Placements.Add(Array.IndexOf(Polygons, polygon));
+            placementIndex++;
+        }
 
+        private void ConnectPolygons(Polygon currentPolygon, Polygon adjacentPolygon)
+        {
             var currentEdge = currentPolygon.GetConnectingEdge(adjacentPolygon);
             var adjacentEdge = adjacentPolygon.GetConnectingEdge(currentPolygon);
             adjacentPolygon.Rotate(currentEdge.FindAngleBetween(adjacentEdge));
@@ -48,6 +46,18 @@ namespace Polyhedra.DataStructs2D
 
             currentEdge.Connector = true;
             adjacentEdge.Connector = true;
+        }
+        public void MakeMove(NetMove move)
+        {
+            if (move is StartingMove startingMove)
+            {
+                PlaceStartingPolygon(startingMove.StartingPolygon);
+            }
+
+            if (move is PlacementMove placementMove)
+            {
+                ConnectPolygons(placementMove.CurrentPolygon, placementMove.AdjacentPolygon);
+            }
         }
 
         public void Undo()
@@ -82,15 +92,15 @@ namespace Polyhedra.DataStructs2D
         }
 
         // Should always return moves until net is complete
-        public List<(Polygon, Polygon?)> GetMoves()
+        public List<NetMove> GetMoves()
         {
-            var moves = new List<(Polygon, Polygon?)>();
+            var moves = new List<NetMove>();
 
             if (placementIndex == 0)
             {
                 foreach (var polygon in Polygons)
                 {
-                    moves.Add((polygon, null));
+                    moves.Add(new StartingMove(polygon));
                 }
 
             }
@@ -104,7 +114,7 @@ namespace Polyhedra.DataStructs2D
                 {
                     if (edge.AdjacentPolygon.Status == PolygonStatus.Unplaced)
                     {
-                        moves.Add((polygon, edge.AdjacentPolygon));
+                        moves.Add(new PlacementMove(polygon, edge.AdjacentPolygon));
                     }
                 }
             }

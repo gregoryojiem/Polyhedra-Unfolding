@@ -1,6 +1,7 @@
 ﻿using MIConvexHull;
 using System.Text.Json;
 using Polyhedra.DataStructs2D;
+using Polyhedra.DataStructs2D.Nets;
 
 namespace Polyhedra.DataStructs3D
 {
