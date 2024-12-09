@@ -48,16 +48,15 @@ namespace Polyhedra.DataStructs2D
                 -(adjacentEdge.End.Y - adjacentEdge.Start.Y),
                 adjacentEdge.End.X - adjacentEdge.Start.X);
 
-            if (!perpendicularCurr.ToEdge(currentPolygon.Centroid).Intersection(currentEdge))
+            var invertPerpCurr = vecToCurrEdge.Dot(perpendicularCurr) > 0;
+            var invertPerpAdj = vecToAdjEdge.Dot(perpendicularAdj) > 0;
+            if (invertPerpCurr)
             {
-                perpendicularCurr.X = -perpendicularCurr.X;
-                perpendicularCurr.Y = -perpendicularCurr.Y;
+                perpendicularCurr = perpendicularCurr * -1;
             }
-
-            if (!perpendicularAdj.ToEdge(adjacentPolygon.Centroid).Intersection(adjacentEdge))
+            if (invertPerpAdj)
             {
-                perpendicularAdj.X = -perpendicularAdj.X;
-                perpendicularAdj.Y = -perpendicularAdj.Y;
+                perpendicularAdj = perpendicularAdj * -1;
             }
 
             var angle = perpendicularCurr.FindAngleBetween(perpendicularAdj * -1, true);
