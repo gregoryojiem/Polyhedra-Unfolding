@@ -1,9 +1,11 @@
 ﻿using Polyhedra.DataStructs3D;
 
-namespace Polyhedra
+namespace Unfolder.Polyhedra
 {
     public class PolyhedronLibrary
     {
+        public static int sphereRefinement = 20;
+
         // Set test shapes
         private static Point3D[] triangularPyramid =
             [
@@ -115,8 +117,11 @@ namespace Polyhedra
                 case "Elongated Square Dipyramid":
                     points = ScalePoints(elongatedSquareDipyramid, 0.75);
                     break;
+                case "Sphere":
+                    points = GetSpherePoints(sphereRefinement, sphereRefinement, 0.75);
+                    break;
                 case "Random Polyhedra":
-                    points = Point3D.GenerateRandPoints(20, 1);
+                    points = Point3D.GenerateRandPoints(100000, 1);
                     break;
                 default: throw new InvalidDataException();
             }
@@ -138,12 +143,35 @@ namespace Polyhedra
             return scaledPoints;
         }
 
+        public static Point3D[] GetSpherePoints(int slices, int stacks, double radius)
+        {
+            var spherePoints = new List<Point3D>();
+
+            for (var stack = 1; stack < stacks; stack++)
+            {
+                var phi = Math.PI * stack / stacks;
+
+                for (var slice = 0; slice < slices; slice++)
+                {
+                    var theta = 2 * Math.PI * slice / slices;
+                    var x = radius * Math.Sin(phi) * Math.Cos(theta);
+                    var y = radius * Math.Sin(phi) * Math.Sin(theta);
+                    var z = radius * Math.Cos(phi);
+                    spherePoints.Add(new Point3D(x, y, z));
+                }
+            }
+
+            spherePoints.Add(new Point3D(0, 0, radius));
+            spherePoints.Add(new Point3D(0, 0, -radius));
+            return spherePoints.ToArray();
+        }
+
         public static List<string> GetShapeNames()
         {
             return [
                 "Triangular Pyramid", "Cube", "Tetrahedron", "Octahedron",
                 "Hexagonal Pyramid", "Dodecahedron", "Elongated Square Dipyramid",
-                "Random Polyhedra"
+                "Sphere", "Random Polyhedra"
             ];
         }
     }
