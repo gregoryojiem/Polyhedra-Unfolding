@@ -7,5 +7,10 @@
         public StartingMove(Polygon polygon) {
             StartingPolygon = polygon;
         }
+
+        public override string ToString()
+        {
+            return StartingPolygon.Id.ToString();
+        }
     }
 }
