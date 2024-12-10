@@ -1,7 +1,7 @@
 ﻿using Polyhedra.DataStructs3D;
 using Polyhedra.DataStructs2D.Nets;
 
-namespace Polyhedra.Solvers
+namespace Unfolder.Polyhedra.Solvers
 {
     public class DFS : Solver
     {
@@ -41,6 +41,7 @@ namespace Polyhedra.Solvers
                         StepsToDo = StepsTaken;
                         return solvedNet;
                     }
+                    net.Undo();
                 }
             }
             return net;

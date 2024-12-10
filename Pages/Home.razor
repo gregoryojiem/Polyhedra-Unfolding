@@ -1,6 +1,6 @@
 ﻿@page "/"
-
-<PageTitle>Unfolding</PageTitle>
+@inject Polyhedra.MainPageViewModel MainPageViewModel
+@using Polyhedra
 
 <title>Polyhedra Unfolding</title>
 
@@ -141,7 +141,6 @@
 </div>
 
 @inject IJSRuntime JSRuntime
-@using Polyhedra
 
 @code {
     private bool displayDropdown = false;
@@ -246,7 +245,6 @@
 
     private void ToggleDropdown()
     {
-        Console.WriteLine("toggling dropdown");
         displayDropdown = !displayDropdown;
         StateHasChanged();
     }

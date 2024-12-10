@@ -1,8 +1,7 @@
-﻿using Polyhedra.DataStructs2D;
-using Polyhedra.DataStructs3D;
+﻿using Polyhedra.DataStructs3D;
 using Polyhedra.DataStructs2D.Nets;
 
-namespace Polyhedra.Solvers
+namespace Unfolder.Polyhedra.Solvers
 {
     public class BFS : Solver
     {

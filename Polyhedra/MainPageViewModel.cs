@@ -1,8 +1,7 @@
 ﻿using Polyhedra.DataStructs3D;
-using Polyhedra.Solvers;
-using System.Runtime.InteropServices;
+using Unfolder.Polyhedra.Solvers;
 
-namespace Polyhedra
+namespace Unfolder.Polyhedra
 {
     public class MainPageViewModel
     {
