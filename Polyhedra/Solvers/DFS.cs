@@ -17,7 +17,7 @@ namespace Unfolder.Polyhedra.Solvers
 
         public override Net2D Solve(Net2D net)
         {
-            Console.WriteLine(net.Placements.Count);
+            Console.WriteLine(net.Placements.Count + 1);
             List<NetMove> moves = net.GetMoves();
             foreach (var move in moves)
             {
@@ -25,7 +25,7 @@ namespace Unfolder.Polyhedra.Solvers
                 StepsTaken++;
                 var status = net.GetStatus();
 
-                if (status == NetStatus.Complete || (StepsTaken >= StepsToDo && !MainPageViewModel.DoUnfoldAnimation))
+                if (status == NetStatus.Complete || (UseSteps && StepsTaken >= StepsToDo))
                 {
                     return net;
                 }
@@ -36,7 +36,7 @@ namespace Unfolder.Polyhedra.Solvers
                 else if (status == NetStatus.Valid)
                 {
                     var solvedNet = Solve(net);
-                    if (solvedNet.GetStatus() == NetStatus.Complete || (StepsTaken >= StepsToDo && !MainPageViewModel.DoUnfoldAnimation))
+                    if (solvedNet.GetStatus() == NetStatus.Complete || (UseSteps && StepsTaken >= StepsToDo))
                     {
                         StepsToDo = StepsTaken;
                         return solvedNet;
