@@ -24,17 +24,6 @@ namespace Polyhedra.DataStructs2D
             }
         }
 
-        public Point2D[] Bounds {
-            get
-            {
-                double maxX = Vertices.Max(v => v.X);
-                double minX = Vertices.Min(v => v.X);
-                double maxY = Vertices.Max(v => v.Y);
-                double minY = Vertices.Min(v => v.Y);
-                return [new(minX, minY), new(minX, maxY), new(maxX, minY), new(maxX, maxY)];
-            }
-        }
-
         public Polygon(Point2D[] vertices, Edge2D[] edges, int id)
         {
             Vertices = vertices;
@@ -164,12 +153,29 @@ namespace Polyhedra.DataStructs2D
             return false;
         }
 
+        public (double, double, double, double) GetBounds()
+        {
+            double minX = Vertices[0].X;
+            double maxX = Vertices[0].X;
+            double minY = Vertices[0].Y;
+            double maxY = Vertices[0].Y;
+
+            foreach (var vertex in Vertices)
+            {
+                minX = Math.Min(minX, vertex.X);
+                maxX = Math.Max(maxX, vertex.X);
+                minY = Math.Min(minY, vertex.Y);
+                maxY = Math.Max(maxY, vertex.Y);
+            }
+
+            return (minX, maxX, minY, maxY);
+        }
+
         public bool DoBoundsIntersect(Polygon otherpolygon)
         {
-            //this.Bounds;
-            //otherpolygon.Bounds;
-            //TODO check for bound intersection
-            return true;
+            var (minX, maxX, minY, maxY) = GetBounds();
+            var (otherMinX, otherMaxX, otherMinY, otherMaxY) = otherpolygon.GetBounds();
+            return maxX >= otherMinX && minX <= otherMaxX && maxY >= otherMinY && minY <= otherMaxY;
         }
 
         public void Scale(double scalar)

@@ -191,23 +191,10 @@ namespace Polyhedra.DataStructs2D.Nets
 
         private (double, double) GetNetSize()
         {
-            double minX = double.PositiveInfinity;
-            double maxX = double.NegativeInfinity;
-            double minY = double.PositiveInfinity;
-            double maxY = double.NegativeInfinity;
-
-            foreach (var polygon in Polygons)
-            {
-                foreach (var vertex in polygon.Vertices)
-                {
-                    minX = Math.Min(minX, vertex.X);
-                    maxX = Math.Max(maxX, vertex.X);
-                    minY = Math.Min(minY, vertex.Y);
-                    maxY = Math.Max(maxY, vertex.Y);
-                }
-            }
-
-            return (maxX - minX, maxY - minY);
+            return (
+                Polygons.SelectMany(p => p.Vertices).Max(v => v.X) - Polygons.SelectMany(p => p.Vertices).Min(v => v.X),
+                Polygons.SelectMany(p => p.Vertices).Max(v => v.Y) - Polygons.SelectMany(p => p.Vertices).Min(v => v.Y)
+            );
         }
 
         private void ScaleAndCenter(double goalImageSize, double padding)
