@@ -22,19 +22,24 @@ namespace Polyhedra.DataStructs2D.Nets
             Placements = [];
         }
 
-        private void PlaceStartingPolygon(Polygon polygon)
+        private void PlaceStartingPolygon(int polygonIndex)
         {
+            var polygon = Polygons[polygonIndex];
             polygon.Status = PolygonStatus.Starting;
-            Placements.Add(Array.IndexOf(Polygons, polygon));
+            Placements.Add(polygon.Id);
             placementIndex++;
         }
 
-        private void ConnectPolygons(Polygon currentPolygon, Polygon adjacentPolygon)
+        private void ConnectPolygons(int currentPolygonIndex, int adjacentPolygonIndex)
         {
+            var currentPolygon = Polygons[currentPolygonIndex];
+            var adjacentPolygon = Polygons[adjacentPolygonIndex];
             var currentEdge = currentPolygon.GetConnectingEdge(adjacentPolygon);
             var adjacentEdge = adjacentPolygon.GetConnectingEdge(currentPolygon);
-            adjacentPolygon.Rotate(currentEdge.FindAngleBetween(adjacentEdge));
-            adjacentPolygon.TranslateToEdge(adjacentEdge, currentEdge);
+
+            var angle = currentPolygon.FindAngleBetween(adjacentPolygon, currentEdge, adjacentEdge);
+            adjacentPolygon.Rotate(angle);
+            adjacentPolygon.TranslateToEdge(adjacentEdge, currentEdge, currentPolygon);
 
             adjacentPolygon.Status = PolygonStatus.Current;
             if (LastPolygonPlaced.Status != PolygonStatus.Starting)
@@ -51,12 +56,12 @@ namespace Polyhedra.DataStructs2D.Nets
         {
             if (move is StartingMove startingMove)
             {
-                PlaceStartingPolygon(startingMove.StartingPolygon);
+                PlaceStartingPolygon(startingMove.StartingPolygonId);
             }
 
             if (move is PlacementMove placementMove)
             {
-                ConnectPolygons(placementMove.CurrentPolygon, placementMove.AdjacentPolygon);
+                ConnectPolygons(placementMove.CurrentPolygonId, placementMove.AdjacentPolygonId);
             }
         }
 
@@ -86,7 +91,7 @@ namespace Polyhedra.DataStructs2D.Nets
                 }
 
                 edge.Connector = false;
-                var adjacentEdge = edge.AdjacentPolygon.GetConnectingEdge(polygon);
+                var adjacentEdge = Polygons[edge.AdjacentPolygonIndex].GetConnectingEdge(polygon);
                 adjacentEdge.Connector = false;
             }
         }
@@ -97,24 +102,23 @@ namespace Polyhedra.DataStructs2D.Nets
             var moves = new List<NetMove>();
 
             if (placementIndex == 0)
-            {
-                foreach (var polygon in Polygons)
-                {
-                    moves.Add(new StartingMove(polygon));
-                }
-
+            {                
+                var startingPolygon = Polygons.OrderByDescending(p => p.Vertices.Length).First();
+                return [new StartingMove(startingPolygon.Id)];
             }
 
 
-            foreach (var placement in Placements)
+            for (int i = 0; i < Placements.Count; i++)
             {
+                int placement = Placements[i];
                 var polygon = Polygons[placement];
 
-                foreach (var edge in polygon.Edges)
+                for (int j = 0; j < polygon.Edges.Length; j++)
                 {
-                    if (edge.AdjacentPolygon.Status == PolygonStatus.Unplaced)
+                    Edge2D edge = polygon.Edges[j];
+                    if (Polygons[edge.AdjacentPolygonIndex].Status == PolygonStatus.Unplaced)
                     {
-                        moves.Add(new PlacementMove(polygon, edge.AdjacentPolygon));
+                        moves.Add(new PlacementMove(polygon.Id, edge.AdjacentPolygonIndex));
                     }
                 }
             }
@@ -152,15 +156,21 @@ namespace Polyhedra.DataStructs2D.Nets
                 return NetStatus.Invalid;
             }
 
+            
+            return IsComplete() ? NetStatus.Complete : NetStatus.Valid;
+        }
+
+        public bool IsComplete()
+        {
             foreach (var polygon in Polygons)
             {
                 if (polygon.Status == PolygonStatus.Unplaced)
                 {
-                    return NetStatus.Valid;
+                    return false;
                 }
             }
 
-            return NetStatus.Complete;
+            return true;
         }
 
         public string ToJSON(bool hideUnplaced)
@@ -178,7 +188,7 @@ namespace Polyhedra.DataStructs2D.Nets
             ArrangeVerticesClockwise();
             ScaleAndCenter(desiredSize, padding);
             var netSize = GetNetSize();
-            return ((int)netSize.Item1 + padding * 2, (int)netSize.Item2 + padding * 2);
+            return ((int)netSize.Item1 + padding, (int)netSize.Item2 + padding);
         }
 
         private void ArrangeVerticesClockwise()
@@ -197,6 +207,13 @@ namespace Polyhedra.DataStructs2D.Nets
             );
         }
 
+        private Point2D GetNetCenter()
+        {
+            var middleX = (Polygons.SelectMany(p => p.Vertices).Max(v => v.X) + Polygons.SelectMany(p => p.Vertices).Min(v => v.X)) / 2;
+            var middleY = (Polygons.SelectMany(p => p.Vertices).Max(v => v.Y) + Polygons.SelectMany(p => p.Vertices).Min(v => v.Y)) / 2;
+            return new Point2D(middleX, middleY);
+        }
+
         private void ScaleAndCenter(double goalImageSize, double padding)
         {
             // Center net at origin
@@ -205,23 +222,15 @@ namespace Polyhedra.DataStructs2D.Nets
 
             // Scaling
             var (width, height) = GetNetSize();
-            double requiredScaling = goalImageSize / Math.Max(width, height);
+            double requiredScaling = goalImageSize / Math.Min(width, height);
             Scale(requiredScaling);
 
             // Translation
-            var scaledCenter = GetNetCenter();
-            double translationX = goalImageSize / 2 + padding - scaledCenter.X;
-            double translationY = goalImageSize / 2 + padding - scaledCenter.Y;
+            var (scaledWidth, scaledHeight) = GetNetSize();
+            double translationX = scaledWidth / 2 + padding / 2;
+            double translationY = scaledHeight / 2 + padding / 2;
             var translation = new Point2D(translationX, translationY);
             Translate(translation);
-        }
-
-
-        private Point2D GetNetCenter()
-        {
-            var centerX = Polygons.Average(p => p.Centroid.X);
-            var centerY = Polygons.Average(p => p.Centroid.Y);
-            return new Point2D(centerX, centerY);
         }
 
         private void Scale(double scalar)

@@ -49,8 +49,12 @@ namespace Unfolder.Polyhedra
 
         public static string GetDisplayNetJSON()
         {
-            var solver = new DFS(currentPolyhedron);
+            var solver = new DFS(currentPolyhedron.Copy());
             var outputNet = solver.Solve();
+            if (outputNet.IsComplete())
+            {
+                Solver.StepsToDo = solver.StepsTaken;
+            }
             return outputNet.ToJSON(HideUnplacedPolygons);
         }
 

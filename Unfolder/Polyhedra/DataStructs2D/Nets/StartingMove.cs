@@ -2,15 +2,15 @@
 {
     public class StartingMove : NetMove
     {
-        public readonly Polygon StartingPolygon;
+        public readonly int StartingPolygonId;
 
-        public StartingMove(Polygon polygon) {
-            StartingPolygon = polygon;
+        public StartingMove(int startingPolygonId) {
+            StartingPolygonId = startingPolygonId;
         }
 
         public override string ToString()
         {
-            return StartingPolygon.Id.ToString();
+            return StartingPolygonId.ToString();
         }
     }
 }

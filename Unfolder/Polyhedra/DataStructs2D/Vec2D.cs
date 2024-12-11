@@ -60,16 +60,6 @@
             return angle;
         }
 
-        public Point2D ToPoint()
-        {
-            return new Point2D(X, Y);
-        }
-
-        public Edge2D ToEdge(Point2D centroid)
-        {
-            return new Edge2D(centroid, new Point2D(X + centroid.X, Y + centroid.Y), null, null);
-        }
-
         public override string ToString()
         {
             return "(" + X + ", " + Y + ")";

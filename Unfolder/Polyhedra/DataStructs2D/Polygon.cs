@@ -1,5 +1,4 @@
-﻿using System.Text;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 using Polyhedra.DataStructs3D;
 
 namespace Polyhedra.DataStructs2D
@@ -35,7 +34,6 @@ namespace Polyhedra.DataStructs2D
         public static Polygon[] PolyhedraToPolygons(Polyhedron polyhedron)
         {
             Polygon[] polygons = new Polygon[polyhedron.Faces.Length];
-            polyhedron.FlattenFaces();
             var polyhedraToPolygonMap = new Dictionary<Polygon3D, Polygon>();
 
             for (int i = 0; i < polyhedron.Faces.Length; i++)
@@ -49,7 +47,7 @@ namespace Polyhedra.DataStructs2D
                 }
 
                 var edges = new Edge2D[face.Adjacency.Count];
-                polygons[i] = new Polygon(vertices2D, edges, face.Id);
+                polygons[i] = new Polygon(vertices2D, edges, i);
                 polyhedraToPolygonMap[face] = polygons[i];
             }
 
@@ -61,21 +59,55 @@ namespace Polyhedra.DataStructs2D
                 var counter = 0;
                 foreach (var edge in face.Adjacency)
                 {
-                    var start = polygon.Vertices.First(v => v.X == edge.Vertices[0].X && v.Y == edge.Vertices[0].Z);
-                    var end = polygon.Vertices.First(v => v.X == edge.Vertices[1].X && v.Y == edge.Vertices[1].Z);
-                    var adjacentPoly = polyhedraToPolygonMap[edge.ConnectedFace];
-                    polygon.Edges[counter++] = new Edge2D(start, end, polygon, adjacentPoly);
+                    var convertedStart = new Point2D(edge.Vertices[0].X, edge.Vertices[0].Z);
+                    var convertedEnd = new Point2D(edge.Vertices[1].X, edge.Vertices[1].Z);
+                    var start = polygon.Vertices.First(v => v == convertedStart);
+                    var end = polygon.Vertices.First(v => v == convertedEnd);
+                    var adjacentPolygon = polyhedraToPolygonMap[edge.ConnectedFace];
+                    polygon.Edges[counter++] = new Edge2D(start, end, i, adjacentPolygon.Id);
                 }
             }
 
             return polygons;
         }
 
+        public double FindAngleBetween(Polygon adjacentPolgon, Edge2D currentEdge, Edge2D adjacentEdge)
+        {
+            var vecToCurrEdge = GetVecToEdge(currentEdge);
+            var vecToAdjEdge = adjacentPolgon.GetVecToEdge(adjacentEdge);
+
+            var perpendicularCurr = new Vec2D(
+                -(currentEdge.End.Y - currentEdge.Start.Y),
+                currentEdge.End.X - currentEdge.Start.X);
+
+            var perpendicularAdj = new Vec2D(
+                -(adjacentEdge.End.Y - adjacentEdge.Start.Y),
+                adjacentEdge.End.X - adjacentEdge.Start.X);
+
+            var invertPerpCurr = vecToCurrEdge.Dot(perpendicularCurr) > 0;
+            var invertPerpAdj = vecToAdjEdge.Dot(perpendicularAdj) > 0;
+            if (invertPerpCurr)
+            {
+                perpendicularCurr = perpendicularCurr * -1;
+            }
+            if (invertPerpAdj)
+            {
+                perpendicularAdj = perpendicularAdj * -1;
+            }
+
+            return perpendicularCurr.FindAngleBetween(perpendicularAdj * -1, true);
+        }
+
         public void Rotate(double theta)
         {
             for (int i = 0; i < Vertices.Length; i++)
             {
-                Vertices[i].Rotate(theta);
+                Vertices[i] = Vertices[i].Rotate(theta);
+            }
+
+            foreach (var edge in Edges)
+            {
+                edge.Rotate(theta);
             }
         }
          
@@ -87,15 +119,10 @@ namespace Polyhedra.DataStructs2D
                 Vertices[i].X -= centroid.X;
                 Vertices[i].Y -= centroid.Y;
             }
-        }
 
-        public void TranslateToPoint(Point2D pointToTranslateTo)
-        {
-            TranslateToOrigin();
-            for (int i = 0; i < Vertices.Length; i++)
+            foreach (var edge in Edges)
             {
-                Vertices[i].X += pointToTranslateTo.X;
-                Vertices[i].Y += pointToTranslateTo.Y;
+                edge.Translate(-centroid.X, -centroid.Y);
             }
         }
 
@@ -106,14 +133,20 @@ namespace Polyhedra.DataStructs2D
                 Vertices[i].X += pointToTranslateTo.X;
                 Vertices[i].Y += pointToTranslateTo.Y;
             }
+
+            foreach (var edge in Edges)
+            {
+                edge.Translate(pointToTranslateTo.X, pointToTranslateTo.Y);
+            }
         }
 
-        public void TranslateToEdge(Edge2D edge, Edge2D matchingEdge)
+        public void TranslateToEdge(Edge2D adjacentEdge, Edge2D currentEdge, Polygon currentPolygon)
         {
-            var vecToCurrEdge = matchingEdge.Polygon.GetVecToEdge(matchingEdge);
-            var vecToAdjEdge = GetVecToEdge(edge);
-            var adjacentPolygonCentroid = vecToCurrEdge - vecToAdjEdge + matchingEdge.Polygon.Centroid;
-            TranslateToPoint(adjacentPolygonCentroid.ToPoint());
+            var vecToCurrEdge = currentPolygon.GetVecToEdge(currentEdge);
+            var vecToAdjEdge = GetVecToEdge(adjacentEdge);
+            var translation = vecToCurrEdge - vecToAdjEdge + currentPolygon.Centroid;
+            TranslateToOrigin();
+            Translate(new Point2D(translation.X, translation.Y));
         }
 
         public Vec2D GetVecToEdge(Edge2D edge)
@@ -121,22 +154,22 @@ namespace Polyhedra.DataStructs2D
             return (edge.Mid - Centroid).ToVector();
         }
 
-        public Edge2D GetConnectingEdge(Polygon polygon)
+        public Edge2D GetConnectingEdge(Polygon adjacentPolygon)
         {
-            return Edges.First(e => e.AdjacentPolygon == polygon);
+            return Edges.First(e => e.AdjacentPolygonIndex == adjacentPolygon.Id);
         }
 
         public bool Intersecting(Polygon otherPolygon)
         {
             foreach (Edge2D edge in Edges)
             {
-                if (edge.AdjacentPolygon == otherPolygon)
+                if (edge.AdjacentPolygonIndex == otherPolygon.Id)
                 {
                     continue;
                 }
                 foreach (Edge2D otherEdge in otherPolygon.Edges)
                 {
-                    if (otherEdge.AdjacentPolygon == this)
+                    if (otherEdge.AdjacentPolygonIndex == Id)
                     {
                         continue;
                     }
@@ -180,10 +213,9 @@ namespace Polyhedra.DataStructs2D
 
         public void Scale(double scalar)
         {
-            foreach (var vertex in Vertices)
+            for (int i = 0; i < Vertices.Length; i++)
             {
-                vertex.X *= scalar;
-                vertex.Y *= scalar;
+                Vertices[i] = new Point2D(Vertices[i].X * scalar, Vertices[i].Y * scalar);
             }
         }
 
@@ -196,7 +228,8 @@ namespace Polyhedra.DataStructs2D
 
         public override string ToString()
         {
-            return Id + ", " + Vertices.Length + " vertices.";
+            var status = Status == PolygonStatus.Unplaced ? "Unplaced" : "Placed";
+            return Id + ", " + Vertices.Length + " vertices. " + status;
         }
     }
 }

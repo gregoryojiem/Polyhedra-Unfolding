@@ -4,7 +4,7 @@ namespace Unfolder.Polyhedra
 {
     public class PolyhedronLibrary
     {
-        public static int sphereRefinement = 20;
+        public static int sphereRefinement = 10;
 
         // Set test shapes
         private static Point3D[] triangularPyramid =
@@ -121,7 +121,7 @@ namespace Unfolder.Polyhedra
                     points = GetSpherePoints(sphereRefinement, sphereRefinement, 0.75);
                     break;
                 case "Random Polyhedra":
-                    points = Point3D.GenerateRandPoints(100000, 1);
+                    points = Point3D.GenerateRandPoints(10000, 1);
                     break;
                 default: throw new InvalidDataException();
             }

@@ -2,17 +2,17 @@
 {
     public class PlacementMove : NetMove, IComparable<PlacementMove>
     {
-        public readonly Polygon CurrentPolygon;
-        public readonly Polygon AdjacentPolygon;
+        public readonly int CurrentPolygonId;
+        public readonly int AdjacentPolygonId;
         public int lowerId;
         public int higherId;
 
-        public PlacementMove(Polygon currentPolygon, Polygon adjacentPolygon)
+        public PlacementMove(int currentPolygonId, int adjacentPolygonId)
         {
-            CurrentPolygon = currentPolygon;
-            AdjacentPolygon = adjacentPolygon;
-            lowerId = Math.Min(currentPolygon.Id, adjacentPolygon.Id);
-            higherId = Math.Max(currentPolygon.Id, adjacentPolygon.Id);
+            CurrentPolygonId = currentPolygonId;
+            AdjacentPolygonId = adjacentPolygonId;
+            lowerId = Math.Min(currentPolygonId, adjacentPolygonId);
+            higherId = Math.Max(currentPolygonId, adjacentPolygonId);
         }
 
         public int CompareTo(PlacementMove? other)
