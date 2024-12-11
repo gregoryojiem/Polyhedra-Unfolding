@@ -18,9 +18,10 @@ namespace PerformanceTesting
         public static void SphereTest()
         {
             var sphere = new Polyhedron(PolyhedronLibrary.GetSpherePoints(50, 50, 1));
-            Console.WriteLine("Face count is: " + sphere.Faces.Length);
+            Console.WriteLine("Face count for sphere test is: " + sphere.Faces.Length);
             var solver = new DFS(sphere);
-            solver.Solve();
+            var net = solver.Solve();
+            Visualization.SaveNetToImage(net);
         }
     }
 }

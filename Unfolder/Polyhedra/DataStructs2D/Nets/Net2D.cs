@@ -168,5 +168,89 @@ namespace Polyhedra.DataStructs2D.Nets
             var polygons = Polygons.Where(p => p.Status != PolygonStatus.Unplaced || !hideUnplaced).ToArray();
             return JsonSerializer.Serialize(polygons, new JsonSerializerOptions { WriteIndented = true });
         }
+
+        //
+        // Functionality related to converting nets to images
+        //
+
+        public (int, int) PrepForImageConversion(int desiredSize, int padding)
+        {
+            ArrangeVerticesClockwise();
+            ScaleAndCenter(desiredSize, padding);
+            var netSize = GetNetSize();
+            return ((int)netSize.Item1 + padding * 2, (int)netSize.Item2 + padding * 2);
+        }
+
+        private void ArrangeVerticesClockwise()
+        {
+            foreach (var polygon in Polygons)
+            {
+                polygon.SortVerticesClockwise();
+            }
+        }
+
+        private (double, double) GetNetSize()
+        {
+            double minX = double.PositiveInfinity;
+            double maxX = double.NegativeInfinity;
+            double minY = double.PositiveInfinity;
+            double maxY = double.NegativeInfinity;
+
+            foreach (var polygon in Polygons)
+            {
+                foreach (var vertex in polygon.Vertices)
+                {
+                    minX = Math.Min(minX, vertex.X);
+                    maxX = Math.Max(maxX, vertex.X);
+                    minY = Math.Min(minY, vertex.Y);
+                    maxY = Math.Max(maxY, vertex.Y);
+                }
+            }
+
+            return (maxX - minX, maxY - minY);
+        }
+
+        private void ScaleAndCenter(double goalImageSize, double padding)
+        {
+            // Center net at origin
+            var center = GetNetCenter();
+            Translate(new Point2D(-center.X, -center.Y));
+
+            // Scaling
+            var (width, height) = GetNetSize();
+            double requiredScaling = goalImageSize / Math.Max(width, height);
+            Scale(requiredScaling);
+
+            // Translation
+            var scaledCenter = GetNetCenter();
+            double translationX = goalImageSize / 2 + padding - scaledCenter.X;
+            double translationY = goalImageSize / 2 + padding - scaledCenter.Y;
+            var translation = new Point2D(translationX, translationY);
+            Translate(translation);
+        }
+
+
+        private Point2D GetNetCenter()
+        {
+            var centerX = Polygons.Average(p => p.Centroid.X);
+            var centerY = Polygons.Average(p => p.Centroid.Y);
+            return new Point2D(centerX, centerY);
+        }
+
+        private void Scale(double scalar)
+        {
+            foreach (var polygon in Polygons)
+            {
+                polygon.Scale(scalar);
+            }
+        }
+
+        private void Translate(Point2D point)
+        {
+            foreach (var polygon in Polygons)
+            {
+                polygon.Translate(point);
+            }
+        }
     }
 }

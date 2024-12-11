@@ -110,6 +110,15 @@ namespace Polyhedra.DataStructs2D
             }
         }
 
+        public void Translate(Point2D pointToTranslateTo)
+        {
+            for (int i = 0; i < Vertices.Length; i++)
+            {
+                Vertices[i].X += pointToTranslateTo.X;
+                Vertices[i].Y += pointToTranslateTo.Y;
+            }
+        }
+
         public void TranslateToEdge(Edge2D edge, Edge2D matchingEdge)
         {
             var vecToCurrEdge = matchingEdge.Polygon.GetVecToEdge(matchingEdge);
@@ -161,6 +170,22 @@ namespace Polyhedra.DataStructs2D
             //otherpolygon.Bounds;
             //TODO check for bound intersection
             return true;
+        }
+
+        public void Scale(double scalar)
+        {
+            foreach (var vertex in Vertices)
+            {
+                vertex.X *= scalar;
+                vertex.Y *= scalar;
+            }
+        }
+
+        public void SortVerticesClockwise()
+        {
+            double centerX = Vertices.Average(v => v.X);
+            double centerY = Vertices.Average(v => v.Y);
+            Vertices = Vertices.OrderBy(v => Math.Atan2(v.Y - centerY, v.X - centerX)).ToArray();
         }
 
         public override string ToString()
