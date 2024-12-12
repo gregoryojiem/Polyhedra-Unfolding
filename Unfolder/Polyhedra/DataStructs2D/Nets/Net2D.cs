@@ -96,18 +96,16 @@ namespace Polyhedra.DataStructs2D.Nets
             }
         }
 
-        // Should always return moves until net is complete
-        public List<NetMove> GetMoves()
+        public NetMove? GetMove(int moveIndex)
         {
-            var moves = new List<NetMove>();
-
-            if (placementIndex == 0)
-            {                
-                var startingPolygon = Polygons.OrderByDescending(p => p.Vertices.Length).First();
-                return [new StartingMove(startingPolygon.Id)];
+            if (placementIndex == 0 && moveIndex < Polygons.Length)
+            {
+                //var optimalStartingPolygon = Polygons.OrderByDescending(p => p.Vertices.Length).ElementAt(moveIndex);
+                var startingPolygon = Polygons[moveIndex];
+                return new StartingMove(startingPolygon.Id);
             }
 
-
+            int currentMoveIndex = 0;
             for (int i = 0; i < Placements.Count; i++)
             {
                 int placement = Placements[i];
@@ -115,15 +113,19 @@ namespace Polyhedra.DataStructs2D.Nets
 
                 for (int j = 0; j < polygon.Edges.Length; j++)
                 {
-                    Edge2D edge = polygon.Edges[j];
-                    if (Polygons[edge.AdjacentPolygonIndex].Status == PolygonStatus.Unplaced)
+                    var foundMove = Polygons[polygon.Edges[j].AdjacentPolygonIndex].Status == PolygonStatus.Unplaced;
+                    if (foundMove && currentMoveIndex == moveIndex)
                     {
-                        moves.Add(new PlacementMove(polygon.Id, edge.AdjacentPolygonIndex));
+                        return new PlacementMove(polygon.Id, polygon.Edges[j].AdjacentPolygonIndex);
+                    }
+                    if (foundMove)
+                    {
+                        currentMoveIndex++;
                     }
                 }
             }
 
-            return moves;
+            return null;
         }
 
         private NetStatus ValidateLastMove()

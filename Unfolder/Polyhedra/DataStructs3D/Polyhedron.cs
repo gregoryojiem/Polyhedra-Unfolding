@@ -172,6 +172,7 @@ namespace Polyhedra.DataStructs3D
         public Net2D ToNet2D()
         {
             var copyPolyhedron = Copy();
+            copyPolyhedron.FlattenFaces();
             var polygons = Polygon.PolyhedraToPolygons(copyPolyhedron);
             var net = new Net2D(polygons);
             return net;

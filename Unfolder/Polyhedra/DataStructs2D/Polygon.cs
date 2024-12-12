@@ -14,6 +14,12 @@ namespace Polyhedra.DataStructs2D
         public int Id { get; set; }
 
         [JsonIgnore]
+        public (double, double, double, double) Bounds { get; set; }
+
+        [JsonIgnore]
+        public bool BoundsChanged = true;
+
+        [JsonIgnore]
         public Point2D Centroid {
             get
             {
@@ -109,21 +115,8 @@ namespace Polyhedra.DataStructs2D
             {
                 edge.Rotate(theta);
             }
-        }
-         
-        public void TranslateToOrigin()
-        {
-            var centroid = Centroid;
-            for (int i = 0; i < Vertices.Length; i++)
-            {
-                Vertices[i].X -= centroid.X;
-                Vertices[i].Y -= centroid.Y;
-            }
 
-            foreach (var edge in Edges)
-            {
-                edge.Translate(-centroid.X, -centroid.Y);
-            }
+            BoundsChanged = true;
         }
 
         public void Translate(Point2D pointToTranslateTo)
@@ -138,6 +131,14 @@ namespace Polyhedra.DataStructs2D
             {
                 edge.Translate(pointToTranslateTo.X, pointToTranslateTo.Y);
             }
+
+            BoundsChanged = true;
+        }
+
+        public void TranslateToOrigin()
+        {
+            var centroid = Centroid;
+            Translate(new Point2D(-centroid.X, -centroid.Y));
         }
 
         public void TranslateToEdge(Edge2D adjacentEdge, Edge2D currentEdge, Polygon currentPolygon)
@@ -188,6 +189,11 @@ namespace Polyhedra.DataStructs2D
 
         public (double, double, double, double) GetBounds()
         {
+            if (!BoundsChanged)
+            {
+                return Bounds;
+            }
+
             double minX = Vertices[0].X;
             double maxX = Vertices[0].X;
             double minY = Vertices[0].Y;
@@ -201,7 +207,9 @@ namespace Polyhedra.DataStructs2D
                 maxY = Math.Max(maxY, vertex.Y);
             }
 
-            return (minX, maxX, minY, maxY);
+            BoundsChanged = false;
+            Bounds = (minX, maxX, minY, maxY);
+            return Bounds;
         }
 
         public bool DoBoundsIntersect(Polygon otherpolygon)

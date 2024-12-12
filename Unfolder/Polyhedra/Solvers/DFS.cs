@@ -15,23 +15,22 @@ namespace Unfolder.Polyhedra.Solvers
 
         public override Net2D Solve(Net2D net)
         {
-            Stack<Net2D> returnNets = new Stack<Net2D>();
+            var returnNets = new Stack<Net2D>();
             var moveTracker = new int[net.Polygons.Length];
             var moveTrackerIndex = 0;
 
             while (moveTracker[0] != 2)
             {
-                var moves = net.GetMoves();
                 var currentMoveIndex = moveTracker[moveTrackerIndex];
+                var currentMove = net.GetMove(currentMoveIndex);
 
-                if (currentMoveIndex > moves.Count - 1) // Dead end
+                if (currentMove == null) // Dead end
                 {
                     net.Undo();
                     moveTracker[moveTrackerIndex] = 0;
                     moveTrackerIndex--;
+                    continue;
                 }
-
-                var currentMove = moves[currentMoveIndex];
 
                 Console.WriteLine(net.Placements.Count + 1);
                 if (UseSteps && StepsTaken >= StepsToDo)
