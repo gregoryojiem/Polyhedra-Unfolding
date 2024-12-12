@@ -59,32 +59,6 @@ namespace Polyhedra.DataStructs3D
             }
         }
 
-        public bool Mergeable(Polygon3D otherFace)
-        {
-            if (!(Math.Abs(Normal[0] - otherFace.Normal[0]) < 0.0001 &&
-                  Math.Abs(Normal[1] - otherFace.Normal[1]) < 0.0001 &&
-                  Math.Abs(Normal[2] - otherFace.Normal[2]) < 0.0001))
-            {
-                return false;
-            }
-
-            var sharedVertices = 0;
-
-            foreach (var vertex in Vertices)
-            {
-                foreach (var otherVertex in otherFace.Vertices)
-                {
-                    if (vertex == otherVertex)
-                    {
-                        sharedVertices++;
-                        break;
-                    }
-                }
-            }
-
-            return sharedVertices == 2;
-        }
-
         public Polygon3D Merge(Polygon3D otherFace)
         {
             var mergedVertices = new HashSet<Point3D>(Vertices);
