@@ -7,6 +7,7 @@ namespace Polyhedra.DataStructs2D.Nets
         public Polygon2D[] Polygons;
         public readonly List<int> Placements = [];
         private int placementIndex = 0;
+        public static int lastIndexWithOpenMoves = 0;
 
         private Polygon2D LastPolygonPlaced
         {
@@ -105,8 +106,9 @@ namespace Polyhedra.DataStructs2D.Nets
                 return new StartingMove(startingPolygon.Id);
             }
 
+            bool foundFirstMove = false;
             int currentMoveIndex = 0;
-            for (int i = 0; i < Placements.Count; i++)
+            for (int i = lastIndexWithOpenMoves; i < Placements.Count; i++)
             {
                 int placement = Placements[i];
                 var polygon = Polygons[placement];
@@ -114,6 +116,11 @@ namespace Polyhedra.DataStructs2D.Nets
                 for (int j = 0; j < polygon.Edges.Length; j++)
                 {
                     var foundMove = Polygons[polygon.Edges[j].AdjacentPolygonIndex].Status == PolygonStatus.Unplaced;
+                    if (foundMove && !foundFirstMove)
+                    {
+                        lastIndexWithOpenMoves = i;
+                        foundFirstMove = true;
+                    }
                     if (foundMove && currentMoveIndex == moveIndex)
                     {
                         return new PlacementMove(polygon.Id, polygon.Edges[j].AdjacentPolygonIndex);
