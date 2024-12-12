@@ -8,12 +8,12 @@ namespace PerformanceTesting
 {
     public class Visualization
     {
-        private static int displaySize = 2000;
+        private readonly static int displaySize = 2000;
         private static int counter = 1;
 
         public static void SaveNetToImage(Net2D net)
         {
-            var (width, height) = net.PrepForImageConversion(displaySize, displaySize/16);
+            var (width, height) = net.PrepForImageConversion(displaySize, displaySize/8);
             var image = new Image<Rgba32>(width, height);
             var pen = Pens.Solid(Color.White, 3);
             var brush = Brushes.Solid(Color.Red);
