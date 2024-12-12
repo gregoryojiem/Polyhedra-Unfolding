@@ -3,7 +3,7 @@ using Polyhedra.DataStructs3D;
 
 namespace Polyhedra.DataStructs2D
 {
-    public class Polygon
+    public class Polygon2D
     {
         public Point2D[] Vertices { get; set; }
 
@@ -29,7 +29,7 @@ namespace Polyhedra.DataStructs2D
             }
         }
 
-        public Polygon(Point2D[] vertices, Edge2D[] edges, int id)
+        public Polygon2D(Point2D[] vertices, Edge2D[] edges, int id)
         {
             Vertices = vertices;
             Edges = edges;
@@ -37,10 +37,10 @@ namespace Polyhedra.DataStructs2D
             Id = id;
         }
 
-        public static Polygon[] PolyhedraToPolygons(Polyhedron polyhedron)
+        public static Polygon2D[] PolyhedraToPolygons(Polyhedron polyhedron)
         {
-            Polygon[] polygons = new Polygon[polyhedron.Faces.Length];
-            var polyhedraToPolygonMap = new Dictionary<Polygon3D, Polygon>();
+            Polygon2D[] polygons = new Polygon2D[polyhedron.Faces.Length];
+            var polyhedraToPolygonMap = new Dictionary<Polygon3D, Polygon2D>();
 
             for (int i = 0; i < polyhedron.Faces.Length; i++)
             {
@@ -53,7 +53,7 @@ namespace Polyhedra.DataStructs2D
                 }
 
                 var edges = new Edge2D[face.Adjacency.Count];
-                polygons[i] = new Polygon(vertices2D, edges, i);
+                polygons[i] = new Polygon2D(vertices2D, edges, i);
                 polyhedraToPolygonMap[face] = polygons[i];
             }
 
@@ -77,7 +77,7 @@ namespace Polyhedra.DataStructs2D
             return polygons;
         }
 
-        public double FindAngleBetween(Polygon adjacentPolgon, Edge2D currentEdge, Edge2D adjacentEdge)
+        public double FindAngleBetween(Polygon2D adjacentPolgon, Edge2D currentEdge, Edge2D adjacentEdge)
         {
             var vecToCurrEdge = GetVecToEdge(currentEdge);
             var vecToAdjEdge = adjacentPolgon.GetVecToEdge(adjacentEdge);
@@ -141,7 +141,7 @@ namespace Polyhedra.DataStructs2D
             Translate(new Point2D(-centroid.X, -centroid.Y));
         }
 
-        public void TranslateToEdge(Edge2D adjacentEdge, Edge2D currentEdge, Polygon currentPolygon)
+        public void TranslateToEdge(Edge2D adjacentEdge, Edge2D currentEdge, Polygon2D currentPolygon)
         {
             var vecToCurrEdge = currentPolygon.GetVecToEdge(currentEdge);
             var vecToAdjEdge = GetVecToEdge(adjacentEdge);
@@ -155,12 +155,12 @@ namespace Polyhedra.DataStructs2D
             return (edge.Mid - Centroid).ToVector();
         }
 
-        public Edge2D GetConnectingEdge(Polygon adjacentPolygon)
+        public Edge2D GetConnectingEdge(Polygon2D adjacentPolygon)
         {
             return Edges.First(e => e.AdjacentPolygonIndex == adjacentPolygon.Id);
         }
 
-        public bool Intersecting(Polygon otherPolygon)
+        public bool Intersecting(Polygon2D otherPolygon)
         {
             foreach (Edge2D edge in Edges)
             {
@@ -212,7 +212,7 @@ namespace Polyhedra.DataStructs2D
             return Bounds;
         }
 
-        public bool DoBoundsIntersect(Polygon otherpolygon)
+        public bool DoBoundsIntersect(Polygon2D otherpolygon)
         {
             var (minX, maxX, minY, maxY) = GetBounds();
             var (otherMinX, otherMaxX, otherMinY, otherMaxY) = otherpolygon.GetBounds();

@@ -4,11 +4,11 @@ namespace Polyhedra.DataStructs2D.Nets
 {
     public class Net2D
     {
-        public Polygon[] Polygons;
+        public Polygon2D[] Polygons;
         public readonly List<int> Placements = [];
         private int placementIndex = 0;
 
-        private Polygon LastPolygonPlaced
+        private Polygon2D LastPolygonPlaced
         {
             get
             {
@@ -16,7 +16,7 @@ namespace Polyhedra.DataStructs2D.Nets
             }
         }
 
-        public Net2D(Polygon[] polygons)
+        public Net2D(Polygon2D[] polygons)
         {
             Polygons = polygons;
             Placements = [];

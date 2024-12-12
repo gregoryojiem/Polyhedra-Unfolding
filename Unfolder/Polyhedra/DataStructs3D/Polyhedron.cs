@@ -172,7 +172,7 @@ namespace Polyhedra.DataStructs3D
         public Net2D ToNet2D()
         {
             FlattenFaces();
-            var polygons = Polygon.PolyhedraToPolygons(this);
+            var polygons = Polygon2D.PolyhedraToPolygons(this);
             var net = new Net2D(polygons);
             return net;
         }
