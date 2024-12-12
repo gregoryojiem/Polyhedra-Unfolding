@@ -24,7 +24,7 @@ namespace Polyhedra.DataStructs3D
             var mergeMapping = MergeCoplanarTriangles();
             RemapMergedAdjacencies(mergeMapping);
 
-            var idCounter = 1;
+            var idCounter = 0;
             foreach (var face in Faces)
             {
                 face.Id = idCounter++;
@@ -171,9 +171,8 @@ namespace Polyhedra.DataStructs3D
 
         public Net2D ToNet2D()
         {
-            var copyPolyhedron = Copy();
-            copyPolyhedron.FlattenFaces();
-            var polygons = Polygon.PolyhedraToPolygons(copyPolyhedron);
+            FlattenFaces();
+            var polygons = Polygon.PolyhedraToPolygons(this);
             var net = new Net2D(polygons);
             return net;
         }

@@ -111,16 +111,40 @@ namespace Polyhedra.DataStructs3D
             return new Point3D(sumX / numVertices, sumY / numVertices, sumZ / numVertices);
         }
 
+        public void Translate(Point3D pointToTranslateTo)
+        {
+            for (int i = 0; i < Vertices.Length; i++)
+            {
+                Vertices[i] = Vertices[i].Translate(pointToTranslateTo);
+            }
+
+            for (int i = 0; i < Adjacency.Count; i++)
+            {
+                var edge = Adjacency[i];
+                edge.Start = edge.Start.Translate(pointToTranslateTo);
+                edge.End = edge.End.Translate(pointToTranslateTo);
+            }
+        }
+
+        public void Rotate(Quaternion rotationQuaternion)
+        {
+            for (int i = 0; i < Vertices.Length; i++)
+            {
+                Vertices[i] = Vertices[i].Rotate(rotationQuaternion);
+            }
+
+            for (int i = 0; i < Adjacency.Count; i++)
+            {
+                var edge = Adjacency[i];
+                edge.Start = edge.Start.Rotate(rotationQuaternion);
+                edge.End = edge.End.Rotate(rotationQuaternion);
+            }
+        }
+
         public void TranslateToOrigin()
         {
             var centroid = GetCentroid();
-            for (int i = 0; i < Vertices.Length; i++)
-            {
-                Vertices[i].X -= centroid.X;
-                Vertices[i].Y -= centroid.Y;
-                Vertices[i].Z -= centroid.Z;
-
-            }
+            Translate(new Point3D(-centroid.X, -centroid.Y, -centroid.Z));
         }
 
         public void AlignFaceWithXZPlane()
@@ -134,10 +158,10 @@ namespace Polyhedra.DataStructs3D
             if (Normal.SequenceEqual([0, 1, 0]))
             {
                 Normal = [0, -1, 0];
-                foreach (Point3D point in Vertices)
+                for (int i = 0; i < Vertices.Length; i++)
                 {
-                    point.X = -point.X;
-                    point.Z = -point.Z;
+                    var point = Vertices[i]; 
+                    Vertices[i] = new Point3D(-point.X, point.Y, -point.Z);
                 }
                 return;
             }
@@ -147,11 +171,7 @@ namespace Polyhedra.DataStructs3D
             Vector3 axis = Vector3.Normalize(Vector3.Cross(planeNormalVec, targetVector));
             var angle = (float)Math.Acos(Vector3.Dot(planeNormalVec, targetVector));
             Quaternion rotationQuaternion = Quaternion.CreateFromAxisAngle(axis, angle);
-
-            foreach (Point3D point in Vertices)
-            {
-                point.Rotate(rotationQuaternion);
-            }
+            Rotate(rotationQuaternion);
 
             Normal[0] = 0;
             Normal[1] = -1;

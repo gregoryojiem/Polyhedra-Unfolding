@@ -65,8 +65,8 @@ namespace Polyhedra.DataStructs2D
                 var counter = 0;
                 foreach (var edge in face.Adjacency)
                 {
-                    var convertedStart = new Point2D(edge.Vertices[0].X, edge.Vertices[0].Z);
-                    var convertedEnd = new Point2D(edge.Vertices[1].X, edge.Vertices[1].Z);
+                    var convertedStart = new Point2D(edge.Start.X, edge.Start.Z);
+                    var convertedEnd = new Point2D(edge.End.X, edge.End.Z);
                     var start = polygon.Vertices.First(v => v == convertedStart);
                     var end = polygon.Vertices.First(v => v == convertedEnd);
                     var adjacentPolygon = polyhedraToPolygonMap[edge.ConnectedFace];

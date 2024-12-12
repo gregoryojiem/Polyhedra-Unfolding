@@ -2,34 +2,26 @@
 {
     public class Edge3D
     {
-        public Point3D[] Vertices;
+        public Point3D Start;
+        public Point3D End;
         public Polygon3D ConnectedFace;
 
         public Edge3D(Polygon3D firstFace, Polygon3D secondFace) 
         {
             var sharedVertices = firstFace.Vertices.Intersect(secondFace.Vertices).ToArray();
-            Vertices = sharedVertices.Select(v => firstFace.Vertices.First(p => p.Equals(v))).ToArray();
+            var vertices = sharedVertices.Select(v => firstFace.Vertices.First(p => p.Equals(v))).ToArray();
+            if (vertices.Length != 2)
+            {
+                throw new Exception("Could not construct an edge with faces: " + firstFace + " and " + secondFace);
+            }
+            Start = vertices[0];
+            End = vertices[1];
             ConnectedFace = secondFace;
         }
 
-        public override bool Equals(object? obj)
+        public override string ToString()
         {
-            if (obj is not Edge3D other)
-            {
-                return false;
-            }
-
-            if (!Vertices.SequenceEqual(other.Vertices))
-            {
-                return false;
-            }
-
-            return ConnectedFace == other.ConnectedFace;
-        }
-
-        public override int GetHashCode()
-        {
-            return Vertices[0].GetHashCode() ^ Vertices[1].GetHashCode() ^ ConnectedFace.GetHashCode();
+            return Start + "\n" + End;
         }
     }
 }
