@@ -1,17 +1,24 @@
 ﻿namespace Polyhedra.DataStructs2D
 {
-    public class Vec2D
+    public struct Vec2D
     {
-        public double X { get; set; }
-        public double Y { get; set; }
+        public readonly double X;
+        public readonly double Y;
+
         public double Magnitude
         {
             get { return Math.Sqrt(X * X + Y * Y); }
         }
 
-        public Vec2D(double x, double y) { X = x; Y = y; }
+        public Vec2D(double x, double y) { 
+            X = x; 
+            Y = y; 
+        }
 
-        public Vec2D(Point2D point) { X = point.X; Y = point.Y; }
+        public Vec2D(Point2D point) { 
+            X = point.X; 
+            Y = point.Y; 
+        }
 
         public static Vec2D operator +(Vec2D vec1, Vec2D vec2)
         {

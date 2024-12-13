@@ -120,9 +120,9 @@ namespace Polyhedra.DataStructs2D
                 Vertices[i] = Vertices[i].Rotate(theta);
             }
 
-            foreach (var edge in Edges)
+            for (int i = 0; i < Edges.Length; i++)
             {
-                edge.Rotate(theta);
+                Edges[i] = Edges[i].Rotate(theta);
             }
 
             BoundsChanged = true;
@@ -132,13 +132,12 @@ namespace Polyhedra.DataStructs2D
         {
             for (int i = 0; i < Vertices.Length; i++)
             {
-                Vertices[i].X += pointToTranslateTo.X;
-                Vertices[i].Y += pointToTranslateTo.Y;
+                Vertices[i] = Vertices[i] + pointToTranslateTo;
             }
 
-            foreach (var edge in Edges)
+            for (int i = 0; i < Edges.Length; i++)
             {
-                edge.Translate(pointToTranslateTo.X, pointToTranslateTo.Y);
+                Edges[i] = Edges[i].Translate(pointToTranslateTo.X, pointToTranslateTo.Y);
             }
 
             BoundsChanged = true;
@@ -161,7 +160,7 @@ namespace Polyhedra.DataStructs2D
 
         public Vec2D GetVecToEdge(Edge2D edge)
         {
-            return (edge.Mid - Centroid).ToVector();
+            return new Vec2D(edge.GetMidpoint() - Centroid);
         }
 
         public Edge2D GetConnectingEdge(Polygon2D adjacentPolygon)
@@ -185,10 +184,7 @@ namespace Polyhedra.DataStructs2D
                     }
                     if (edge.Intersection(otherEdge))
                     {
-                        if (edge.Intersection(otherEdge))
-                        {
-                            return true;
-                        }
+                        return true;
                     }
                 }
             }

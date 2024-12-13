@@ -33,6 +33,7 @@ namespace Polyhedra.DataStructs2D.Nets
             Placements.Add(polygon.Id);
             placementIndex++;
 
+            polygon.GetBounds();
             constructedNet.Insert(polygon);
         }
 
@@ -45,6 +46,7 @@ namespace Polyhedra.DataStructs2D.Nets
 
             var angle = currentPolygon.FindAngleBetween(adjacentPolygon, currentEdge, adjacentEdge);
             adjacentPolygon.Rotate(angle);
+            adjacentEdge = adjacentPolygon.GetConnectingEdge(currentPolygon);
             adjacentPolygon.TranslateToEdge(adjacentEdge, currentEdge, currentPolygon);
 
             adjacentPolygon.Status = PolygonStatus.Current;
@@ -55,9 +57,7 @@ namespace Polyhedra.DataStructs2D.Nets
             Placements.Add(Array.IndexOf(Polygons, adjacentPolygon));
             placementIndex++;
 
-            currentEdge.Connector = true;
-            adjacentEdge.Connector = true;
-
+            adjacentPolygon.GetBounds();
             constructedNet.Insert(adjacentPolygon);
         }
         public void MakeMove(NetMove move)
@@ -86,23 +86,6 @@ namespace Polyhedra.DataStructs2D.Nets
             polygon.Status = PolygonStatus.Unplaced;
             Placements.RemoveAt(placementIndex);
             constructedNet.Delete(polygon);
-
-            if (placementIndex == 0) // We can ignore the starting polygon's edges
-            {
-                return;
-            }
-
-            foreach (var edge in polygon.Edges)
-            {
-                if (!edge.Connector)
-                {
-                    continue;
-                }
-
-                edge.Connector = false;
-                var adjacentEdge = Polygons[edge.AdjacentPolygonIndex].GetConnectingEdge(polygon);
-                adjacentEdge.Connector = false;
-            }
         }
 
         public NetMove? GetMove(int moveIndex)

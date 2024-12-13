@@ -2,8 +2,8 @@
 {
     public struct Point2D
     {
-        public double X { get; set; }
-        public double Y { get; set; }
+        public readonly double X;
+        public readonly double Y;
 
         public Point2D(double x, double y) { X = x; Y = y; }
 
@@ -20,9 +20,9 @@
         public Point2D Rotate(double theta)
         {
             var tempX = X * Math.Cos(theta) - Y * Math.Sin(theta);
-            Y = X * Math.Sin(theta) + Y * Math.Cos(theta);
-            X = tempX;
-            return this;
+            var newY = X * Math.Sin(theta) + Y * Math.Cos(theta);
+            var newX = tempX;
+            return new Point2D(newX, newY);
         }
 
         public static Point2D[] SortPoints(Point2D[] points)
@@ -43,17 +43,7 @@
             return anglesAndIndices.Select(item => item.point).ToArray();
         }
 
-        public Vec2D ToVector()
-        {
-            return new Vec2D(X, Y);
-        }
-
-        public override string ToString()
-        {
-            return "(" + X + ", " + Y + ")";
-        }
-
-        //TODO come up with a more efficient way of handling minor rotation differences?
+        //TODO move this to a separate class for globals
         public static bool operator ==(Point2D p1, Point2D p2)
         {
             return Math.Abs(p1.X - p2.X) < 0.0001 && Math.Abs(p1.Y - p2.Y) < 0.0001;

@@ -1,26 +1,14 @@
 ﻿namespace Polyhedra.DataStructs2D
 {
-    public class Edge2D
+    public struct Edge2D
     {
-        public Point2D Start { get; set; }
+        public readonly Point2D Start;
 
-        public Point2D End { get; set; }
+        public readonly Point2D End;
 
-        public bool Connector { get; set; }
+        public readonly int PolygonIndex;
 
-        public int PolygonIndex;
-
-        public int AdjacentPolygonIndex;
-
-        public Point2D Mid
-        {
-            get
-            {
-                double X = (Start.X + End.X) / 2;
-                double Y = (Start.Y + End.Y) / 2;
-                return new(X, Y);
-            }
-        }
+        public readonly int AdjacentPolygonIndex;
 
         public Edge2D(Point2D start, Point2D end, int polygonIndex, int adjacentPolygonIndex)
         {
@@ -30,7 +18,14 @@
             AdjacentPolygonIndex = adjacentPolygonIndex;
         }
 
-        public bool Intersection(Edge2D otherEdge) //TODO: Is there a way to avoid all the floating point related checks?
+        public Point2D GetMidpoint()
+        {
+            double X = (Start.X + End.X) / 2;
+            double Y = (Start.Y + End.Y) / 2;
+            return new Point2D(X, Y);
+        }
+
+        public bool Intersection(Edge2D otherEdge)
         {
             var sharedLeftEndpoint = Start == otherEdge.Start || Start == otherEdge.End;
             var sharedRightEndpoint = End == otherEdge.Start || End == otherEdge.End;
@@ -57,21 +52,18 @@
             return (cp1 * cp2 < 0 && cp3 * cp4 < 0);
         }
 
-        public void Rotate(double angle)
+        public Edge2D Rotate(double angle)
         {
-            Start = Start.Rotate(angle);
-            End = End.Rotate(angle);
+            var rotatedStart = Start.Rotate(angle);
+            var rotatedEnd = End.Rotate(angle);
+            return new Edge2D(rotatedStart, rotatedEnd, PolygonIndex, AdjacentPolygonIndex);
         }
 
-        public void Translate(double x, double y)
+        public Edge2D Translate(double x, double y)
         {
-            Start = new Point2D(Start.X + x, Start.Y + y);
-            End = new Point2D(End.X + x, End.Y + y);
-        }
-
-        public Vec2D ToVector()
-        {
-            return new Vec2D(End.X - Start.X, End.Y - Start.Y);
+            var translatedStart = new Point2D(Start.X + x, Start.Y + y);
+            var translatedEnd = new Point2D(End.X + x, End.Y + y);
+            return new Edge2D(translatedStart, translatedEnd, PolygonIndex, AdjacentPolygonIndex);
         }
 
         public override string ToString()
