@@ -1,9 +1,10 @@
 ﻿using System.Text.Json.Serialization;
 using Polyhedra.DataStructs3D;
+using RBush;
 
 namespace Polyhedra.DataStructs2D
 {
-    public class Polygon2D
+    public class Polygon2D : ISpatialData
     {
         public Point2D[] Vertices { get; set; }
 
@@ -14,7 +15,7 @@ namespace Polyhedra.DataStructs2D
         public int Id { get; set; }
 
         [JsonIgnore]
-        public (double, double, double, double) Bounds { get; set; }
+        public Envelope Bounds;
 
         [JsonIgnore]
         public bool BoundsChanged = true;
@@ -26,6 +27,14 @@ namespace Polyhedra.DataStructs2D
                 double X = Vertices.Average(p => p.X);
                 double Y = Vertices.Average(p => p.Y);
                 return new(X, Y);
+            }
+        }
+
+        public ref readonly Envelope Envelope
+        {
+            get
+            {
+                return ref Bounds;
             }
         }
 
@@ -187,7 +196,7 @@ namespace Polyhedra.DataStructs2D
             return false;
         }
 
-        public (double, double, double, double) GetBounds()
+        public Envelope GetBounds()
         {
             if (!BoundsChanged)
             {
@@ -208,15 +217,16 @@ namespace Polyhedra.DataStructs2D
             }
 
             BoundsChanged = false;
-            Bounds = (minX, maxX, minY, maxY);
+            Bounds = new Envelope(minX, minY, maxX, maxY);
             return Bounds;
         }
 
         public bool DoBoundsIntersect(Polygon2D otherpolygon)
         {
-            var (minX, maxX, minY, maxY) = GetBounds();
-            var (otherMinX, otherMaxX, otherMinY, otherMaxY) = otherpolygon.GetBounds();
-            return maxX >= otherMinX && minX <= otherMaxX && maxY >= otherMinY && minY <= otherMaxY;
+            var bounds = GetBounds();
+            var otherBounds = otherpolygon.GetBounds();
+            return bounds.MaxX >= otherBounds.MinX && bounds.MinX <= otherBounds.MaxX && 
+                bounds.MaxY >= otherBounds.MinY && bounds.MinY <= otherBounds.MaxY;
         }
 
         public void Scale(double scalar)

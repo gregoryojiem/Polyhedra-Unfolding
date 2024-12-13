@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using RBush;
+using System.Text.Json;
 
 namespace Polyhedra.DataStructs2D.Nets
 {
@@ -6,6 +7,7 @@ namespace Polyhedra.DataStructs2D.Nets
     {
         public Polygon2D[] Polygons;
         public readonly List<int> Placements = [];
+        public RBush<Polygon2D> constructedNet;
         private int placementIndex = 0;
         public static int lastIndexWithOpenMoves = 0;
 
@@ -21,6 +23,7 @@ namespace Polyhedra.DataStructs2D.Nets
         {
             Polygons = polygons;
             Placements = [];
+            constructedNet = new(maxEntries: Polygons.Length + 1);
         }
 
         private void PlaceStartingPolygon(int polygonIndex)
@@ -29,6 +32,8 @@ namespace Polyhedra.DataStructs2D.Nets
             polygon.Status = PolygonStatus.Starting;
             Placements.Add(polygon.Id);
             placementIndex++;
+
+            constructedNet.Insert(polygon);
         }
 
         private void ConnectPolygons(int currentPolygonIndex, int adjacentPolygonIndex)
@@ -52,6 +57,8 @@ namespace Polyhedra.DataStructs2D.Nets
 
             currentEdge.Connector = true;
             adjacentEdge.Connector = true;
+
+            constructedNet.Insert(adjacentPolygon);
         }
         public void MakeMove(NetMove move)
         {
@@ -78,6 +85,7 @@ namespace Polyhedra.DataStructs2D.Nets
             var polygon = Polygons[lastPlacedIndex];
             polygon.Status = PolygonStatus.Unplaced;
             Placements.RemoveAt(placementIndex);
+            constructedNet.Delete(polygon);
 
             if (placementIndex == 0) // We can ignore the starting polygon's edges
             {
@@ -137,11 +145,13 @@ namespace Polyhedra.DataStructs2D.Nets
 
         private NetStatus ValidateLastMove()
         {
-            for (int i = 0; i < Polygons.Length; i++)
-            {
-                var polygon = Polygons[i];
+            var polygonsToCheck = constructedNet.Search(LastPolygonPlaced.Bounds);
 
-                if (polygon.Status == PolygonStatus.Unplaced || i == Placements[Placements.Count - 1])
+            for (int i = 0; i < polygonsToCheck.Count; i++)
+            {
+                var polygon = polygonsToCheck[i];
+
+                if (polygon.Id == LastPolygonPlaced.Id)
                 {
                     continue;
                 }
