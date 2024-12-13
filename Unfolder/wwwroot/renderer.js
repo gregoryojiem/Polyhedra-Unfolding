@@ -132,9 +132,8 @@ function drawShape(shape, scene) {
 }
 
 function drawShapeEdge(edge, scene) {
-	const edgeColor = edge.Connector ? 0x000000 : 0xffffff;
 	const edgeMaterial = new LineMaterial({
-		color: edgeColor,
+		color: 0xffffff,
 		linewidth: 3
 	});
 

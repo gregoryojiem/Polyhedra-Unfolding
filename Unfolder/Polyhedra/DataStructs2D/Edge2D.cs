@@ -2,9 +2,9 @@
 {
     public struct Edge2D
     {
-        public readonly Point2D Start;
+        public readonly Point2D Start { get; }
 
-        public readonly Point2D End;
+        public readonly Point2D End { get; }
 
         public readonly int PolygonIndex;
 

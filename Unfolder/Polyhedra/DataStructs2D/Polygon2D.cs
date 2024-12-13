@@ -30,6 +30,7 @@ namespace Polyhedra.DataStructs2D
             }
         }
 
+        [JsonIgnore]
         public ref readonly Envelope Envelope
         {
             get

@@ -9,7 +9,7 @@ namespace Polyhedra.DataStructs2D.Nets
         public readonly List<int> Placements = [];
         public RBush<Polygon2D> constructedNet;
         private int placementIndex = 0;
-        public static int lastIndexWithOpenMoves = 0;
+        public int lastIndexWithOpenMoves = 0;
 
         private Polygon2D LastPolygonPlaced
         {

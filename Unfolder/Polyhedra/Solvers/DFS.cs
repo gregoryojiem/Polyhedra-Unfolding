@@ -32,7 +32,7 @@ namespace Unfolder.Polyhedra.Solvers
                     continue;
                 }
 
-                Console.WriteLine(net.Placements.Count + 1);
+                Console.WriteLine("On face no. " + (net.Placements.Count + 1));
                 if (UseSteps && StepsTaken >= StepsToDo)
                 {
                     return net;

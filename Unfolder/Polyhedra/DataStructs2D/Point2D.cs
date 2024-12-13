@@ -2,8 +2,8 @@
 {
     public struct Point2D
     {
-        public readonly double X;
-        public readonly double Y;
+        public readonly double X { get; }
+        public readonly double Y { get; }
 
         public Point2D(double x, double y) { X = x; Y = y; }
 
@@ -66,6 +66,11 @@
         public override int GetHashCode()
         {
             return X.GetHashCode() ^ Y.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return "(" + X + ", " + Y + ")";
         }
     }
 }
