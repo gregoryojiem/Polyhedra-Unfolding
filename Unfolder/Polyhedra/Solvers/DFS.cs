@@ -15,6 +15,11 @@ namespace Unfolder.Polyhedra.Solvers
 
         public override Net2D Solve(Net2D net)
         {
+            if (net.GetStatus() == NetStatus.Complete || UseNetSteps && net.StepsTaken >= net.StepsToDo)
+            {
+                return net;
+            }
+
             var returnNets = new Stack<Net2D>();
             var moveTracker = new int[net.Polygons.Length];
             var moveTrackerIndex = 0;
@@ -33,11 +38,11 @@ namespace Unfolder.Polyhedra.Solvers
                 }
 
                 Console.WriteLine("On face no. " + (net.Placements.Count + 1));
-                if (UseSteps && StepsTaken >= StepsToDo)
+                if (UseNetSteps && net.StepsTaken >= net.StepsToDo)
                 {
                     return net;
                 }
-                StepsTaken++;
+                net.StepsTaken++;
 
                 net.MakeMove(currentMove);
 

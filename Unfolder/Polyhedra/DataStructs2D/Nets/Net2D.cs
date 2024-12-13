@@ -1,15 +1,20 @@
-﻿using RBush;
+﻿using Polyhedra.DataStructs3D;
+using RBush;
 using System.Text.Json;
 
 namespace Polyhedra.DataStructs2D.Nets
 {
     public class Net2D
     {
+        public RBush<Polygon2D> constructedNet;
         public Polygon2D[] Polygons;
         public readonly List<int> Placements = [];
-        public RBush<Polygon2D> constructedNet;
         private int placementIndex = 0;
-        public int lastIndexWithOpenMoves = 0;
+        public int lastPlacementIndexWithMoves = 0;
+
+        // Used for stepping through DFS on a net
+        public int StepsToDo = 1;
+        public int StepsTaken = 0;
 
         private Polygon2D LastPolygonPlaced
         {
@@ -24,6 +29,26 @@ namespace Polyhedra.DataStructs2D.Nets
             Polygons = polygons;
             Placements = [];
             constructedNet = new(maxEntries: Polygons.Length + 1);
+        }
+
+        public Net2D(Net2D existingNet)
+        {
+            Polygons = new Polygon2D[existingNet.Polygons.Length];
+            for (int i = 0; i < existingNet.Polygons.Length; i++)
+            {
+                Polygons[i] = new Polygon2D(existingNet.Polygons[i]);
+            }
+
+            Placements = [];
+            Placements.AddRange(existingNet.Placements);
+            placementIndex = existingNet.placementIndex;
+            lastPlacementIndexWithMoves = existingNet.lastPlacementIndexWithMoves;
+            StepsToDo = existingNet.StepsToDo;
+            StepsTaken = existingNet.StepsTaken;
+
+            var placedCopyPolygons = existingNet.Polygons.Where(p => p.Status != PolygonStatus.Unplaced).ToList();
+            constructedNet = new(maxEntries: Polygons.Length + 1);
+            constructedNet.BulkLoad(placedCopyPolygons);
         }
 
         private void PlaceStartingPolygon(int polygonIndex)
@@ -77,15 +102,29 @@ namespace Polyhedra.DataStructs2D.Nets
         {
             if (placementIndex == 0)
             {
-                throw new Exception("Can't call undo on an empty Net2D");
+                return;
             }
 
             placementIndex--;
+            if (lastPlacementIndexWithMoves > 0)
+            {
+                lastPlacementIndexWithMoves--;
+            }
             int lastPlacedIndex = Placements[placementIndex];
             var polygon = Polygons[lastPlacedIndex];
             polygon.Status = PolygonStatus.Unplaced;
             Placements.RemoveAt(placementIndex);
             constructedNet.Delete(polygon);
+        }
+
+        public void Reset()
+        {
+            StepsToDo = 1;
+            while (Placements.Count > 0)
+            {
+                Undo();
+            }
+            StepsTaken = 0;
         }
 
         public NetMove? GetMove(int moveIndex)
@@ -99,7 +138,7 @@ namespace Polyhedra.DataStructs2D.Nets
 
             bool foundFirstMove = false;
             int currentMoveIndex = 0;
-            for (int i = lastIndexWithOpenMoves; i < Placements.Count; i++)
+            for (int i = lastPlacementIndexWithMoves; i < Placements.Count; i++)
             {
                 int placement = Placements[i];
                 var polygon = Polygons[placement];
@@ -109,7 +148,7 @@ namespace Polyhedra.DataStructs2D.Nets
                     var foundMove = Polygons[polygon.Edges[j].AdjacentPolygonIndex].Status == PolygonStatus.Unplaced;
                     if (foundMove && !foundFirstMove)
                     {
-                        lastIndexWithOpenMoves = i;
+                        lastPlacementIndexWithMoves = i;
                         foundFirstMove = true;
                     }
                     if (foundMove && currentMoveIndex == moveIndex)
@@ -153,6 +192,11 @@ namespace Polyhedra.DataStructs2D.Nets
 
         public NetStatus GetStatus()
         {
+            if (Placements.Count == 0)
+            {
+                return NetStatus.Valid;
+            }
+
             if (ValidateLastMove() == NetStatus.Invalid)
             {
                 return NetStatus.Invalid;

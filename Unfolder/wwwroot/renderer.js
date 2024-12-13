@@ -134,7 +134,7 @@ function drawShape(shape, scene) {
 function drawShapeEdge(edge, scene) {
 	const edgeMaterial = new LineMaterial({
 		color: 0xffffff,
-		linewidth: 3
+		linewidth: 2
 	});
 
 	const edgePoints = [

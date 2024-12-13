@@ -1,13 +1,18 @@
-﻿using Polyhedra.DataStructs3D;
+﻿using Polyhedra.DataStructs2D.Nets;
+using Polyhedra.DataStructs3D;
+using System.Reflection;
 using Unfolder.Polyhedra.Solvers;
 
 namespace Unfolder.Polyhedra
 {
     public class MainPageViewModel
     {
+        // Shared 2D/3D objects
         public static string currentView = "3D";
 
         private static Polyhedron currentPolyhedron = PolyhedronLibrary.GetPolyhedron("Cube");
+
+        private static Net2D currentNet = currentPolyhedron.Copy().ToNet2D();
 
         // 3D toggles
         private static bool Flatten = false;
@@ -39,9 +44,10 @@ namespace Unfolder.Polyhedra
 
         public static string GetDisplayPolyhedronJSON()
         {
-            var polyhedron = currentPolyhedron.Copy();
+            var polyhedron = currentPolyhedron;
             if (Flatten)
             {
+                polyhedron = currentPolyhedron.Copy();
                 polyhedron.FlattenFaces();
             }
             return polyhedron.ToJSON();
@@ -49,41 +55,44 @@ namespace Unfolder.Polyhedra
 
         public static string GetDisplayNetJSON()
         {
-            var solver = new DFS(currentPolyhedron.Copy());
+            var solver = new DFS(currentNet);
             var outputNet = solver.Solve();
             if (outputNet.IsComplete())
             {
-                Solver.StepsToDo = solver.StepsTaken;
+                outputNet.StepsToDo = outputNet.StepsTaken;
             }
             return outputNet.ToJSON(HideUnplacedPolygons);
         }
 
         public static void PerformStep()
         {
-            Solver.StepsToDo++;
+            currentNet.StepsToDo++;
         }
 
         public static void UndoStep()
         {
-            if (Solver.StepsToDo > 1)
+            if (currentNet.StepsToDo > 1)
             {
-                Solver.StepsToDo--;
+                currentNet.StepsTaken--;
+                currentNet.StepsToDo--;
             }
+            currentNet.Undo();
         }
 
         public static void CompleteStep()
         {
-            Solver.StepsToDo = int.MaxValue;
+            currentNet.StepsToDo = int.MaxValue;
         }
 
         public static void ResetStep()
         {
-            Solver.StepsToDo = 1;
+            currentNet.Reset();
         }
 
         public static void SelectPolyhedra(string polyhedron)
         {
             currentPolyhedron = PolyhedronLibrary.GetPolyhedron(polyhedron);
+            currentNet = currentPolyhedron.Copy().ToNet2D();
         }
     }
 }

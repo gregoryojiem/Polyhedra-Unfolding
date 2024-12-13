@@ -6,9 +6,7 @@ namespace Unfolder.Polyhedra.Solvers
     public abstract class Solver
     {
         private Net2D netToSolve;
-        public static int StepsToDo = 1;
-        public int StepsTaken = 0;
-        public static bool UseSteps = true;
+        public static bool UseNetSteps = true;
 
         public Solver(Net2D net)
         {

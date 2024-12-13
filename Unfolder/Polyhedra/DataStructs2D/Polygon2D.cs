@@ -47,6 +47,24 @@ namespace Polyhedra.DataStructs2D
             Id = id;
         }
 
+        public Polygon2D(Polygon2D existingPolygon)
+        {
+            Vertices = new Point2D[existingPolygon.Vertices.Length];
+            Edges = new Edge2D[existingPolygon.Vertices.Length];
+            Id = existingPolygon.Id;
+            Status = existingPolygon.Status;
+
+            for (int i = 0; i < existingPolygon.Vertices.Length; i++)
+            {
+                Vertices[i] = existingPolygon.Vertices[i];
+            }
+
+            for (int i = 0; i < existingPolygon.Edges.Length; i++)
+            {
+                Edges[i] = existingPolygon.Edges[i];
+            }
+        }
+
         public static Polygon2D[] PolyhedraToPolygons(Polyhedron polyhedron)
         {
             Polygon2D[] polygons = new Polygon2D[polyhedron.Faces.Length];
