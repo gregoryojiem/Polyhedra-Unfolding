@@ -10,20 +10,21 @@ import { Tween, Easing, update } from 'three/addons/libs/tween.module.js';
 // ---------------------------
 let scene, renderer, width, height;
 let doAnimation = false;
-function renderingInit() {
-	width = window.innerWidth
-	height = window.innerHeight;
+window.initializeRenderer = function() {
+	console.log("Initializing the renderer!");
 
 	scene = new THREE.Scene();
 
 	renderer = new THREE.WebGLRenderer({ antialias: true });
+
+	const container = document.getElementById('three-js-container'); 
+	width = container.clientWidth;
+	height = container.clientHeight;
 	renderer.setSize(width, height);
-	document.body.appendChild(renderer.domElement);
+	container.appendChild(renderer.domElement);
 
 	return { scene, renderer }
 }
-
-renderingInit();
 
 // ---------------------------
 // Blazor input/event handling

@@ -1,0 +1,169 @@
+﻿@page "/demo"
+@inject Polyhedra.MainPageViewModel MainPageViewModel
+@inject NavigationManager Navigator
+@using Polyhedra
+
+<title>Demo</title>
+
+<script type="module" src="renderer.js"></script>
+
+<div id="visualization">
+    <br />
+    <h3>Interactive Demo</h3>
+    <div class="dropdown">
+        <button class="drop-btn" @onclick="ToggleDropdown">Shapes ▼</button>
+        @if (displayDropdown)
+        {
+            <div class="dropdown-content">
+                @foreach (var shapeName in shapeNames)
+                {
+                    <a @onclick="@(async () => { await OnSelectedShapeClick(shapeName); ToggleDropdown(); })">
+                        @shapeName
+                    </a>
+                }
+            </div>
+        }
+    </div>
+
+    @if (MainPageViewModel.currentView == "3D")
+    {
+        <div>
+            <button @onclick="OnFlattenClick">See flattened polyhedra</button>
+            <button @onclick="OnSwapViewClick">Swap to 2D view</button>
+            @*<button @onclick="OnUnfoldClick">View unfolding</button>*@
+        </div>
+    }
+
+    else if (MainPageViewModel.currentView == "2D")
+    {
+        <div>
+            <button @onclick="OnStepButtonClick">Step through algorithm</button>
+            <button @onclick="OnUndoButtonClick">Undo step</button>
+            <button @onclick="OnCompleteButtonClick">Unfold completely</button>
+            <button @onclick="OnResetButtonClick">Reset</button>
+            <button @onclick="OnUnplacedButtonClick">Unplaced polygon visibility</button>
+            <button @onclick="OnSwapViewClick">Swap to 3D view</button>
+        </div>
+    }
+
+    <div id="three-js-container"></div>
+</div>
+
+@inject IJSRuntime JSRuntime
+
+@code {
+    private bool initialized = false;
+    private bool displayDropdown = false;
+    private List<string> shapeNames = PolyhedronLibrary.GetShapeNames();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!initialized)
+        {
+            while (await JSRuntime.InvokeAsync<bool>("eval", "typeof initializeRenderer === 'undefined'"))
+            {
+                await Task.Delay(100);
+            }
+            if (Navigator.Uri.EndsWith("/demo"))
+            {
+                await JSRuntime.InvokeVoidAsync("initializeRenderer");
+                initialized = true;
+            }
+        }
+            
+        if (initialized) {
+            await RenderScene();
+        }
+    }
+
+    protected async Task RenderScene()
+    {
+        var currentView = MainPageViewModel.currentView;
+
+        if (MainPageViewModel.DoUnfoldAnimation)
+        {
+            var polyhedronJSON = MainPageViewModel.GetDisplayPolyhedronJSON();
+            var polygonNetJSON = MainPageViewModel.GetDisplayNetJSON();
+            await JSRuntime.InvokeVoidAsync("handleUnfoldAnimation", polyhedronJSON, polygonNetJSON);
+        }
+        else if (currentView == "2D")
+        {
+            var polygonNetJSON = MainPageViewModel.GetDisplayNetJSON();
+            await JSRuntime.InvokeVoidAsync("handleRendering2D", polygonNetJSON);
+        }
+        else if (currentView == "3D")
+        {
+            var polyhedronJSON = MainPageViewModel.GetDisplayPolyhedronJSON();
+            await JSRuntime.InvokeVoidAsync("handleRendering3D", polyhedronJSON);
+        }
+    }
+
+    private async Task OnFlattenClick()
+    {
+        MainPageViewModel.FlattenToggle();
+        await OnAfterRenderAsync(true);
+        StateHasChanged();
+    }
+
+    private async Task OnSwapViewClick()
+    {
+        MainPageViewModel.SwapView();
+        await OnAfterRenderAsync(true);
+        StateHasChanged();
+    }
+
+    private async Task OnUnfoldClick()
+    {
+        MainPageViewModel.UnfoldAnimation();
+        await OnAfterRenderAsync(true);
+        StateHasChanged();
+    }
+
+    private async Task OnStepButtonClick()
+    {
+        MainPageViewModel.PerformStep();
+        await OnAfterRenderAsync(true);
+        StateHasChanged();
+    }
+
+    private async Task OnUndoButtonClick()
+    {
+        MainPageViewModel.UndoStep();
+        await OnAfterRenderAsync(true);
+        StateHasChanged();
+    }
+
+    private async Task OnCompleteButtonClick()
+    {
+        MainPageViewModel.CompleteStep();
+        await OnAfterRenderAsync(true);
+        StateHasChanged();
+    }
+
+    private async Task OnResetButtonClick()
+    {
+        MainPageViewModel.ResetStep();
+        await OnAfterRenderAsync(true);
+        StateHasChanged();
+    }
+
+    private async Task OnUnplacedButtonClick()
+    {
+        MainPageViewModel.UnplacedVisibilityToggle();
+        await OnAfterRenderAsync(true);
+        StateHasChanged();
+    }
+
+    private async Task OnSelectedShapeClick(string polyhedra)
+    {
+        MainPageViewModel.SelectPolyhedra(polyhedra);
+        await OnAfterRenderAsync(true);
+        StateHasChanged();
+    }
+
+    private void ToggleDropdown()
+    {
+        displayDropdown = !displayDropdown;
+        StateHasChanged();
+    }
+}
