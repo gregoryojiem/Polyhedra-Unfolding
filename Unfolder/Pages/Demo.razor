@@ -23,7 +23,35 @@
                 }
             </div>
         }
+        <button @onclick="ToggleSphereMenu">Sphere</button>
+        <button @onclick="ToggleRandomMenu">Random</button>
     </div>
+
+    @if (displaySphereMenu)
+    {
+        <div class="modal">
+            <div class="modal-content">
+                <span class="close" @onclick="ToggleSphereMenu">×</span>
+                <p>Sphere slices: <input type="number" @bind="sphereSlices" /></p>
+                <p>Sphere stacks: <input type="number" @bind="sphereStacks" /></p>
+                <p>Radius: <input type="number" @bind="radius" /></p>
+                <button @onclick="@(async () => { await OnSphereShapeClick(); ToggleSphereMenu(); })">Create</button>
+            </div>
+        </div>
+    }
+
+
+    @if (displayRandomMenu)
+    {
+        <div class="modal">
+            <div class="modal-content">
+                <span class="close" @onclick="ToggleRandomMenu">×</span>
+                <p>Number of points: <input type="number" @bind="pointCount" /></p>
+                <p>Radius: <input type="number" @bind="radius" /></p>
+                <button @onclick="@(async () => { await OnRandomShapeClick(); ToggleRandomMenu(); })">Create</button>
+            </div>
+        </div>
+    }
 
     @if (MainPageViewModel.currentView == "3D")
     {
@@ -52,9 +80,15 @@
 @inject IJSRuntime JSRuntime
 
 @code {
+    private List<string> shapeNames = PolyhedronLibrary.GetShapeNames();
     private bool initialized = false;
     private bool displayDropdown = false;
-    private List<string> shapeNames = PolyhedronLibrary.GetShapeNames();
+    private bool displaySphereMenu = false;
+    private bool displayRandomMenu = false;
+    private int sphereSlices = 5;
+    private int sphereStacks = 5;
+    private int pointCount = 10;
+    private double radius = 1;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -161,9 +195,35 @@
         StateHasChanged();
     }
 
+    private async Task OnSphereShapeClick()
+    {
+        MainPageViewModel.SelectSphere(sphereSlices, sphereStacks, radius);
+        await OnAfterRenderAsync(true);
+        StateHasChanged();
+    }
+
+    private async Task OnRandomShapeClick()
+    {
+        MainPageViewModel.SelectRandom(pointCount, radius);
+        await OnAfterRenderAsync(true);
+        StateHasChanged();
+    }
+
     private void ToggleDropdown()
     {
         displayDropdown = !displayDropdown;
+        StateHasChanged();
+    }
+
+    private void ToggleSphereMenu()
+    {
+        displaySphereMenu = !displaySphereMenu;
+        StateHasChanged();
+    }
+
+    private void ToggleRandomMenu()
+    {
+        displayRandomMenu = !displayRandomMenu;
         StateHasChanged();
     }
 }

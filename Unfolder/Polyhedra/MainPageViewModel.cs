@@ -94,5 +94,17 @@ namespace Unfolder.Polyhedra
             currentPolyhedron = PolyhedronLibrary.GetPolyhedron(polyhedron);
             currentNet = currentPolyhedron.Copy().ToNet2D();
         }
+
+        public static void SelectSphere(int slices, int stacks, double radius)
+        {
+            currentPolyhedron = PolyhedronLibrary.GetSphere(slices, stacks, radius);
+            currentNet = currentPolyhedron.Copy().ToNet2D();
+        }
+
+        public static void SelectRandom(int numOfPoints, double radius)
+        {
+            currentPolyhedron = PolyhedronLibrary.GetRandomPolyhedron(numOfPoints, radius);
+            currentNet = currentPolyhedron.Copy().ToNet2D();
+        }
     }
 }

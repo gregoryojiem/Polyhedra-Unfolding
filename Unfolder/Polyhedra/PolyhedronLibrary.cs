@@ -166,6 +166,18 @@ namespace Unfolder.Polyhedra
             return spherePoints.ToArray();
         }
 
+        public static Polyhedron GetSphere(int slices, int stacks, double radius)
+        {
+            var points = GetSpherePoints(slices, stacks, radius);
+            return new Polyhedron(points);
+        }
+
+        public static Polyhedron GetRandomPolyhedron(int numOfPoints, double radius)
+        {
+            var points = Point3D.GenerateRandPoints(numOfPoints, radius);
+            return new Polyhedron(points);
+        }
+
         public static List<string> GetShapeNames()
         {
             return [
