@@ -65,8 +65,55 @@ namespace Unfolder.Polyhedra
                 new(0.25, -0.5*Math.Sqrt(3)/2, -0.25*Math.Sqrt(3)),
                 new(0.25, -0.5*Math.Sqrt(3)/2, 0.25*Math.Sqrt(3))
             ];
+        private static Point3D[] icosahedron =
+            [
+                new(0, 0, -0.951057),
+                new(0, 0, 0.951057),
+                new(-0.850651, 0, -0.425325),
+                new(0.850651, 0, 0.425325),
+                new(0.688191, -0.5, -0.425325),
+                new(0.688191, 0.5, -0.425325),
+                new(-0.688191, -0.5, 0.425325),
+                new(-0.688191, 0.5, 0.425325),
+                new(-0.262866, -0.809017, -0.425325),
+                new(-0.262866, 0.809017, -0.425325),
+                new(0.262866, -0.809017, 0.425325),
+                new(0.262866, 0.809017, 0.42532)
+            ];
+        private static Point3D[] truncatedTetrahedron =
+            [
+                new(0, -1, -0.612372),
+                new(0, 1, -0.612372),
+                new(-0.57735, -1, 0.204124),
+                new(-0.57735, 1, 0.204124),
+                new(-0.288675, -0.5, 1.02062),
+                new(-0.288675, 0.5, 1.02062),
+                new(0.57735, 0, 1.02062),
+                new(1.1547, 0, 0.204124),
+                new(-0.866025, -0.5, -0.612372),
+                new(-0.866025, 0.5, -0.612372),
+                new(0.866025, -0.5, -0.612372),
+                new(0.866025, 0.5, -0.612372)
+            ];
+        private static Point3D[] cuboctahedron =
+            [
+                new(-1, 0, 0),
+                new(-0.5, -0.5, -0.707107),
+                new(-0.5, -0.5, 0.707107),
+                new(-0.5, 0.5, -0.707107),
+                new(-0.5, 0.5, 0.707107),
+                new(0, -1, 0),
+                new(0, 1, 0),
+                new(0.5, -0.5, -0.707107),
+                new(0.5, -0.5, 0.707107),
+                new(0.5, 0.5, -0.707107),
+                new(0.5, 0.5, 0.707107),
+                new(1, 0, 0)
+            ];
 
-        private static double phi = (1 + Math.Sqrt(5)) / 2;
+        private static double phi = (1 + Math.Sqrt(5)) / 2; // Golden Ratio
+        private static double sqrt2 = Math.Sqrt(2);
+        private static double sqrt3 = Math.Sqrt(3);
         private static Point3D[] dodecahedron =
         [
             new(1, 1, 1),
@@ -113,6 +160,15 @@ namespace Unfolder.Polyhedra
                     break;
                 case "Dodecahedron":
                     points = ScalePoints(dodecahedron, 0.5);
+                    break;
+                case "Icosahedron":
+                    points = icosahedron;
+                    break;
+                case "Truncated Tetrahedron":
+                    points = truncatedTetrahedron;
+                    break;
+                case "Cuboctahedron":
+                    points = cuboctahedron;
                     break;
                 case "Elongated Square Dipyramid":
                     points = ScalePoints(elongatedSquareDipyramid, 0.75);
@@ -181,9 +237,9 @@ namespace Unfolder.Polyhedra
         public static List<string> GetShapeNames()
         {
             return [
-                "Triangular Pyramid", "Cube", "Tetrahedron", "Octahedron",
-                "Hexagonal Pyramid", "Dodecahedron", "Elongated Square Dipyramid",
-                "New random shape"
+                "Tetrahedron", "Cube", "Octahedron", "Dodecahedron", "Icosahedron",
+                "Truncated Tetrahedron", "Cuboctahedron",
+                "Elongated Square Dipyramid", "New random shape"
             ];
         }
     }
