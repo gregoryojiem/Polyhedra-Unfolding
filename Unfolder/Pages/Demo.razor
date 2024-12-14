@@ -23,8 +23,8 @@
                 }
             </div>
         }
-        <button @onclick="ToggleSphereMenu">Sphere</button>
-        <button @onclick="ToggleRandomMenu">Random</button>
+        <button @onclick="ToggleSphereMenu">Generate sphere</button>
+        <button @onclick="ToggleRandomMenu">Generate random polyhedra</button>
     </div>
 
     @if (displaySphereMenu)
@@ -32,8 +32,14 @@
         <div class="modal">
             <div class="modal-content">
                 <span class="close" @onclick="ToggleSphereMenu">×</span>
-                <p>Sphere slices: <input type="number" @bind="sphereSlices" /></p>
-                <p>Sphere stacks: <input type="number" @bind="sphereStacks" /></p>
+                <p>
+                    Sphere faces = slices * stacks. Anything over 2000 faces (~45x45) will take > 1 minute to generate and render.
+                </p>
+                <p>
+                    Slices must be > 3, stacks must be > 2, and its recommended to be less than 1.5
+                </p>
+                <p>Slices: <input type="number" @bind="sphereSlices" /></p>
+                <p>Stacks: <input type="number" @bind="sphereStacks" /></p>
                 <p>Radius: <input type="number" @bind="radius" /></p>
                 <button @onclick="@(async () => { await OnSphereShapeClick(); ToggleSphereMenu(); })">Create</button>
             </div>
@@ -46,6 +52,13 @@
         <div class="modal">
             <div class="modal-content">
                 <span class="close" @onclick="ToggleRandomMenu">×</span>
+                <p>
+                    This generates a shape from the convex hull of randomized points in a 1x1x1 bounding box. Takes ~15 seconds for 100k points
+                </p>
+                <p>
+                    5, 10, 100, 1000, 10000 are recommended values.
+                </p>
+                <p>Points must be >= 4, radius must be > 0.1 and its recommended to be less than 1.5</p>
                 <p>Number of points: <input type="number" @bind="pointCount" /></p>
                 <p>Radius: <input type="number" @bind="radius" /></p>
                 <button @onclick="@(async () => { await OnRandomShapeClick(); ToggleRandomMenu(); })">Create</button>
@@ -104,7 +117,7 @@
                 initialized = true;
             }
         }
-            
+
         if (initialized) {
             await RenderScene();
         }
@@ -197,6 +210,9 @@
 
     private async Task OnSphereShapeClick()
     {
+        if (sphereSlices < 3 || sphereStacks < 2 || radius < 0.1) {
+            return; //TODO add error message for user
+        }
         MainPageViewModel.SelectSphere(sphereSlices, sphereStacks, radius);
         await OnAfterRenderAsync(true);
         StateHasChanged();

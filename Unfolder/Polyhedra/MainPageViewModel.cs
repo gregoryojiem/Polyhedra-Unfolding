@@ -55,13 +55,29 @@ namespace Unfolder.Polyhedra
 
         public static string GetDisplayNetJSON()
         {
-            var solver = new DFS(currentNet);
-            var outputNet = solver.Solve();
-            if (outputNet.IsComplete())
+            var attemptCount = 0;
+            while (attemptCount < 4)
             {
-                outputNet.StepsToDo = outputNet.StepsTaken;
+                try
+                {
+                    var solver = new DFS(currentNet);
+                    var outputNet = solver.Solve();
+                    if (outputNet.IsComplete())
+                    {
+                        outputNet.StepsToDo = outputNet.StepsTaken;
+                    }
+                    return outputNet.ToJSON(HideUnplacedPolygons);
+                }
+                catch (Exception e)
+                {
+                    var newNet = currentPolyhedron.Copy().ToNet2D();
+                    newNet.StepsToDo = currentNet.StepsToDo;
+                    currentNet = newNet;
+                    attemptCount++;
+                    Console.WriteLine(e);
+                }
             }
-            return outputNet.ToJSON(HideUnplacedPolygons);
+            return "{}";
         }
 
         public static void PerformStep()
@@ -103,7 +119,21 @@ namespace Unfolder.Polyhedra
 
         public static void SelectRandom(int numOfPoints, double radius)
         {
-            currentPolyhedron = PolyhedronLibrary.GetRandomPolyhedron(numOfPoints, radius);
+            var attemptCount = 0;
+            while (attemptCount < 10) {
+                try {
+                    currentPolyhedron = PolyhedronLibrary.GetRandomPolyhedron(numOfPoints, radius);
+                    currentNet = currentPolyhedron.Copy().ToNet2D();
+                    return;
+                } catch (Exception e)
+                {
+                    numOfPoints /= 2;
+                    attemptCount++;
+                    Console.WriteLine(e);
+                }
+            }
+
+            currentPolyhedron = PolyhedronLibrary.GetPolyhedron("Cube");
             currentNet = currentPolyhedron.Copy().ToNet2D();
         }
     }

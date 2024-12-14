@@ -120,7 +120,7 @@ namespace Unfolder.Polyhedra
                 case "Sphere":
                     points = GetSpherePoints(sphereRefinement, sphereRefinement, 0.75);
                     break;
-                case "Random Polyhedra":
+                case "New random shape":
                     points = Point3D.GenerateRandPoints(10000, 1);
                     break;
                 default: throw new InvalidDataException();
@@ -183,7 +183,7 @@ namespace Unfolder.Polyhedra
             return [
                 "Triangular Pyramid", "Cube", "Tetrahedron", "Octahedron",
                 "Hexagonal Pyramid", "Dodecahedron", "Elongated Square Dipyramid",
-                "Sphere", "Random Polyhedra"
+                "New random shape"
             ];
         }
     }
