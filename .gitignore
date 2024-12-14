@@ -398,5 +398,5 @@ FodyWeavers.xsd
 *.sln.iml
 
 # Misc
-/docs
+Unfolder/docs
 PerformanceTesting/images
