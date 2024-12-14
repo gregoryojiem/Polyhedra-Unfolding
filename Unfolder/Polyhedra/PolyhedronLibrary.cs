@@ -900,7 +900,7 @@ namespace Unfolder.Polyhedra
                     points = hexagonalPyramid;
                     break;
                 case "Dodecahedron":
-                    points = ScalePoints(dodecahedron, 0.5);
+                    points = dodecahedron;
                     break;
                 case "Icosahedron":
                     points = icosahedron;
@@ -951,17 +951,11 @@ namespace Unfolder.Polyhedra
                     points = snubDodecahedron;
                     break;
                 case "Elongated Square Dipyramid":
-                    points = ScalePoints(elongatedSquareDipyramid, 0.75);
-                    break;
-                case "Sphere":
-                    points = GetSpherePoints(sphereRefinement, sphereRefinement, 0.75);
-                    break;
-                case "New random shape":
-                    points = Point3D.GenerateRandPoints(10000, 1);
+                    points = elongatedSquareDipyramid;
                     break;
                 default: throw new InvalidDataException();
             }
-            return new Polyhedron(points);
+            return new Polyhedron(NormalizePointsToUnitSize(points));
         }
 
         public static Point3D[] ScalePoints(Point3D[] points, double scale)
@@ -974,6 +968,36 @@ namespace Unfolder.Polyhedra
                     points[i].X * scale,
                     points[i].Y * scale,
                     points[i].Z * scale);
+            }
+
+            return scaledPoints;
+        }
+
+        public static Point3D[] NormalizePointsToUnitSize(Point3D[] points)
+        {
+            if (points.Length == 0)
+            {
+                return points;
+            }
+
+            var maxX = points.Max(p => p.X);
+            var minX = points.Min(p => p.X);
+            var maxY = points.Max(p => p.Y);
+            var minY = points.Min(p => p.Y);
+            var maxZ = points.Max(p => p.Z);
+            var minZ = points.Min(p => p.Z);
+
+            double maxExtent = Math.Max(Math.Max(maxX - minX, maxY - minY), maxZ - minZ);
+            double scale = 1.0 / maxExtent;
+
+            Point3D[] scaledPoints = new Point3D[points.Length];
+
+            for (int i = 0; i < points.Length; i++)
+            {
+                scaledPoints[i] = new Point3D(
+                    (points[i].X - (minX + maxX) / 2) * scale,
+                    (points[i].Y - (minY + maxY) / 2) * scale,
+                    (points[i].Z - (minZ + maxZ) / 2) * scale);
             }
 
             return scaledPoints;
@@ -1019,7 +1043,7 @@ namespace Unfolder.Polyhedra
             return [
                 "Tetrahedron", "Cube", "Octahedron", "Dodecahedron", "Icosahedron",
                 "Truncated Tetrahedron", "Cuboctahedron", "Truncated Cube", "Truncated Octahedron", "Great Rhombicuboctahedron", "Small Rhombicuboctahedron", "Truncated Cuboctahedron", "Snub Cube", "Icosidodecahedron", "Truncated Dodecahedron", "Truncated Icosahedron", "Great Rhombicosidodecahedron", "Small Rhombicosidodecahedron", "Truncated Icosidodecahedron", "Snub Dodecahedron",
-                "Elongated Square Dipyramid", "New random shape"
+                "Elongated Square Dipyramid"
             ];
         }
     }

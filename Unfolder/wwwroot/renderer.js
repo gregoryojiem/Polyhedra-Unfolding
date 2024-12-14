@@ -190,9 +190,9 @@ function setLighting() {
 
 function GetCamera3D() {
 	let camera = new THREE.PerspectiveCamera(70, width / height, 0.01, 10);
-	camera.rotateX(-0.3);
-	camera.position.z = 2.5;
-	camera.position.y = 1;
+	camera.rotateX(-0.4);
+	camera.position.z = 2;
+	camera.position.y = 0.8;
 	return camera;
 }
 
