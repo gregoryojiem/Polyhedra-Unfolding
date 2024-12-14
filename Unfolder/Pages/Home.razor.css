@@ -16,9 +16,9 @@ header {
     text-align: center;
 }
 
-header h1 {
-    color: white;
-}
+    header h1 {
+        color: white;
+    }
 
 main {
     padding: 2rem;
@@ -33,10 +33,20 @@ main {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-h1, h2 {
+h1,
+h2 {
     color: black;
+    text-align: center;
+    margin-top: 0.25rem;
+    margin-bottom: 1.5rem;
 }
 
+h3 {
+    color: black;
+    text-align: center;
+    margin-top: 0.25rem;
+    margin-bottom: 1.5rem;
+}
 
 section {
     text-align: left;
@@ -45,7 +55,7 @@ section {
     padding: 1rem;
     background: #fff;
     border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .problem-statement {
@@ -53,38 +63,40 @@ section {
     margin-bottom: 10px;
 }
 
-.origin, .status, .results, .related-problems, .appearances, .categories {
-    margin-bottom: 15px;
+figure {
+    text-align: center;
+    margin: 2rem 0; 
 }
 
-.bibliography {
-    margin-top: 20px;
-}
-
-    .bibliography dt {
-        font-weight: bold;
+    figure img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 0 auto;
+        margin-bottom: 1rem; 
     }
 
-    .bibliography dd {
-        margin-bottom: 10px;
-    }
-
-
-canvas {
-    width: 100%;
-    max-width: 800px;
-    height: 600px;
-    display: block;
-    margin: 1rem auto;
-    border: 1px solid #ddd;
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    margin-top: 0.5rem;
 }
-
-
 
 footer {
     margin-top: auto;
     text-align: center;
     padding: 10px;
-    background: #343a40;
+    background: #007bff;
     color: white;
+}
+
+sup {
+    vertical-align: super;
+    font-size: x-small;
+    position: relative;
+    top: -0.3em;
+}
+
+p {
+    line-height: 1.6;
 }
