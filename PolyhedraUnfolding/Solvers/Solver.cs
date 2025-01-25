@@ -6,7 +6,7 @@ namespace PolyhedraUnfolding.Solvers
     public abstract class Solver
     {
         private Net2D netToSolve;
-        public static bool UseNetSteps = true;
+        public static bool UseNetSteps = false;
 
         public Solver(Net2D net)
         {

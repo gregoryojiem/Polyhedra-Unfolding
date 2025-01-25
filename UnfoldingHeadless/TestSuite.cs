@@ -9,9 +9,7 @@ namespace UnfoldingHeadless
         public static void RunPerformanceTests()
         {
             Console.WriteLine("Beginning performance testing");
-            Solver.UseNetSteps = false;
             SphereTest();
-            Solver.UseNetSteps = true;
             Console.WriteLine("Performance testing has finished");
         }
 
