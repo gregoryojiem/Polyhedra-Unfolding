@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.12.35506.116
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PerformanceTesting", "PerformanceTesting\PerformanceTesting.csproj", "{2FC2EA6F-1411-4BAE-A323-718B9FD72D89}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnfoldingHeadless", "UnfoldingHeadless\UnfoldingHeadless.csproj", "{2FC2EA6F-1411-4BAE-A323-718B9FD72D89}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unfolder", "Unfolder\Unfolder.csproj", "{63358696-AA28-4DAA-8CDD-13EF2D11CF66}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PolyhedraUnfolding", "PolyhedraUnfolding\PolyhedraUnfolding.csproj", "{4C1EC014-A011-4743-BD84-CFE5169D0A27}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnfoldingWebsite", "UnfoldingWebsite\UnfoldingWebsite.csproj", "{29D8CC19-B4A0-4C65-8AEE-2257C4427D83}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +19,14 @@ Global
 		{2FC2EA6F-1411-4BAE-A323-718B9FD72D89}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2FC2EA6F-1411-4BAE-A323-718B9FD72D89}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2FC2EA6F-1411-4BAE-A323-718B9FD72D89}.Release|Any CPU.Build.0 = Release|Any CPU
-		{63358696-AA28-4DAA-8CDD-13EF2D11CF66}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{63358696-AA28-4DAA-8CDD-13EF2D11CF66}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{63358696-AA28-4DAA-8CDD-13EF2D11CF66}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{63358696-AA28-4DAA-8CDD-13EF2D11CF66}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C1EC014-A011-4743-BD84-CFE5169D0A27}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C1EC014-A011-4743-BD84-CFE5169D0A27}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C1EC014-A011-4743-BD84-CFE5169D0A27}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C1EC014-A011-4743-BD84-CFE5169D0A27}.Release|Any CPU.Build.0 = Release|Any CPU
+		{29D8CC19-B4A0-4C65-8AEE-2257C4427D83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{29D8CC19-B4A0-4C65-8AEE-2257C4427D83}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{29D8CC19-B4A0-4C65-8AEE-2257C4427D83}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{29D8CC19-B4A0-4C65-8AEE-2257C4427D83}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
