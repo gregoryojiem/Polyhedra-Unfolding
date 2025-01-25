@@ -1,13 +1,18 @@
-﻿using Polyhedra.DataStructs3D;
+﻿using Polyhedra.DataStructs2D.Nets;
+using Polyhedra.DataStructs3D;
+using System.Reflection;
 using Unfolder.Polyhedra.Solvers;
 
 namespace Unfolder.Polyhedra
 {
     public class MainPageViewModel
     {
+        // Shared 2D/3D objects
         public static string currentView = "3D";
 
         private static Polyhedron currentPolyhedron = PolyhedronLibrary.GetPolyhedron("Cube");
+
+        private static Net2D currentNet = currentPolyhedron.Copy().ToNet2D();
 
         // 3D toggles
         private static bool Flatten = false;
@@ -39,9 +44,10 @@ namespace Unfolder.Polyhedra
 
         public static string GetDisplayPolyhedronJSON()
         {
-            var polyhedron = currentPolyhedron.Copy();
+            var polyhedron = currentPolyhedron;
             if (Flatten)
             {
+                polyhedron = currentPolyhedron.Copy();
                 polyhedron.FlattenFaces();
             }
             return polyhedron.ToJSON();
@@ -49,37 +55,86 @@ namespace Unfolder.Polyhedra
 
         public static string GetDisplayNetJSON()
         {
-            var solver = new DFS(currentPolyhedron);
-            var outputNet = solver.Solve();
-            return outputNet.ToJSON(HideUnplacedPolygons);
+            var attemptCount = 0;
+            while (attemptCount < 4)
+            {
+                try
+                {
+                    var solver = new DFS(currentNet);
+                    var outputNet = solver.Solve();
+                    if (outputNet.IsComplete())
+                    {
+                        outputNet.StepsToDo = outputNet.StepsTaken;
+                    }
+                    return outputNet.ToJSON(HideUnplacedPolygons);
+                }
+                catch (Exception e)
+                {
+                    var newNet = currentPolyhedron.Copy().ToNet2D();
+                    newNet.StepsToDo = currentNet.StepsToDo;
+                    currentNet = newNet;
+                    attemptCount++;
+                    Console.WriteLine(e);
+                }
+            }
+            return "{}";
         }
 
         public static void PerformStep()
         {
-            Solver.StepsToDo++;
+            currentNet.StepsToDo++;
         }
 
         public static void UndoStep()
         {
-            if (Solver.StepsToDo > 1)
+            if (currentNet.StepsToDo > 1)
             {
-                Solver.StepsToDo--;
+                currentNet.StepsTaken--;
+                currentNet.StepsToDo--;
             }
+            currentNet.Undo();
         }
 
         public static void CompleteStep()
         {
-            Solver.StepsToDo = int.MaxValue;
+            currentNet.StepsToDo = int.MaxValue;
         }
 
         public static void ResetStep()
         {
-            Solver.StepsToDo = 1;
+            currentNet.Reset();
         }
 
         public static void SelectPolyhedra(string polyhedron)
         {
             currentPolyhedron = PolyhedronLibrary.GetPolyhedron(polyhedron);
+            currentNet = currentPolyhedron.Copy().ToNet2D();
+        }
+
+        public static void SelectSphere(int slices, int stacks, double radius)
+        {
+            currentPolyhedron = PolyhedronLibrary.GetSphere(slices, stacks, radius);
+            currentNet = currentPolyhedron.Copy().ToNet2D();
+        }
+
+        public static void SelectRandom(int numOfPoints, double radius)
+        {
+            var attemptCount = 0;
+            while (attemptCount < 10) {
+                try {
+                    currentPolyhedron = PolyhedronLibrary.GetRandomPolyhedron(numOfPoints, radius);
+                    currentNet = currentPolyhedron.Copy().ToNet2D();
+                    return;
+                } catch (Exception e)
+                {
+                    numOfPoints /= 2;
+                    attemptCount++;
+                    Console.WriteLine(e);
+                }
+            }
+
+            currentPolyhedron = PolyhedronLibrary.GetPolyhedron("Cube");
+            currentNet = currentPolyhedron.Copy().ToNet2D();
         }
     }
 }

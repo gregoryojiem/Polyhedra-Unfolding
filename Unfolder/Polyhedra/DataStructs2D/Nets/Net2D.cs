@@ -1,14 +1,22 @@
-﻿using System.Text.Json;
+﻿using Polyhedra.DataStructs3D;
+using RBush;
+using System.Text.Json;
 
 namespace Polyhedra.DataStructs2D.Nets
 {
     public class Net2D
     {
-        public Polygon[] Polygons;
+        public RBush<Polygon2D> constructedNet;
+        public Polygon2D[] Polygons;
         public readonly List<int> Placements = [];
         private int placementIndex = 0;
+        public int lastPlacementIndexWithMoves = 0;
 
-        private Polygon LastPolygonPlaced
+        // Used for stepping through DFS on a net
+        public int StepsToDo = 1;
+        public int StepsTaken = 0;
+
+        private Polygon2D LastPolygonPlaced
         {
             get
             {
@@ -16,25 +24,55 @@ namespace Polyhedra.DataStructs2D.Nets
             }
         }
 
-        public Net2D(Polygon[] polygons)
+        public Net2D(Polygon2D[] polygons)
         {
             Polygons = polygons;
             Placements = [];
+            constructedNet = new(maxEntries: Polygons.Length + 1);
         }
 
-        private void PlaceStartingPolygon(Polygon polygon)
+        public Net2D(Net2D existingNet)
         {
+            Polygons = new Polygon2D[existingNet.Polygons.Length];
+            for (int i = 0; i < existingNet.Polygons.Length; i++)
+            {
+                Polygons[i] = new Polygon2D(existingNet.Polygons[i]);
+            }
+
+            Placements = [];
+            Placements.AddRange(existingNet.Placements);
+            placementIndex = existingNet.placementIndex;
+            lastPlacementIndexWithMoves = existingNet.lastPlacementIndexWithMoves;
+            StepsToDo = existingNet.StepsToDo;
+            StepsTaken = existingNet.StepsTaken;
+
+            var placedCopyPolygons = existingNet.Polygons.Where(p => p.Status != PolygonStatus.Unplaced).ToList();
+            constructedNet = new(maxEntries: Polygons.Length + 1);
+            constructedNet.BulkLoad(placedCopyPolygons);
+        }
+
+        private void PlaceStartingPolygon(int polygonIndex)
+        {
+            var polygon = Polygons[polygonIndex];
             polygon.Status = PolygonStatus.Starting;
-            Placements.Add(Array.IndexOf(Polygons, polygon));
+            Placements.Add(polygon.Id);
             placementIndex++;
+
+            polygon.GetBounds();
+            constructedNet.Insert(polygon);
         }
 
-        private void ConnectPolygons(Polygon currentPolygon, Polygon adjacentPolygon)
+        private void ConnectPolygons(int currentPolygonIndex, int adjacentPolygonIndex)
         {
+            var currentPolygon = Polygons[currentPolygonIndex];
+            var adjacentPolygon = Polygons[adjacentPolygonIndex];
             var currentEdge = currentPolygon.GetConnectingEdge(adjacentPolygon);
             var adjacentEdge = adjacentPolygon.GetConnectingEdge(currentPolygon);
-            adjacentPolygon.Rotate(currentEdge.FindAngleBetween(adjacentEdge));
-            adjacentPolygon.TranslateToEdge(adjacentEdge, currentEdge);
+
+            var angle = currentPolygon.FindAngleBetween(adjacentPolygon, currentEdge, adjacentEdge);
+            adjacentPolygon.Rotate(angle);
+            adjacentEdge = adjacentPolygon.GetConnectingEdge(currentPolygon);
+            adjacentPolygon.TranslateToEdge(adjacentEdge, currentEdge, currentPolygon);
 
             adjacentPolygon.Status = PolygonStatus.Current;
             if (LastPolygonPlaced.Status != PolygonStatus.Starting)
@@ -44,19 +82,19 @@ namespace Polyhedra.DataStructs2D.Nets
             Placements.Add(Array.IndexOf(Polygons, adjacentPolygon));
             placementIndex++;
 
-            currentEdge.Connector = true;
-            adjacentEdge.Connector = true;
+            adjacentPolygon.GetBounds();
+            constructedNet.Insert(adjacentPolygon);
         }
         public void MakeMove(NetMove move)
         {
             if (move is StartingMove startingMove)
             {
-                PlaceStartingPolygon(startingMove.StartingPolygon);
+                PlaceStartingPolygon(startingMove.StartingPolygonId);
             }
 
             if (move is PlacementMove placementMove)
             {
-                ConnectPolygons(placementMove.CurrentPolygon, placementMove.AdjacentPolygon);
+                ConnectPolygons(placementMove.CurrentPolygonId, placementMove.AdjacentPolygonId);
             }
         }
 
@@ -64,71 +102,78 @@ namespace Polyhedra.DataStructs2D.Nets
         {
             if (placementIndex == 0)
             {
-                throw new Exception("Can't call undo on an empty Net2D");
+                return;
             }
 
             placementIndex--;
+            if (lastPlacementIndexWithMoves > 0)
+            {
+                lastPlacementIndexWithMoves--;
+            }
             int lastPlacedIndex = Placements[placementIndex];
             var polygon = Polygons[lastPlacedIndex];
             polygon.Status = PolygonStatus.Unplaced;
             Placements.RemoveAt(placementIndex);
-
-            if (placementIndex == 0) // We can ignore the starting polygon's edges
-            {
-                return;
-            }
-
-            foreach (var edge in polygon.Edges)
-            {
-                if (!edge.Connector)
-                {
-                    continue;
-                }
-
-                edge.Connector = false;
-                var adjacentEdge = edge.AdjacentPolygon.GetConnectingEdge(polygon);
-                adjacentEdge.Connector = false;
-            }
+            constructedNet.Delete(polygon);
         }
 
-        // Should always return moves until net is complete
-        public List<NetMove> GetMoves()
+        public void Reset()
         {
-            var moves = new List<NetMove>();
-
-            if (placementIndex == 0)
+            StepsToDo = 1;
+            while (Placements.Count > 0)
             {
-                foreach (var polygon in Polygons)
-                {
-                    moves.Add(new StartingMove(polygon));
-                }
+                Undo();
+            }
+            StepsTaken = 0;
+        }
 
+        public NetMove? GetMove(int moveIndex)
+        {
+            if (placementIndex == 0 && moveIndex < Polygons.Length)
+            {
+                //var optimalStartingPolygon = Polygons.OrderByDescending(p => p.Vertices.Length).ElementAt(moveIndex);
+                var startingPolygon = Polygons[moveIndex];
+                return new StartingMove(startingPolygon.Id);
             }
 
-
-            foreach (var placement in Placements)
+            bool foundFirstMove = false;
+            int currentMoveIndex = 0;
+            for (int i = lastPlacementIndexWithMoves; i < Placements.Count; i++)
             {
+                int placement = Placements[i];
                 var polygon = Polygons[placement];
 
-                foreach (var edge in polygon.Edges)
+                for (int j = 0; j < polygon.Edges.Length; j++)
                 {
-                    if (edge.AdjacentPolygon.Status == PolygonStatus.Unplaced)
+                    var foundMove = Polygons[polygon.Edges[j].AdjacentPolygonIndex].Status == PolygonStatus.Unplaced;
+                    if (foundMove && !foundFirstMove)
                     {
-                        moves.Add(new PlacementMove(polygon, edge.AdjacentPolygon));
+                        lastPlacementIndexWithMoves = i;
+                        foundFirstMove = true;
+                    }
+                    if (foundMove && currentMoveIndex == moveIndex)
+                    {
+                        return new PlacementMove(polygon.Id, polygon.Edges[j].AdjacentPolygonIndex);
+                    }
+                    if (foundMove)
+                    {
+                        currentMoveIndex++;
                     }
                 }
             }
 
-            return moves;
+            return null;
         }
 
         private NetStatus ValidateLastMove()
         {
-            for (int i = 0; i < Polygons.Length; i++)
-            {
-                var polygon = Polygons[i];
+            var polygonsToCheck = constructedNet.Search(LastPolygonPlaced.Bounds);
 
-                if (polygon.Status == PolygonStatus.Unplaced || i == Placements[Placements.Count - 1])
+            for (int i = 0; i < polygonsToCheck.Count; i++)
+            {
+                var polygon = polygonsToCheck[i];
+
+                if (polygon.Id == LastPolygonPlaced.Id)
                 {
                     continue;
                 }
@@ -147,20 +192,31 @@ namespace Polyhedra.DataStructs2D.Nets
 
         public NetStatus GetStatus()
         {
+            if (Placements.Count == 0)
+            {
+                return NetStatus.Valid;
+            }
+
             if (ValidateLastMove() == NetStatus.Invalid)
             {
                 return NetStatus.Invalid;
             }
 
+            
+            return IsComplete() ? NetStatus.Complete : NetStatus.Valid;
+        }
+
+        public bool IsComplete()
+        {
             foreach (var polygon in Polygons)
             {
                 if (polygon.Status == PolygonStatus.Unplaced)
                 {
-                    return NetStatus.Valid;
+                    return false;
                 }
             }
 
-            return NetStatus.Complete;
+            return true;
         }
 
         public string ToJSON(bool hideUnplaced)
@@ -178,7 +234,7 @@ namespace Polyhedra.DataStructs2D.Nets
             ArrangeVerticesClockwise();
             ScaleAndCenter(desiredSize, padding);
             var netSize = GetNetSize();
-            return ((int)netSize.Item1 + padding * 2, (int)netSize.Item2 + padding * 2);
+            return ((int)netSize.Item1 + padding, (int)netSize.Item2 + padding);
         }
 
         private void ArrangeVerticesClockwise()
@@ -197,6 +253,13 @@ namespace Polyhedra.DataStructs2D.Nets
             );
         }
 
+        private Point2D GetNetCenter()
+        {
+            var middleX = (Polygons.SelectMany(p => p.Vertices).Max(v => v.X) + Polygons.SelectMany(p => p.Vertices).Min(v => v.X)) / 2;
+            var middleY = (Polygons.SelectMany(p => p.Vertices).Max(v => v.Y) + Polygons.SelectMany(p => p.Vertices).Min(v => v.Y)) / 2;
+            return new Point2D(middleX, middleY);
+        }
+
         private void ScaleAndCenter(double goalImageSize, double padding)
         {
             // Center net at origin
@@ -205,23 +268,15 @@ namespace Polyhedra.DataStructs2D.Nets
 
             // Scaling
             var (width, height) = GetNetSize();
-            double requiredScaling = goalImageSize / Math.Max(width, height);
+            double requiredScaling = goalImageSize / Math.Min(width, height);
             Scale(requiredScaling);
 
             // Translation
-            var scaledCenter = GetNetCenter();
-            double translationX = goalImageSize / 2 + padding - scaledCenter.X;
-            double translationY = goalImageSize / 2 + padding - scaledCenter.Y;
+            var (scaledWidth, scaledHeight) = GetNetSize();
+            double translationX = scaledWidth / 2 + padding / 2;
+            double translationY = scaledHeight / 2 + padding / 2;
             var translation = new Point2D(translationX, translationY);
             Translate(translation);
-        }
-
-
-        private Point2D GetNetCenter()
-        {
-            var centerX = Polygons.Average(p => p.Centroid.X);
-            var centerY = Polygons.Average(p => p.Centroid.Y);
-            return new Point2D(centerX, centerY);
         }
 
         private void Scale(double scalar)

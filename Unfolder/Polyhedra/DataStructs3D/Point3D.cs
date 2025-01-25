@@ -3,7 +3,7 @@ using System.Numerics;
 
 namespace Polyhedra.DataStructs3D
 {
-    public class Point3D : IVertex
+    public struct Point3D : IVertex
     {
         public double X { get; set; }
         public double Y { get; set; }
@@ -36,13 +36,22 @@ namespace Polyhedra.DataStructs3D
             return points;
         }
 
-        public void Rotate(Quaternion rotation)
+        public Point3D Translate(Point3D pointToTranslateTo)
+        {
+            X += pointToTranslateTo.X;
+            Y += pointToTranslateTo.Y;
+            Z += pointToTranslateTo.Z;
+            return this;
+        }
+
+        public Point3D Rotate(Quaternion rotation)
         {
             Vector3 vector = new Vector3((float)X, (float)Y, (float)Z);
             vector = Vector3.Transform(vector, rotation);
             X = vector.X;
             Y = vector.Y;
             Z = vector.Z;
+            return this;
         }
 
         public override string ToString()
@@ -53,14 +62,6 @@ namespace Polyhedra.DataStructs3D
         //TODO come up with a more efficient way of handling minor rotation differences?
         public static bool operator ==(Point3D p1, Point3D p2)
         {
-            if (ReferenceEquals(p1, p2))
-            {
-                return true;
-            }
-            if (p1 is null || p2 is null)
-            {
-                return false;
-            }
             return Math.Abs(p1.X - p2.X) < 0.0001 && Math.Abs(p1.Y - p2.Y) < 0.0001 && Math.Abs(p1.Z - p2.Z) < 0.0001;
         }
 

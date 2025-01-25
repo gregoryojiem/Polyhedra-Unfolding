@@ -16,9 +16,9 @@ header {
     text-align: center;
 }
 
-header h1 {
-    color: white;
-}
+    header h1 {
+        color: white;
+    }
 
 main {
     padding: 2rem;
@@ -33,10 +33,20 @@ main {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-h1, h2 {
-    color: #2c3e50;
+h1,
+h2 {
+    color: black;
+    text-align: center;
+    margin-top: 0.25rem;
+    margin-bottom: 1.5rem;
 }
 
+h3 {
+    color: black;
+    text-align: center;
+    margin-top: 0.25rem;
+    margin-bottom: 1.5rem;
+}
 
 section {
     text-align: left;
@@ -45,7 +55,7 @@ section {
     padding: 1rem;
     background: #fff;
     border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .problem-statement {
@@ -53,94 +63,40 @@ section {
     margin-bottom: 10px;
 }
 
-.origin, .status, .results, .related-problems, .appearances, .categories {
-    margin-bottom: 15px;
+figure {
+    text-align: center;
+    margin: 2rem 0; 
 }
 
-.bibliography {
-    margin-top: 20px;
-}
-
-    .bibliography dt {
-        font-weight: bold;
+    figure img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 0 auto;
+        margin-bottom: 1rem; 
     }
 
-    .bibliography dd {
-        margin-bottom: 10px;
-    }
-
-#visualization {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
+figcaption {
+    font-style: italic;
+    font-size: 0.9em;
+    margin-top: 0.5rem;
 }
-
-.dropdown {
-    position: relative;
-    display: inline-block;
-}
-
-.dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: #f9f9f9;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
-    border-radius: 5px;
-    overflow: hidden;
-}
-
-.dropdown:hover .dropdown-content {
-    display: block;
-}
-
-.dropdown-content a {
-    color: black;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-    text-align: left;
-    background-color: #f1f1f1;
-    border-bottom: 1px solid #ddd;
-    transition: background-color 0.3s;
-}
-
-    .dropdown-content a:hover {
-        background-color: #ddd;
-    }
-
-.drop-btn, button {
-    background-color: #007bff;
-    color: white;
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin: 0.5rem;
-    transition: background-color 0.3s ease;
-}
-
-    .drop-btn:hover, button:hover {
-        background-color: #0056b3;
-    }
-
-canvas {
-    width: 100%;
-    max-width: 800px;
-    height: 600px;
-    display: block;
-    margin: 1rem auto;
-    border: 1px solid #ddd;
-}
-
-
 
 footer {
     margin-top: auto;
     text-align: center;
     padding: 10px;
-    background: #343a40;
+    background: #007bff;
     color: white;
+}
+
+sup {
+    vertical-align: super;
+    font-size: x-small;
+    position: relative;
+    top: -0.3em;
+}
+
+p {
+    line-height: 1.6;
 }

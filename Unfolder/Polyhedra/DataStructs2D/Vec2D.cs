@@ -1,17 +1,24 @@
 ﻿namespace Polyhedra.DataStructs2D
 {
-    public class Vec2D
+    public struct Vec2D
     {
-        public double X { get; set; }
-        public double Y { get; set; }
+        public readonly double X;
+        public readonly double Y;
+
         public double Magnitude
         {
             get { return Math.Sqrt(X * X + Y * Y); }
         }
 
-        public Vec2D(double x, double y) { X = x; Y = y; }
+        public Vec2D(double x, double y) { 
+            X = x; 
+            Y = y; 
+        }
 
-        public Vec2D(Point2D point) { X = point.X; Y = point.Y; }
+        public Vec2D(Point2D point) { 
+            X = point.X; 
+            Y = point.Y; 
+        }
 
         public static Vec2D operator +(Vec2D vec1, Vec2D vec2)
         {
@@ -58,16 +65,6 @@
                 angle = 2 * Math.PI - angle;
             }
             return angle;
-        }
-
-        public Point2D ToPoint()
-        {
-            return new Point2D(X, Y);
-        }
-
-        public Edge2D ToEdge(Point2D centroid)
-        {
-            return new Edge2D(centroid, new Point2D(X + centroid.X, Y + centroid.Y), null, null);
         }
 
         public override string ToString()

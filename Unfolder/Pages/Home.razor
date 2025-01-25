@@ -1,251 +1,205 @@
 ﻿@page "/"
-@inject Polyhedra.MainPageViewModel MainPageViewModel
-@using Polyhedra
 
 <title>Polyhedra Unfolding</title>
 
 <header>
     <h1>Polyhedra Unfolding</h1>
     <p>Designing efficient edge-unfolding algorithms</p>
+    <p>Gregory Ojiem & Holden Lalumiere</p>
 </header>
 
 <main>
-    <section id="problem-description">
-        <h2>TOPP Problem 9: Edge-Unfolding Convex Polyhedra</h2>
+    <section id="problem-intro">
+        <h2>The Open Problems Project Problem 9: Edge-Unfolding Convex Polyhedra</h2>
         <div class="problem-statement">
-            Can every convex polyhedron be cut along its edges and unfolded flat to a single, nonoverlapping, simple polygon?
-        </div>
-
-        <div class="origin">
-            An explanation of the problem.
+            Can every convex polyhedron be cut along its edges and unfolded flat to a single, nonoverlapping, simple
+            polygon?
         </div>
     </section>
 
+    <section id="problem-description">
+        <h2>Introduction</h2>
+        <div class="origin">
+            <p>To understand the problem, we have to first define a few terms</p>
+            <p><strong>Polyhedron</strong> - A three-dimensional shape composed of polygons joined by their edges</p>
+            <p>
+                <strong>Convex polyhedra</strong> - Polyhedra that have convexity, meaning that any line segment
+                connecting two points on the polyhedron lies within the polyhedron. These can be constructed by taking
+                the convex hull of a set of points
+            </p>
+            <p>
+                <strong>Unfolding</strong> - The process of making cuts along the edges of a polyhedron in a way that
+                would allow you to unfold the shape into a flat 2D set of polygons. Most importantly, this process
+                cannot disconnect any of the polygons. A specific unfolding of a polyhedron is called a net
+            </p>
+            <figure>
+                <img src="figure1.png" alt="Dodecahedron Unfolding" width="400">
+                <figcaption>Figure 1. An example unfolding of a dodecahedron</figcaption>
+            </figure>
+            <p>
+                <strong>Net</strong> - A 2D set of polygons that correspond to one of the unfoldings of a polyhedron
+            </p>
+            <p>
+                The TOPP problem is asking whether every convex polyhedron has a corresponding unfolding - a net where
+                no polygons are overlapping. It’s easy for us to visualize and understand this at smaller scales. Try
+                to imagine unfolding a cardboard box.
+            </p>
+
+            <figure>
+                <img src="figure2.png" alt="Cube Unfoldings" width="400">
+                <figcaption>Figure 2. The 11 possible unfoldings of a cube</figcaption>
+            </figure>
+
+            <p>
+                There are multiple ways that a cube can be unfolded. If we view each face uniquely, there are 384
+                unfoldings. But that number doesn’t account for the fact that the six faces a cube has are all
+                identical. We can swap two squares and it wouldn’t make a visible change to the net.
+            </p>
+            <p>
+                Unfoldings that have unique faces but identical underlying structures are called isomorphisms, and if
+                we exclude them from our 384, a cube has 11 unique unfoldings.
+            </p>
+            <p>
+                Things get a little more complicated at larger scales. A truncated icosidodecahedron (picture below) has
+                approximately 2.18 ×10<sup>40</sup> unfoldings, a massive number. If we eliminate isomorphisms as we
+                did with the cube, there are 1.82 ×10<sup>38</sup> unfoldings [1].
+            </p>
+
+
+            <figure>
+                <img src="figure3.png" alt="Truncated Icosidodecahedron" width="400">
+                <figcaption>Figure 3. A truncated icosidodecahedron. It has 62 faces and 180 edges</figcaption>
+            </figure>
+            <p>
+                So far, the current belief is that the answer to the problem is ‘yes, every convex polyhedra can be
+                unfolded’, but nobody has been able to definitively prove that. It’s difficult to make
+                generalizations about unfoldings and it requires complex case analysis, similar to the four color
+                theorem or the sphere packing problem.
+            </p>
+            <p>
+                Existing research has been focused on constructing polyhedra that always have overlaps for
+                certain unfolding techniques [2], polyhedra whereas vertices increase the number of valid unfoldings approaches 0 [3], 
+                or very specific classes of polyhedra that can always be unfolded [3]. We’ve added some references to interesting papers 
+                and discussions on those topics in the bibliography.
+            </p>
+        </div>
+    </section>
+
+    <section id="motivation">
+        <h2>Motivation</h2>
+            <p>
+                When we started this project, we initially wanted to follow along with existing 
+                research and see if we could find ways to generate polyhedra that are difficult to 
+                unfold. To do that, we first needed an algorithm to unfold polyhedra.
+            </p>
+            <p>We couldn’t find any.</p>
+            <p>
+                Well, that isn’t entirely true. There are ~4 relevant repositories on GitHub [4], and 
+                a couple of papers talking about high level methods of unfolding, but not much exists
+                on the specifics of how you would implement an efficient unfolding algorithm that 
+                generates a valid net. We decided to focus on that.
+            </p>
+        <strong>Note: </strong>We did find a master’s thesis that goes in-depth on specific algorithms for unfolding polyhedra and their time complexities [5], although this was long after completing our project… Our approaches significantly differ though, and the goal of that paper was more about measuring how many overlaps happen with different algorithms rather than generating valid (or large) nets.
+    </section>
     <section id="our-approach">
         <h2>Our Approach</h2>
         <p>
-            Libraries/frameworks
-            <ul>
-                <li>Our website is built with ASP.NET.</li>
-                <li>This allows us to combine C# with Javascript libraries</li>
-                <li>We use C# code for our backend data structures and algorithms, and it’s compiled down to WebAssembly</li>
-                <li>The website is written in HTML, and all of the rendering is done through Three.js</li>
-            </ul>
-            Rendering
-            <ul>
-                <li>We have various data structures in C# that can be serialized into JSON and passed to our renderer</li>
-                <li>Renderer is written in Javascript and uses Three.js</li>
-                <li>For polyhedra, it uses the vertices and indices of each face to render triangles. Normals are used for lighting</li>
-                <li>For nets, we pass in polygons, and they have various attributes that we use to color them (edges, status information)</li>
-            </ul>
-            Algorithm
-            <ul>
-                <li>We take a list of points (can be a predefined shape like a cube, or random)</li>
-                <li>Find their convex hull (using the Quickhull algorithm).</li>
-                <li>Next, we convert the 3D polyhedron faces to 2D.
-                    <ul>
-                        <li>Rotate the face vertices (Rodrigues' rotation formula) by aligning the normal vector to the upwards unit vector.</li>
-                    </ul>
-                </li>
-                <li>Now, we have a list of polygons.</li>
-                <li>We can use DFS to construct a net from our polygon list.
-                    <ul>
-                        <li>With some starting polygon, we can try placing its adjacent polygons next to it.</li>
-                        <li>If we place a face and it intersects with an existing one, we backtrack.</li>
-                    </ul>
-                </li>
-                <li>Placing polygons
-                    <ul>
-                        <li>When placing a polygon, we rotate it so that its connecting edge aligns with the existing polygon’s connecting edge.
-                            <ul>
-                                <li>We can do this by finding the perpendicular vector of both edges, inverting one, and then finding a rotation that aligns both vectors.</li>
-                                <li>This is a relatively fast operation.</li>
-                            </ul>
-                        </li>
-                    </ul>
-                </li> 
-                <li>Intersection checks
-                    <ul>
-                        <li>Once we’ve rotated and translated the polygon into place, we check if it intersects with any other placed polygons.</li>
-                        <li>Intersection checks between convex polygons are also cheap.</li>
-                    </ul>
-                </li>
-            </ul>
+            Our algorithm uses a simple backtracking search. We start by placing any polygon in our list.
+            Then, we look at its adjacent polygons and try to place one. We can do this by rotating it to align
+            with the existing polygon and translating it into the correct position.
+        </p>
+        <p>
+            Rotating the new polygon to align is a little complicated, but it just comes down to finding a
+            perpendicular vector to both of the polygon’s relevant edges, inverting one of those, and then finding
+            the angle between them.
+        </p>
+        <p>
+            We continue doing this step by step, finding a polygon that’s adjacent to one in the current net,
+            and adding it on. One thing to note is that every time we place a new polygon, we also have to
+            check to make sure it doesn’t intersect with any of the existing polygons. This is a simple intersection
+            check between two polygons, and there are many efficient algorithms for doing that. If we detect
+            an intersection, we backtrack and try a different placement.
+        </p>
+        <p>
+            All in all, this algorithm was surprisingly efficient. Even when we have around 100 faces, we rarely
+            run into intersections. We’re also mainly relying on computer graphics techniques that are
+            well-documented and optimized. But we did run into one problem - scaling. As the face count of our
+            polyhedra increases, the runtime of our algorithm increases exponentially. Ideally, we want better
+            performance than that.
+        </p>
+
+    </section>
+    <section id="data-structure-change">
+        <h2>Data Structure Change</h2>
+        <p>
+            When analyzing the operations we’re doing, it becomes clear where the inefficiency is. In our ideal
+            case, we have three operations. Finding a place to put a polygon, placing a polygon, and verifying that
+            our net is still valid.
+        </p>
+        <p>
+            Finding a move is simple. All we need to do is keep track of which polygons have neighbors that haven’t
+            been placed yet. Because polygons store references to their neighbors, that’s trivial. The choice of
+            polygon here is important though; it determines the shape of the resulting nets.
+        </p>
+        <p>
+            Ideally, it would use a heuristic, and we did test some out, but we won’t go too in-depth on that.
+            There is a good discussion on heuristics in the earlier paper I mentioned by Wolfram Schlickenrieder [5].
+            For now, we can consider this to be O(1) time.
+        </p>
+        <p>
+            Placing a polygon simply requires a rotation and a translation. O(1) time.
+        </p>
+        <p>
+            Verifying that the net is valid is more complicated. We know that the net was already in a valid state,
+            so we just need to make sure that the new polygon doesn’t intersect with the existing net. But to do that,
+            we have to compare and check for intersections with every polygon currently in the net… O(n)
+        </p>
+        <p>
+            Because DFS has to loop over each polygon once, and every time we place a polygon we have to loop over
+            the existing net, we have an O(n<sup>2</sup>) running time for our ideal scenario. How can we improve that?
+        </p>
+        <p>
+            With a spatial data structure! If we can query what polygons our placements intersect with in logarithmic time,
+            we can improve the time complexity of our algorithm. All we need to do is represent our net as a spatial
+            data structure that can query what shapes are in a given region in logarithmic time. It also needs to
+            have log time insertion and deletion to avoid degrading the performance of our other operations.
+        </p>
+        <p>
+            There are many options to choose from; a k-d tree, an R-tree, a trapezoidal map, any would work. We decided to go with
+            R-trees (rectangle trees), because we were already using bounding boxes to speed up intersection checks,
+            and they were the best supported data structure in C#.
+        </p>
+        <p>
+            Swapping to R-trees improved the time complexity to O(n*log(n)), giving us our final algorithm.
         </p>
     </section>
-
-
-    <section class="bibliography">
-        <h2>Bibliography</h2>
-        <dl>
-            <dt>[BDE+03]</dt>
-            <dd>Marshall Bern, Erik D. Demaine, David Eppstein, Eric Kuo, Andrea Mantler, and Jack Snoeyink. Ununfoldable polyhedra with convex faces. Comput. Geom. Theory Appl., 24(2):51–62, 2003.</dd>
-
-            <dt>[Dür25]</dt>
-            <dd>Albrecht Dürer. The painter’s manual: A manual of measurement of lines, areas, and solids by means of compass and ruler assembled by Albrecht Dürer for the use of all lovers of art with appropriate illustrations arranged to be printed in the year MDXXV. New York: Abaris Books, 1977, 1525. English translation by Walter L. Strauss of ‘Unterweysung der Messung mit dem Zirkel un Richtscheyt in Linien Ebnen uhnd Gantzen Corporen’.</dd>
-
-            <dt>[MO01]</dt>
-            <dd>J. S. B. Mitchell and Joseph O’Rourke. Computational geometry column 42. Internat. J. Comput. Geom. Appl., 11(5):573–582, 2001. Also in SIGACT News 32(3):63-72 (2001), Issue 120.</dd>
-
-            <dt>[O'R00]</dt>
-            <dd>Joseph O’Rourke. Folding and unfolding in computational geometry. In Proc. 1998 Japan Conf. Discrete Comput. Geom., volume 1763 of Lecture Notes Comput. Sci., pages 258–266. Springer-Verlag, 2000.</dd>
-
-            <dt>[She75]</dt>
-            <dd>Geoffrey C. Shephard. Convex polytopes with convex nets. Math. Proc. Camb. Phil. Soc., 78:389–403, 1975.</dd>
-        </dl>
+    <section id="results">
+        <h3>Results</h3>
+        <p>So, how efficient was our final algorithm? Before swapping to R-trees, it took us on average ~28.8 minutes to unfold a polyhedron with 3000 faces. After we made the switch, we were able to unfold a polyhedron with 100,000 faces in 104 seconds. Below are some images of our resulting maps.</p>
+        <p>
+            <strong>Note:</strong> We wrote a C# library for polyhedra that contains all of our data structures (points, vectors, polygons, polyhedra, nets, etc.) and that’s what we use on our website. WebAssembly allows it to compile and run as Javascript.
+        </p>
+        <p>However, for generating these images, we had a standalone C# project. We use an image library to directly draw high-res 2D images of our nets. Unfortunately, this website CANNOT handle 100,000 faces, and it will likely freeze/crash if you attempt it due to the RAM requirements alone. This website demo can handle ~1-3k faces depending on PC specs.</p>
+        <p>All of these tests use an approximated sphere for consistency. We can control face count by changing the number of slices and stacks.</p>
+        <figure>
+            <img src="figure4.png" alt="100,000 Faces" width="600">
+            <figcaption>Figure 4. A polyhedron with 100,000 faces. In 20 trial runs, it took an average of ~104.37 seconds to generate</figcaption>
+        </figure>
+        <figure>
+            <img src="figure5.png" alt="Zoomed In" width="600">
+            <figcaption>Figure 5. Zooming in on some of the ‘lumps’ in our net. They’re coming from the cap of the approximated sphere.</figcaption>
+        </figure>
+        <figure>
+            <img src="figure6.png" alt="10,000 Faces, Equator Start" width="600">
+            <figcaption>Figure 6. A net from a polyhedron with 10,000 faces. One of the faces near the equator of the sphere was chosen as the starting polygon, and you can see how that impacted the final net</figcaption>
+        </figure>
+        <figure>
+            <img src="figure7.png" alt="10,000 Faces, Pole Start" width="600">
+            <figcaption>Figure 7. A second net from a polyhedron with 10,000 faces. In comparison to Figure 6, this time, a face from one of the sphere’s poles was chosen as the starting face</figcaption>
+        </figure>
     </section>
 </main>
 
-<script type="module" src="renderer.js"></script>
-
-<br />
-<br />
-
-<div id="visualization">
-    <h3>Interactive Demo</h3>
-    <div class="dropdown">
-        <button class="drop-btn" @onclick="ToggleDropdown">Shapes ▼</button>
-        @if (displayDropdown)
-        {
-            <div class="dropdown-content">
-                @foreach (var shapeName in shapeNames)
-                {
-                    <a @onclick="@(async () => { await OnSelectedShapeClick(shapeName); ToggleDropdown(); })">
-                        @shapeName
-                    </a>
-                }
-            </div>
-        }
-    </div>
-
-    @if (MainPageViewModel.currentView == "3D")
-    {
-        <div>
-            <button @onclick="OnFlattenClick">See flattened polyhedra</button>
-            <button @onclick="OnSwapViewClick">Swap to 2D view</button>
-            @*<button @onclick="OnUnfoldClick">View unfolding</button>*@
-        </div>
-    }
-
-    else if (MainPageViewModel.currentView == "2D")
-    {
-        <div>
-            <button @onclick="OnStepButtonClick">Step through algorithm</button>
-            <button @onclick="OnUndoButtonClick">Undo step</button>
-            <button @onclick="OnCompleteButtonClick">Unfold completely</button>
-            <button @onclick="OnResetButtonClick">Reset</button>
-            <button @onclick="OnUnplacedButtonClick">Unplaced polygon visibility</button>
-            <button @onclick="OnSwapViewClick">Swap to 3D view</button>
-        </div>
-    }
-</div>
-
-@inject IJSRuntime JSRuntime
-
-@code {
-    private bool displayDropdown = false;
-    private List<string> shapeNames = PolyhedronLibrary.GetShapeNames();
-
-    protected override async Task OnAfterRenderAsync(bool begunRender)
-    {
-        if (!begunRender)
-        {
-            return;
-        }
-
-        while (await JSRuntime.InvokeAsync<bool>("eval", "typeof handleRendering3D === 'undefined'"))
-        {
-            await Task.Delay(100);
-        }
-
-        var currentView = MainPageViewModel.currentView;
-
-        if (MainPageViewModel.DoUnfoldAnimation)
-        {
-            var polyhedronJSON = MainPageViewModel.GetDisplayPolyhedronJSON();
-            var polygonNetJSON = MainPageViewModel.GetDisplayNetJSON();
-            await JSRuntime.InvokeVoidAsync("handleUnfoldAnimation", polyhedronJSON, polygonNetJSON);
-        }
-        else if (currentView == "2D")
-        {
-            var polygonNetJSON = MainPageViewModel.GetDisplayNetJSON();
-            await JSRuntime.InvokeVoidAsync("handleRendering2D", polygonNetJSON);
-        }
-        else if (currentView == "3D")
-        {
-            var polyhedronJSON = MainPageViewModel.GetDisplayPolyhedronJSON();
-            await JSRuntime.InvokeVoidAsync("handleRendering3D", polyhedronJSON);
-        }
-
-        StateHasChanged();
-    }
-
-    private async Task OnFlattenClick()
-    {
-        MainPageViewModel.FlattenToggle();
-        await OnAfterRenderAsync(true);
-        StateHasChanged();
-    }
-
-    private async Task OnSwapViewClick()
-    {
-        MainPageViewModel.SwapView();
-        await OnAfterRenderAsync(true);
-        StateHasChanged();
-    }
-
-    private async Task OnUnfoldClick()
-    {
-        MainPageViewModel.UnfoldAnimation();
-        await OnAfterRenderAsync(true);
-        StateHasChanged();
-    }
-
-    private async Task OnStepButtonClick()
-    {
-        MainPageViewModel.PerformStep();
-        await OnAfterRenderAsync(true);
-        StateHasChanged();
-    }
-
-    private async Task OnUndoButtonClick()
-    {
-        MainPageViewModel.UndoStep();
-        await OnAfterRenderAsync(true);
-        StateHasChanged();
-    }
-
-    private async Task OnCompleteButtonClick()
-    {
-        MainPageViewModel.CompleteStep();
-        await OnAfterRenderAsync(true);
-        StateHasChanged();
-    }
-
-    private async Task OnResetButtonClick()
-    {
-        MainPageViewModel.ResetStep();
-        await OnAfterRenderAsync(true);
-        StateHasChanged();
-    }
-
-    private async Task OnUnplacedButtonClick()
-    {
-        MainPageViewModel.UnplacedVisibilityToggle();
-        await OnAfterRenderAsync(true);
-        StateHasChanged();
-    }
-
-    private async Task OnSelectedShapeClick(string polyhedra)
-    {
-        MainPageViewModel.SelectPolyhedra(polyhedra);
-        await OnAfterRenderAsync(true);
-        StateHasChanged();
-    }
-
-    private void ToggleDropdown()
-    {
-        displayDropdown = !displayDropdown;
-        StateHasChanged();
-    }
-}
+<footer>
+    2024 Gregory Ojiem & Holden Lalumiere 😎
+</footer>

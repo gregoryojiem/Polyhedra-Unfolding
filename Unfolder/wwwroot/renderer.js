@@ -10,20 +10,21 @@ import { Tween, Easing, update } from 'three/addons/libs/tween.module.js';
 // ---------------------------
 let scene, renderer, width, height;
 let doAnimation = false;
-function renderingInit() {
-	width = window.innerWidth
-	height = window.innerHeight;
+window.initializeRenderer = function() {
+	console.log("Initializing the renderer!");
 
 	scene = new THREE.Scene();
 
 	renderer = new THREE.WebGLRenderer({ antialias: true });
+
+	const container = document.getElementById('three-js-container'); 
+	width = container.clientWidth;
+	height = container.clientHeight;
 	renderer.setSize(width, height);
-	document.body.appendChild(renderer.domElement);
+	container.appendChild(renderer.domElement);
 
 	return { scene, renderer }
 }
-
-renderingInit();
 
 // ---------------------------
 // Blazor input/event handling
@@ -132,10 +133,9 @@ function drawShape(shape, scene) {
 }
 
 function drawShapeEdge(edge, scene) {
-	const edgeColor = edge.Connector ? 0x000000 : 0xffffff;
 	const edgeMaterial = new LineMaterial({
-		color: edgeColor,
-		linewidth: 3
+		color: 0xffffff,
+		linewidth: 2
 	});
 
 	const edgePoints = [
@@ -190,9 +190,9 @@ function setLighting() {
 
 function GetCamera3D() {
 	let camera = new THREE.PerspectiveCamera(70, width / height, 0.01, 10);
-	camera.rotateX(-0.3);
-	camera.position.z = 2.5;
-	camera.position.y = 1;
+	camera.rotateX(-0.4);
+	camera.position.z = 2;
+	camera.position.y = 0.8;
 	return camera;
 }
 

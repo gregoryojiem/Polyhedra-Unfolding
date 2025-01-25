@@ -1,68 +1,31 @@
-﻿using System.Text.Json.Serialization;
-
-namespace Polyhedra.DataStructs2D
+﻿namespace Polyhedra.DataStructs2D
 {
-    public class Edge2D
+    public struct Edge2D
     {
-        public Point2D Start { get; set; }
+        public readonly Point2D Start { get; }
 
-        public Point2D End { get; set; }
+        public readonly Point2D End { get; }
 
-        public bool Connector { get; set; }
+        public readonly int PolygonIndex;
 
-        [JsonIgnore]
-        public Polygon Polygon;
+        public readonly int AdjacentPolygonIndex;
 
-        [JsonIgnore]
-        public Polygon AdjacentPolygon;
-
-        [JsonIgnore]
-        public Point2D Mid
+        public Edge2D(Point2D start, Point2D end, int polygonIndex, int adjacentPolygonIndex)
         {
-            get
-            {
-                double X = (Start.X + End.X) / 2;
-                double Y = (Start.Y + End.Y) / 2;
-                return new(X, Y);
-            }
+            Start = new Point2D(start.X, start.Y);
+            End = new Point2D(end.X, end.Y);
+            PolygonIndex = polygonIndex;
+            AdjacentPolygonIndex = adjacentPolygonIndex;
         }
 
-        public Edge2D(Point2D start, Point2D end, Polygon polygon, Polygon adjacentPolygon)
+        public Point2D GetMidpoint()
         {
-            Start = start;
-            End = end;
-            Polygon = polygon;
-            AdjacentPolygon = adjacentPolygon;
+            double X = (Start.X + End.X) / 2;
+            double Y = (Start.Y + End.Y) / 2;
+            return new Point2D(X, Y);
         }
 
-        public double FindAngleBetween(Edge2D adjacentEdge)
-        {
-            var vecToCurrEdge = Polygon.GetVecToEdge(this);
-            var vecToAdjEdge = AdjacentPolygon.GetVecToEdge(adjacentEdge);
-
-            var perpendicularCurr = new Vec2D(
-                -(End.Y - Start.Y),
-                End.X - Start.X);
-
-            var perpendicularAdj = new Vec2D(
-                -(adjacentEdge.End.Y - adjacentEdge.Start.Y),
-                adjacentEdge.End.X - adjacentEdge.Start.X);
-
-            var invertPerpCurr = vecToCurrEdge.Dot(perpendicularCurr) > 0;
-            var invertPerpAdj = vecToAdjEdge.Dot(perpendicularAdj) > 0;
-            if (invertPerpCurr)
-            {
-                perpendicularCurr = perpendicularCurr * -1;
-            }
-            if (invertPerpAdj)
-            {
-                perpendicularAdj = perpendicularAdj * -1;
-            }
-
-            return perpendicularCurr.FindAngleBetween(perpendicularAdj * -1, true);
-        }
-
-        public bool Intersection(Edge2D otherEdge) //TODO: Is there a way to avoid all the floating point related checks?
+        public bool Intersection(Edge2D otherEdge)
         {
             var sharedLeftEndpoint = Start == otherEdge.Start || Start == otherEdge.End;
             var sharedRightEndpoint = End == otherEdge.Start || End == otherEdge.End;
@@ -89,9 +52,18 @@ namespace Polyhedra.DataStructs2D
             return (cp1 * cp2 < 0 && cp3 * cp4 < 0);
         }
 
-        public Vec2D ToVector()
+        public Edge2D Rotate(double angle)
         {
-            return new Vec2D(End.X - Start.X, End.Y - Start.Y);
+            var rotatedStart = Start.Rotate(angle);
+            var rotatedEnd = End.Rotate(angle);
+            return new Edge2D(rotatedStart, rotatedEnd, PolygonIndex, AdjacentPolygonIndex);
+        }
+
+        public Edge2D Translate(double x, double y)
+        {
+            var translatedStart = new Point2D(Start.X + x, Start.Y + y);
+            var translatedEnd = new Point2D(End.X + x, End.Y + y);
+            return new Edge2D(translatedStart, translatedEnd, PolygonIndex, AdjacentPolygonIndex);
         }
 
         public override string ToString()

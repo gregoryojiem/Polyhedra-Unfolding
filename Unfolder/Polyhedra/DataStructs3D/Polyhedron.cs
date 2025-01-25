@@ -24,7 +24,7 @@ namespace Polyhedra.DataStructs3D
             var mergeMapping = MergeCoplanarTriangles();
             RemapMergedAdjacencies(mergeMapping);
 
-            var idCounter = 1;
+            var idCounter = 0;
             foreach (var face in Faces)
             {
                 face.Id = idCounter++;
@@ -86,59 +86,62 @@ namespace Polyhedra.DataStructs3D
             }
         }
 
+        public int CalculateNormalHash(double[] normal)
+        {
+            const double tolerance = 0.0001;
+            const double quantizationFactor = 1.0 / tolerance;
+
+            var nx = (int)(normal[0] * quantizationFactor);
+            var ny = (int)(normal[1] * quantizationFactor);
+            var nz = (int)(normal[2] * quantizationFactor);
+            return HashCode.Combine(nx, ny, nz);
+        }
+
         /// <summary>
-        /// A function to combine triangles that lie on the same 2D plane in 3D space
-        /// This is required because our convex hull algorithm only returns triangular
-        /// faces
+        /// A function to combine triangles that lie on the same 2D plane. This is
+        /// required because our convex hull algorithm only returns triangular faces.
+        /// We can assume all polyhedra are convex, and so it's safe to merge based on 
+        /// normals.
         /// </summary>
         /// <returns>A Dictionary of Original face -> New merged face object </returns>
         public Dictionary<Polygon3D, Polygon3D> MergeCoplanarTriangles()
         {
             var mergedMapping = new Dictionary<Polygon3D, Polygon3D>();
-            var faceHasMerged = new bool[Faces.Length];
-            var mappingsToAssign = new List<(int, int)>();
-            
+            var sharedNormalFaces= new Dictionary<int, List<Polygon3D>>();
+
             for (int i = 0; i < Faces.Length; i++)
             {
-                if (faceHasMerged[i])
+                var face = Faces[i];
+                var faceHash = CalculateNormalHash(face.Normal);
+                if (sharedNormalFaces.ContainsKey(faceHash))
                 {
-                    continue;
-                }
-
-                Polygon3D currentFace = Faces[i];
-                for (int j = i + 1; j < Faces.Length; j++)
+                    sharedNormalFaces[faceHash].Add(face);
+                } else
                 {
-                    Polygon3D faceToMerge = Faces[j];
-                    if (faceHasMerged[j] || !currentFace.Mergeable(faceToMerge))
-                    {
-                        continue;
-                    }
-
-                    var mergedFace = currentFace.Merge(Faces[j]);
-                    faceHasMerged[j] = true;
-                    faceHasMerged[i] = true;
-                    mergedMapping[Faces[i]] = mergedFace;
-                    mappingsToAssign.Add((j, i));
-                    currentFace = mergedFace;
+                    sharedNormalFaces[faceHash] = [face];
                 }
             }
 
-            var newFaces = new List<Polygon3D>();
-            for (int i = 0; i < Faces.Length; i++)
+            var facesListsToMerge = sharedNormalFaces.Values.ToList();
+            Faces = new Polygon3D[facesListsToMerge.Count];
+
+            for (int i = 0; i < facesListsToMerge.Count; i++)
             {
-                if (!faceHasMerged[i])
+                List<Polygon3D> facesToMerge = facesListsToMerge[i];
+                var originalFace = facesToMerge[0];
+                for (int j = 1; j < facesToMerge.Count; j++)
                 {
-                    newFaces.Add(Faces[i]);
+                    facesToMerge[0] = facesToMerge[0].Merge(facesToMerge[j]);
                 }
+                var mergedFace = facesToMerge[0];
+                for (int j = 1; j < facesToMerge.Count; j++)
+                {
+                    mergedMapping[facesToMerge[j]] = mergedFace;
+                }
+                mergedMapping[originalFace] = mergedFace;
+                Faces[i] = mergedFace;
             }
-            newFaces.AddRange(mergedMapping.Values.ToList());
 
-            foreach (var kvp in mappingsToAssign) 
-            {
-                mergedMapping[Faces[kvp.Item1]] = mergedMapping[Faces[kvp.Item2]]; 
-            }
-
-            Faces = newFaces.ToArray();
             return mergedMapping;
         }
 
@@ -171,8 +174,8 @@ namespace Polyhedra.DataStructs3D
 
         public Net2D ToNet2D()
         {
-            var copyPolyhedron = Copy();
-            var polygons = Polygon.PolyhedraToPolygons(copyPolyhedron);
+            FlattenFaces();
+            var polygons = Polygon2D.PolyhedraToPolygons(this);
             var net = new Net2D(polygons);
             return net;
         }
