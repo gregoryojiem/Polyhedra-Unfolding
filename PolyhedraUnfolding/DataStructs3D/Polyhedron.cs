@@ -184,5 +184,18 @@ namespace PolyhedraUnfolding.DataStructs3D
         {
             return JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
         }
+
+        public int CountVertices()
+        {
+            HashSet<Point3D> uniqueVertices = [];
+            foreach (var face in Faces)
+            {
+                foreach (var vertex in face.Vertices)
+                {
+                    uniqueVertices.Add(vertex);
+                }
+            }
+            return uniqueVertices.Count;
+        }
     }
 }

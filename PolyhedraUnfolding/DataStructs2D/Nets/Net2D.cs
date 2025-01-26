@@ -228,13 +228,12 @@ namespace PolyhedraUnfolding.DataStructs2D.Nets
         //
         // Functionality related to converting nets to images
         //
+        private const double PaddingFactor = 0.05;
 
-        public (int, int) PrepForImageConversion(int desiredSize, int padding)
+        public void PrepForImageConversion(int width, int height)
         {
             ArrangeVerticesClockwise();
-            ScaleAndCenter(desiredSize, padding);
-            var netSize = GetNetSize();
-            return ((int)netSize.Item1 + padding, (int)netSize.Item2 + padding);
+            ScaleAndCenter(width, height);
         }
 
         private void ArrangeVerticesClockwise()
@@ -260,22 +259,21 @@ namespace PolyhedraUnfolding.DataStructs2D.Nets
             return new Point2D(middleX, middleY);
         }
 
-        private void ScaleAndCenter(double goalImageSize, double padding)
+        private void ScaleAndCenter(int width, int height)
         {
             // Center net at origin
             var center = GetNetCenter();
             Translate(new Point2D(-center.X, -center.Y));
 
             // Scaling
-            var (width, height) = GetNetSize();
-            double requiredScaling = goalImageSize / Math.Min(width, height);
+            var padding = Math.Max(width, height) * PaddingFactor;
+            var (currentWidth, currentHeight) = GetNetSize();
+            double requiredScaling = (Math.Min(width, height) - padding) / Math.Max(currentWidth, currentHeight);
             Scale(requiredScaling);
 
             // Translation
             var (scaledWidth, scaledHeight) = GetNetSize();
-            double translationX = scaledWidth / 2 + padding / 2;
-            double translationY = scaledHeight / 2 + padding / 2;
-            var translation = new Point2D(translationX, translationY);
+            var translation = new Point2D(width / 2, height / 2);
             Translate(translation);
         }
 

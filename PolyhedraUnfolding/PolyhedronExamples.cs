@@ -1,4 +1,5 @@
 ﻿using PolyhedraUnfolding.DataStructs3D;
+using System.Globalization;
 
 namespace PolyhedraUnfolding
 {
@@ -879,10 +880,13 @@ namespace PolyhedraUnfolding
             new(-phi, 0, -1/phi)
         ];
 
-        public static Polyhedron GetPolyhedron(string polyhedra)
+        public static Polyhedron GetPolyhedron(string polyName)
         {
+            string lowerCaseName = polyName.ToLowerInvariant();
+            var capitalizedPolyhedronName = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(lowerCaseName);
+
             Point3D[] points;
-            switch (polyhedra)
+            switch (capitalizedPolyhedronName)
             {
                 case "Triangular Pyramid":
                     points = triangularPyramid;

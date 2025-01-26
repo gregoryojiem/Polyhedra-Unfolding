@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.12.35506.116
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnfoldingHeadless", "UnfoldingHeadless\UnfoldingHeadless.csproj", "{2FC2EA6F-1411-4BAE-A323-718B9FD72D89}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetGenerator", "NetGenerator\NetGenerator.csproj", "{2FC2EA6F-1411-4BAE-A323-718B9FD72D89}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PolyhedraUnfolding", "PolyhedraUnfolding\PolyhedraUnfolding.csproj", "{4C1EC014-A011-4743-BD84-CFE5169D0A27}"
 EndProject
