@@ -181,6 +181,7 @@
         </p>
         <p>However, for generating these images, we had a standalone C# project. We use an image library to directly draw high-res 2D images of our nets. Unfortunately, this website CANNOT handle 100,000 faces, and it will likely freeze/crash if you attempt it due to the RAM requirements alone. This website demo can handle ~1-3k faces depending on PC specs.</p>
         <p>All of these tests use an approximated sphere for consistency. We can control face count by changing the number of slices and stacks.</p>
+        <p>Timing was done on an AMD Ryzen 7 5800X CPU.</p>
         <figure>
             <img src="figure4.png" alt="100,000 Faces" width="600">
             <figcaption>Figure 4. A polyhedron with 100,000 faces. In 20 trial runs, it took an average of ~104.37 seconds to generate</figcaption>
